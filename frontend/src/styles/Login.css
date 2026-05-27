@@ -1,0 +1,109 @@
+.contenedor-principal-login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(90deg, #E1BAFD, #FFFFFF);
+    font-family: "Poppins", sans-serif;
+}
+
+.login-contenedor {
+    display: flex;
+    width: 85%;
+    height: 90%;
+}
+
+.login-formulario {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #FFFFFF;
+    width: 50%;
+    border-radius: 20px 0 0 20px;
+}
+
+.login-formulario h2 {
+    font-weight: 800;
+    font-size: 1.2rem;
+    margin: 5px;
+}
+
+.login-formulario p {
+    font-size: 0.8rem;
+}
+
+.login-formulario form {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-contenedor input {
+    outline: none;
+    border-radius: 16px;
+    border: none;
+    background-color: #F0EDFF;
+    width: 22vw;
+}
+
+.input-contenedor{
+    display: flex;
+    align-items: center;
+    background-color: #F0EDFF;
+    border-radius: 16px;
+    padding: 10px 15px;
+    margin: 10px;
+    width: 22vw;
+    gap: 10px;
+}
+
+.boton-inicio {
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(68deg, #BA61FA, #5E059E);
+    width: 10vw;
+    align-self: center;
+    padding: 15px 0;
+    margin: 10px;
+    color: #FFFFFF;
+}
+
+.login-formulario strong {
+    font-weight: 800;
+}
+
+.login-opciones {
+    display: flex;
+    flex-direction: column;
+}
+
+.login-opciones button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    background-color: #F0EDFF;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+}
+
+.login-opciones a {
+    color: #248AFF;
+    font-size: 0.7rem;
+    align-self: center;
+}
+/* ------------------------Estilos de ilustración--------------------------- */
+.login-ilustracion {
+    background-color: purple;
+    width: 50%;
+    border-radius: 0 20px 20px 0;
+    background: linear-gradient(41deg, #5E059D, #BA61FA);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-ilustracion img {
+    width: 85%;
+    height: auto;
+}
