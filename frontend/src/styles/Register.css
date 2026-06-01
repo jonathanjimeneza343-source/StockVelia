@@ -1,44 +1,50 @@
-.contenedor-principal-login {
+.contenedor-principal-registro {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(90deg, #e1bafd, #ffffff);
+  background: linear-gradient(90deg, #ffffff, #e1bafd);
   font-family: "Poppins", sans-serif;
 }
 
-.login-contenedor {
+.registro-contenedor {
   display: flex;
   width: 85%;
   height: 90%;
 }
 
-.login-formulario {
+.registro-formulario {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   background-color: #ffffff;
-  width: 50%;
-  border-radius: 20px 0 0 20px;
+  width: 65%;
+  border-radius: 0 20px 20px 0;
 }
 
-.login-formulario h2 {
+.registro-formulario h2 {
   font-weight: 800;
   font-size: 1.6rem;
   margin: 5px;
 }
 
-.login-formulario p {
+.registro-formulario p {
   font-size: 1rem;
 }
 
-.login-formulario form {
+.registro-formulario form {
   display: flex;
   flex-direction: column;
 }
 
-.login-input input {
+.formulario-registro {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 15px;
+}
+
+.formulario-registro input {
   font-size: 1rem;
   outline: none;
   border-radius: 16px;
@@ -47,18 +53,18 @@
   width: 22vw;
 }
 
-.login-input {
+.registro-input {
   display: flex;
   align-items: center;
   background-color: #f0edff;
   border-radius: 16px;
   padding: 15px 20px;
   margin: 10px;
-  width: 22vw;
+  width: 20vw;
   gap: 10px;
 }
 
-.boton-inicio {
+.boton-registro {
   font-size: 1rem;
   border-radius: 10px;
   border: none;
@@ -70,52 +76,18 @@
   color: #ffffff;
 }
 
-.registro-link {
-  display: flex;
-  justify-content: center;
-}
-
-.registro-link a {
-  color: #248aff;
-}
-
-.login-formulario strong {
-  font-weight: 800;
-}
-
-.login-opciones {
-  display: flex;
-  flex-direction: column;
-}
-
-.login-opciones button {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-radius: 16px;
-  border-color: #F0EDFF;
-  background-color: #ffffff;
-  margin-bottom: 20px;
-  padding: 10px 20px;
-}
-
-.login-opciones a {
-  color: #248aff;
-  font-size: 0.9rem;
-  align-self: center;
-}
-/* ------------------------Estilos de ilustración--------------------------- */
-.login-ilustracion {
+/*--------------------Estilos de ilustración-----------------*/
+.registro-ilustracion {
   background-color: purple;
-  width: 50%;
-  border-radius: 0 20px 20px 0;
+  width: 35%;
+  border-radius: 20px 0 0 20px;
   background: linear-gradient(41deg, #5e059d, #ba61fa);
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.login-ilustracion img {
-  width: 85%;
+.registro-ilustracion img {
+  width: 70%;
   height: auto;
 }
