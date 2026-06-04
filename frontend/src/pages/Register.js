@@ -5,8 +5,9 @@ import {
   IconMail,
   IconBuildingStore,
 } from "@tabler/icons-react";
+import { FcGoogle } from "react-icons/fc";
+import Checkbox from "../components/Checkbox";
 import ilustracion from "../assets/ilustracion_register.svg";
-
 import "../styles/Register.css";
 
 function Register() {
@@ -116,9 +117,25 @@ function Register() {
               </div>
             </div>
 
+            <div className="terminos">
+              <Checkbox />
+              <span>Acepto los términos y condiciones</span>
+            </div>
+
             <button className="boton-registro" type="submit">
               Registrarse
             </button>
+
+            <div className="login-opciones-registro">
+              <strong>Registarse con otros</strong>
+
+              <button className="google-login">
+                <FcGoogle size={30} />
+                <span>
+                  Iniciar con <strong>Google</strong>
+                </span>
+              </button>
+            </div>
           </form>
         </div>
       </div>

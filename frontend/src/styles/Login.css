@@ -83,6 +83,20 @@
   font-weight: 800;
 }
 
+.separador-login {
+  display: flex;
+  align-items: center;
+  width: 22vw; 
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.linea {
+  flex: 1;
+  height: 2px;
+  background-color: #d9d9d9;
+}
+
 .login-opciones {
   display: flex;
   flex-direction: column;
@@ -93,7 +107,7 @@
   align-items: center;
   gap: 10px;
   border-radius: 16px;
-  border-color: #F0EDFF;
+  border-color: #f0edff;
   background-color: #ffffff;
   margin-bottom: 20px;
   padding: 10px 20px;

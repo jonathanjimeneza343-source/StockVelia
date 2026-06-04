@@ -48,7 +48,7 @@ function Login() {
             </div>
 
             <button className="boton-inicio" type="submit">
-              Iniciar Sesión
+              <strong>Iniciar Sesión</strong>
             </button>
             <div className="registro-link">
               <p>
@@ -57,9 +57,13 @@ function Login() {
             </div>
           </form>
 
-          <p>
-            <strong>Iniciar</strong> con otros
-          </p>
+          <div className="separador-login">
+            <div className="linea"></div>
+            <p>
+              <strong>Iniciar</strong> con otros
+            </p>
+            <div className="linea"></div>
+          </div>
 
           <div className="login-opciones">
             <button className="google-login">
@@ -68,7 +72,7 @@ function Login() {
                 Iniciar con <strong>Google</strong>
               </span>
             </button>
-            <a href="/recuperar">¿Olvidaste tu Contraseña?</a>
+            <a href="/recuperarContraseña">¿Olvidaste tu Contraseña?</a>
           </div>
         </div>
 

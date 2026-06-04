@@ -64,6 +64,15 @@
   gap: 10px;
 }
 
+.terminos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 15px 0;
+  font-size: 0.9rem;
+}
+
 .boton-registro {
   font-size: 1rem;
   border-radius: 10px;
@@ -74,6 +83,25 @@
   padding: 15px 0;
   margin: 10px;
   color: #ffffff;
+}
+
+.login-opciones-registro {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  row-gap: 20px;
+}
+
+.login-opciones-registro button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 16px;
+  border-color: #f0edff;
+  background-color: #ffffff;
+  margin-bottom: 20px;
+  padding: 10px 20px;
 }
 
 /*--------------------Estilos de ilustración-----------------*/
