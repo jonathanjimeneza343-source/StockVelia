@@ -1,0 +1,19 @@
+.dashboard {
+  display: flex;
+  height: 100vh;
+  background-color: #f8f8fc;
+}
+
+.contenido-dashboard {
+  flex: 1;
+  padding: 30px;
+}
+
+.contenido-dashboard h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.contenido-dashboard p {
+  color: #666;
+}

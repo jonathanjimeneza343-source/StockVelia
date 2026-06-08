@@ -15,7 +15,7 @@
   flex-direction: column;
   background-color: #ffffff;
   border-radius: 16px;
-  width:60%;
+  width: 60%;
   height: 70%;
   gap: 20px;
 }
@@ -29,6 +29,7 @@
 .recuperarContraseña-contenedor p {
   font-size: 1rem;
   text-align: center;
+  max-width: 500px;
 }
 
 .recuperarContraseña-contenedor form {
@@ -85,8 +86,7 @@
 .enlace-contenedor {
   display: flex;
   align-items: center;
-  gap: 8px;              
-  text-decoration: none; 
-  color: inherit;         
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
 }
-
