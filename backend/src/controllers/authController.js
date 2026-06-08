@@ -5,10 +5,10 @@ import transporter from '../config/mailer.js';
 import { registrarAuditoria } from '../config/auditoriaService.js';
 
 export const registrarEmpresaYUsuario = async (req, res) => {
-    const { nombreEmpresa, correoEmpresa, nombreUsuario, correoUsuario, password } = req.body;
+    const { nombre_empresa, nombre_usuario, apellido_usuario, email, password } = req.body;
 
     try {
-        const usuarioExiste = await pool.query('SELECT * FROM usuario WHERE correo = $1', [correoUsuario]);
+        const usuarioExiste = await pool.query('SELECT * FROM usuario WHERE correo = $1', [email]);
         if (usuarioExiste.rows.length > 0) {
             return res.status(400).json({ error: 'El correo del usuario ya está registrado.' });
         }
@@ -18,13 +18,15 @@ export const registrarEmpresaYUsuario = async (req, res) => {
 
         const nuevaEmpresa = await pool.query(
             'INSERT INTO empresa (nombre, correo) VALUES ($1, $2) RETURNING id_empresa',
-            [nombreEmpresa, correoEmpresa]
+            [nombre_empresa, email]
         );
         const idEmpresa = nuevaEmpresa.rows[0].id_empresa;
 
+        const nombreCompletoUsuario = `${nombre_usuario} ${apellido_usuario}`.trim();
+
         const nuevoUsuario = await pool.query(
             'INSERT INTO usuario (id_empresa, id_rol, nombre, correo, password) VALUES ($1, $2, $3, $4, $5) RETURNING id_usuario, nombre, correo',
-            [idEmpresa, 1, nombreUsuario, correoUsuario, passwordEncriptada]
+            [idEmpresa, 1, nombreCompletoUsuario, email, passwordEncriptada]
         );
 
         await registrarAuditoria(
@@ -32,7 +34,7 @@ export const registrarEmpresaYUsuario = async (req, res) => {
             'empresa/usuario', 
             'REGISTRO', 
             idEmpresa, 
-            `Se registró la empresa ${nombreEmpresa} y su administrador.`
+            `Se registró la empresa ${nombre_empresa} y su administrador.`
         );
 
         res.status(201).json({

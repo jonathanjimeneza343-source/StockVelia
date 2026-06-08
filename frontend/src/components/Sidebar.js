@@ -8,15 +8,30 @@ import {
   IconFileAnalytics,
   IconLogout,
 } from "@tabler/icons-react";
-import LogoStockVelia from "../assets/logo_stockvelia.png"
+import { useNavigate } from "react-router-dom";
+import { logout } from "../services/authService";
+import LogoStockVelia from "../assets/logo_stockvelia.png";
 import "../styles/Sidebar.css";
 
-function Sidebar({setSeccion}) {
+function Sidebar({ setSeccion }) {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/", { state: { mensajeCierre: "Sesión cerrada con éxito. Token revocado." } });
+    } catch (error) {
+      console.error("Error al cerrar sesión de forma limpia:", error);
+      localStorage.removeItem("token");
+      navigate("/", { state: { mensajeCierre: "Sesión cerrada con éxito." } });
+    }
+  };
+
   return (
     <div className="sidebar">
       <div>
         <div className="sidebar-logo">
-            <img src={LogoStockVelia} alt="Logo de StockVelia"></img>
+          <img src={LogoStockVelia} alt="Logo de StockVelia" />
           <h2>StockVelia</h2>
         </div>
 
@@ -54,7 +69,7 @@ function Sidebar({setSeccion}) {
       </div>
 
       <div className="sidebar-footer">
-        <button>
+        <button onClick={handleLogout}>
           <IconLogout size={22} />
           <span>Cerrar sesión</span>
         </button>
