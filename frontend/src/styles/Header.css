@@ -1,0 +1,53 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background: white;
+  padding: 15px 25px;
+
+  border-radius: 12px;
+  margin-bottom: 20px;
+
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.header-titulo h2 {
+  margin: 0;
+  color: #5e059e;
+}
+
+.header-usuario {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 45px;
+  height: 45px;
+
+  border-radius: 50%;
+
+  background: linear-gradient(135deg, #5e059e, #ba61fa);
+
+  color: white;
+  font-weight: bold;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.datos-usuario {
+  display: flex;
+  flex-direction: column;
+}
+
+.datos-usuario span {
+  font-weight: 600;
+}
+
+.datos-usuario small {
+  color: #666;
+}

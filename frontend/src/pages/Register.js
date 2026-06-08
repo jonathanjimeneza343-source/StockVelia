@@ -18,7 +18,7 @@ function Register() {
   const [contraseña, setContraseña] = useState("");
   const [confirmarContraseña, setConfirmarContraseña] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (contraseña !== confirmarContraseña) {
@@ -26,13 +26,35 @@ function Register() {
       return;
     }
 
-    console.log({
-      nombres,
-      apellidos,
-      nombreEmpresa,
-      correo,
-      contraseña,
-    });
+    try {
+      const respuesta = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nombreEmpresa,
+          correoEmpresa: correo,
+          nombreUsuario: `${nombres} ${apellidos}`,
+          correoUsuario: correo,
+          password: contraseña,
+        }),
+      });
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok) {
+        alert(datos.error);
+        return;
+      }
+
+      alert("Usuario registrado correctamente");
+
+      console.log(datos);
+    } catch (error) {
+      console.error(error);
+      alert("Error al conectar con el servidor");
+    }
   };
 
   return (

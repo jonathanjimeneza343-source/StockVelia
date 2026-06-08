@@ -1,5 +1,6 @@
 // src/pages/Login.js
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { IconUser, IconLock } from "@tabler/icons-react";
 import { FcGoogle } from "react-icons/fc";
 import ilustracion from "../assets/ilustracion_login.svg";
@@ -10,10 +11,41 @@ function Login() {
   const [correo, setCorreo] = useState("");
   const [contraseña, setContraseña] = useState("");
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aquí iría la lógica para enviar datos al backend
-    console.log("Correo:", correo, "Contraseña:", contraseña);
+
+    try {
+      const respuesta = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          correo,
+          password: contraseña,
+        }),
+      });
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok) {
+        alert(datos.error);
+        return;
+      }
+
+      localStorage.setItem("token", datos.token);
+      
+      localStorage.setItem("usuario", JSON.stringify(datos.usuario));
+
+      alert("Inicio de sesión exitoso");
+
+      navigate("/dashboard");
+    } catch (error) {
+      console.error(error);
+      alert("Error al conectar con el servidor");
+    }
   };
 
   return (

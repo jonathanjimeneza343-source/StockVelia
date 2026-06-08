@@ -7,15 +7,14 @@ import Categorias from "../components/Dashboard/Categorias";
 import Movimientos from "../components/Dashboard/Movimientos";
 import Usuarios from "../components/Dashboard/Usuarios";
 import Reportes from "../components/Dashboard/Reportes";
+import Header from "../components/Header";
 
 import "../styles/Dashboard.css";
 
 function Dashboard() {
-
   const [seccion, setSeccion] = useState("inicio");
 
   const renderSeccion = () => {
-
     switch (seccion) {
       case "inicio":
         return <InicioDashboard />;
@@ -30,16 +29,15 @@ function Dashboard() {
       case "reportes":
         return <Reportes />;
       default:
-        return <InicioDashboard />
+        return <InicioDashboard />;
     }
-
   };
 
   return (
     <div className="dashboard">
       <Sidebar setSeccion={setSeccion} />
-
       <div className="contenido-dashboard">
+        <Header />
         {renderSeccion()}
       </div>
     </div>
