@@ -1,18 +1,21 @@
 import React, { useState } from "react";
 import { IconMail, IconArrowNarrowLeft } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
+import ModalCodigo from "../components/ModalCodigo";
+import ModalNuevaContraseña from "../components/ModalNuevaContraseña";
 import "../styles/RecuperarContraseña.css";
 
 function RecuperarContraseña() {
   const [correo, setCorreo] = useState("");
+  const [mostrarCodigo, setMostrarCodigo] = useState(false);
+  const [mostrarNuevaContraseña, setMostrarNuevaContraseña] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     console.log("Enviar codigo a:", correo);
 
-    //Llamar Api
-    //enviar codigo
+    setMostrarCodigo(true);
   };
 
   return (
@@ -20,7 +23,7 @@ function RecuperarContraseña() {
       <div className="recuperarContraseña-contenedor">
         <h2>Recuperar contraseña</h2>
         <p>
-          Ingresa tu correo electrónico y te enviaremos un enlace para<br></br>
+          Ingresa tu correo electrónico y te enviaremos un enlace para
           restablecer tu contraseña
         </p>
 
@@ -38,7 +41,7 @@ function RecuperarContraseña() {
 
           <div className="boton-recuperar-contraseña">
             <button type="submit">
-              <strong>Enviar enlace</strong>
+              <strong>Enviar código</strong>
             </button>
           </div>
 
@@ -48,9 +51,21 @@ function RecuperarContraseña() {
               <span>Volver al inicio de sesión</span>
             </Link>
           </div>
-          
         </form>
       </div>
+      <ModalCodigo
+        abierto={mostrarCodigo}
+        alCerrar={() => setMostrarCodigo(false)}
+        alVerificar={() => {
+          setMostrarCodigo(false);
+          setMostrarNuevaContraseña(true);
+        }}
+      />
+
+      <ModalNuevaContraseña
+        abierto={mostrarNuevaContraseña}
+        alCerrar={() => setMostrarNuevaContraseña(false)}
+      />
     </div>
   );
 }
