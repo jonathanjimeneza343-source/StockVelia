@@ -7,20 +7,17 @@ function Header() {
   return (
     <header className="header">
       <div className="header-titulo">
-        <h2>StockVelia</h2>
+        <h2>{usuario?.nombre_empresa || "StockVelia"}</h2>
       </div>
 
       <div className="header-usuario">
-        <div className="avatar">
-          {usuario?.nombre?.charAt(0).toUpperCase()}
-        </div>
-
         <div className="datos-usuario">
           <span>{usuario?.nombre}</span>
-          <small>
-            {usuario?.id_rol === 1 ? "Administrador" : "Empleado"}
-          </small>
+
+          <small>{usuario?.id_rol === 1 ? "Administrador" : "Empleado"}</small>
         </div>
+
+        <div className="avatar">{usuario?.nombre?.charAt(0).toUpperCase()}</div>
       </div>
     </header>
   );

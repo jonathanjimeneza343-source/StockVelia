@@ -12,7 +12,7 @@ function ModalCodigo({ abierto, alCerrar, alVerificar }) {
       return;
     }
 
-    alVerificar();
+    alVerificar(codigo);
   };
 
   return (
