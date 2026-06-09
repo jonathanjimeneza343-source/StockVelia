@@ -14,6 +14,7 @@ import LogoStockVelia from "../assets/logo_stockvelia.png";
 import "../styles/Sidebar.css";
 
 function Sidebar({ setSeccion }) {
+
   const navigate = useNavigate();
 
   const handleLogout = async () => {

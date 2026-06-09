@@ -1,13 +1,14 @@
 import React, { useState } from "react";
+import { restablecerPassword } from "../services/authService";
 import "../styles/Modales.css";
 
-function ModalNuevaContraseña({ abierto, alCerrar }) {
+function ModalNuevaContraseña({ abierto, alCerrar, correo, codigo }) {
   const [contraseña, setContraseña] = useState("");
   const [confirmarContraseña, setConfirmarContraseña] = useState("");
 
   if (!abierto) return null;
 
-  const guardarContraseña = () => {
+  const guardarContraseña = async () => {
     if (contraseña.length < 8) {
       alert("La contraseña debe tener mínimo 8 caracteres");
       return;
@@ -18,9 +19,18 @@ function ModalNuevaContraseña({ abierto, alCerrar }) {
       return;
     }
 
-    alert("Contraseña actualizada correctamente");
+    try {
+      await restablecerPassword({
+        correo,
+        codigo,
+        nuevaPassword: contraseña,
+      });
 
-    alCerrar();
+      alert("Contraseña actualizada correctamente");
+      alCerrar();
+    } catch (error) {
+      alert(error.response?.data?.error || "Error al actualizar la contraseña");
+    }
   };
 
   return (
@@ -29,10 +39,7 @@ function ModalNuevaContraseña({ abierto, alCerrar }) {
         <div className="cabecera-modal">
           <h3>Nueva contraseña</h3>
 
-          <button
-            className="cerrar-modal"
-            onClick={alCerrar}
-          >
+          <button className="cerrar-modal" onClick={alCerrar}>
             ×
           </button>
         </div>
@@ -52,13 +59,9 @@ function ModalNuevaContraseña({ abierto, alCerrar }) {
         />
 
         <div className="acciones-modal">
-          <button onClick={alCerrar}>
-            Cancelar
-          </button>
+          <button onClick={alCerrar}>Cancelar</button>
 
-          <button onClick={guardarContraseña}>
-            Guardar
-          </button>
+          <button onClick={guardarContraseña}>Guardar</button>
         </div>
       </div>
     </div>

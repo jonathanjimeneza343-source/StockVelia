@@ -18,8 +18,8 @@ export const logout = async () => {
     localStorage.removeItem('token');
 };
 
-export const solicitarRecuperacion = async (email) => {
-    const response = await API.post('/auth/forgot-password', { email });
+export const solicitarRecuperacion = async (correo) => {
+    const response = await API.post('/auth/forgot-password', { correo });
     return response.data;
 };
 

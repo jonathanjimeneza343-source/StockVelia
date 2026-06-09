@@ -10,6 +10,7 @@ function RecuperarContraseña() {
   const [correo, setCorreo] = useState("");
   const [mostrarCodigo, setMostrarCodigo] = useState(false);
   const [mostrarNuevaContraseña, setMostrarNuevaContraseña] = useState(false);
+  const [codigoVerificacion, setCodigoVerificacion] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [cargando, setCargando] = useState(false);
 
@@ -22,7 +23,8 @@ function RecuperarContraseña() {
       await solicitarRecuperacion(correo);
       setMostrarCodigo(true);
     } catch (error) {
-      const mensajeError = error.response?.data?.error || "Error al solicitar la recuperación";
+      const mensajeError =
+        error.response?.data?.error || "Error al solicitar la recuperación";
       setErrorMsg(mensajeError);
     } finally {
       setCargando(false);
@@ -39,7 +41,10 @@ function RecuperarContraseña() {
         </p>
 
         {errorMsg && (
-          <div className="alerta-error-recuperar" style={{ color: 'red', marginBottom: '15px', textAlign: 'center' }}>
+          <div
+            className="alerta-error-recuperar"
+            style={{ color: "red", marginBottom: "15px", textAlign: "center" }}
+          >
             <strong>{errorMsg}</strong>
           </div>
         )}
@@ -75,7 +80,8 @@ function RecuperarContraseña() {
       <ModalCodigo
         abierto={mostrarCodigo}
         alCerrar={() => setMostrarCodigo(false)}
-        alVerificar={() => {
+        alVerificar={(codigo) => {
+          setCodigoVerificacion(codigo);
           setMostrarCodigo(false);
           setMostrarNuevaContraseña(true);
         }}
@@ -86,6 +92,7 @@ function RecuperarContraseña() {
         abierto={mostrarNuevaContraseña}
         alCerrar={() => setMostrarNuevaContraseña(false)}
         correo={correo}
+        codigo={codigoVerificacion}
       />
     </div>
   );
