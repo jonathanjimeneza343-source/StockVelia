@@ -14,13 +14,17 @@ import LogoStockVelia from "../assets/logo_stockvelia.png";
 import "../styles/Sidebar.css";
 
 function Sidebar({ setSeccion }) {
+  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  const esAdmin = usuario?.id_rol === 1;
 
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
       await logout();
-      navigate("/", { state: { mensajeCierre: "Sesión cerrada con éxito. Token revocado." } });
+      navigate("/", {
+        state: { mensajeCierre: "Sesión cerrada con éxito. Token revocado." },
+      });
     } catch (error) {
       console.error("Error al cerrar sesión de forma limpia:", error);
       localStorage.removeItem("token");
@@ -57,15 +61,19 @@ function Sidebar({ setSeccion }) {
             <span>Movimientos</span>
           </button>
 
-          <button onClick={() => setSeccion("usuarios")}>
-            <IconUsers size={22} />
-            <span>Usuarios</span>
-          </button>
+          {esAdmin && (
+            <button onClick={() => setSeccion("usuarios")}>
+              <IconUsers size={22} />
+              <span>Usuarios</span>
+            </button>
+          )}
 
-          <button onClick={() => setSeccion("reportes")}>
-            <IconFileAnalytics size={22} />
-            <span>Reportes</span>
-          </button>
+          {esAdmin && (
+            <button onClick={() => setSeccion("reportes")}>
+              <IconFileAnalytics size={22} />
+              <span>Reportes</span>
+            </button>
+          )}
         </div>
       </div>
 

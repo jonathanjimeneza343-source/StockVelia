@@ -1,0 +1,32 @@
+.usuarios-container {
+  padding: 20px;
+}
+
+.usuarios-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.usuarios-form input {
+  padding: 10px;
+}
+
+.usuarios-form button {
+  padding: 10px 15px;
+}
+
+.tabla-usuarios {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-usuarios th,
+.tabla-usuarios td {
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+
+.tabla-usuarios th {
+  background: #f5f5f5;
+}
