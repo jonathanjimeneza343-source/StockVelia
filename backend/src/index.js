@@ -8,6 +8,7 @@ import authRoutes from './routes/authRoutes.js';
 import categoriaRoutes from './routes/categoriaRoutes.js'; 
 import productoRoutes from './routes/productoRoutes.js'; 
 import movimientoRoutes from './routes/movimientoRoutes.js'; 
+import usuarioRoutes from "./routes/usuarioRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,6 +24,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/categorias', categoriaRoutes); 
 app.use('/api/productos', productoRoutes); 
 app.use('/api/movimientos', movimientoRoutes); 
+app.use("/api/usuarios", usuarioRoutes);
 
 app.get('/prueba-db', async (req, res) => {
     try {
