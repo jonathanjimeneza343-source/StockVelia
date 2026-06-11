@@ -33,10 +33,10 @@ function Register() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          nombreEmpresa,
-          correoEmpresa: correo,
-          nombreUsuario: `${nombres} ${apellidos}`,
-          correoUsuario: correo,
+          nombre_empresa: nombreEmpresa,
+          nombre_usuario: nombres,
+          apellido_usuario: apellidos,
+          email: correo,
           password: contraseña,
         }),
       });
