@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getUsuarios, crearUsuario } from "../../services/usuarioService";
+import { getUsuarios, crearUsuario, cambiarEstadoUsuario } from "../../services/usuarioService";
 import "../../styles/Usuarios.css";
 
 function Usuarios() {
@@ -50,6 +50,33 @@ function Usuarios() {
     }
   };
 
+  const handleCambiarEstado = async (usuario) => {
+    const mensaje = usuario.estado
+      ? "¿Deseas desactivar este usuario?"
+      : "¿Deseas activar este usuario?";
+
+    if (!window.confirm(mensaje)) return;
+
+    try {
+      await cambiarEstadoUsuario(
+        usuario.id_usuario,
+        !usuario.estado
+      );
+
+      cargarUsuarios();
+
+      alert(
+        usuario.estado
+          ? "Usuario desactivado correctamente."
+          : "Usuario activado correctamente."
+      );
+
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo cambiar el estado.");
+    }
+  };
+
   return (
     <div className="usuarios-container">
       <h2>Gestión de Usuarios</h2>
@@ -85,6 +112,8 @@ function Usuarios() {
             <th>Nombre</th>
             <th>Correo</th>
             <th>Rol</th>
+            <th>Estado</th>
+            <th>Acciones</th>
           </tr>
         </thead>
 
@@ -92,8 +121,43 @@ function Usuarios() {
           {usuarios.map((u) => (
             <tr key={u.id_usuario}>
               <td>{u.nombre}</td>
+
               <td>{u.correo}</td>
-              <td>{u.id_rol === 1 ? "Administrador" : "Empleado"}</td>
+
+              <td>
+                {u.id_rol === 1
+                  ? "Administrador"
+                  : "Empleado"}
+              </td>
+
+              <td>
+                <span
+                  className={
+                    u.estado
+                      ? "estado-activo"
+                      : "estado-inactivo"
+                  }
+                >
+                  {u.estado ? "Activo" : "Inactivo"}
+                </span>
+              </td>
+
+              <td>
+                {u.id_rol !== 1 && (
+                  <button
+                    className={
+                      u.estado
+                        ? "btn-desactivar"
+                        : "btn-activar"
+                    }
+                    onClick={() => handleCambiarEstado(u)}
+                  >
+                    {u.estado
+                      ? "Desactivar"
+                      : "Activar"}
+                  </button>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>

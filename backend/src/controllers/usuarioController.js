@@ -64,3 +64,30 @@ export const crearUsuario = async (req, res) => {
     });
   }
 };
+
+export const cambiarEstadoUsuario = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { estado } = req.body;
+
+    await pool.query(
+      `
+      UPDATE usuario
+      SET estado = $1
+      WHERE id_usuario = $2
+      `,
+      [estado, id],
+    );
+
+    res.json({
+      mensaje: estado
+        ? "Usuario activado correctamente."
+        : "Usuario desactivado correctamente.",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Error al cambiar el estado del usuario",
+    });
+  }
+};
