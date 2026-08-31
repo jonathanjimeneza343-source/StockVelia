@@ -2,6 +2,7 @@ import pool from "../config/db.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import transporter from "../config/mailer.js";
+import { plantillaRecuperacion } from "../templates/recuperacionPassword.js";
 import { registrarAuditoria } from "../config/auditoriaService.js";
 
 export const registrarEmpresaYUsuario = async (req, res) => {
@@ -78,11 +79,9 @@ export const loginUsuario = async (req, res) => {
     const usuario = resultado.rows[0];
 
     if (!usuario.estado) {
-      return res
-        .status(403)
-        .json({
-          error: "Esta cuenta está desactivada. Contacta al administrador.",
-        });
+      return res.status(403).json({
+        error: "Esta cuenta está desactivada. Contacta al administrador.",
+      });
     }
 
     if (usuario.bloqueo_hasta && new Date(usuario.bloqueo_hasta) > new Date()) {
@@ -102,23 +101,19 @@ export const loginUsuario = async (req, res) => {
           "UPDATE usuario SET intentos_fallidos = $1, bloqueo_hasta = $2 WHERE id_usuario = $3",
           [nuevosIntentos, tiempoBloqueo, usuario.id_usuario],
         );
-        return res
-          .status(423)
-          .json({
-            error:
-              "Demasiados intentos fallidos. Cuenta bloqueada por 15 minutos.",
-          });
+        return res.status(423).json({
+          error:
+            "Demasiados intentos fallidos. Cuenta bloqueada por 15 minutos.",
+        });
       } else {
         await pool.query(
           "UPDATE usuario SET intentos_fallidos = $1 WHERE id_usuario = $2",
           [nuevosIntentos, usuario.id_usuario],
         );
-        return res
-          .status(401)
-          .json({
-            error: "Contraseña incorrecta.",
-            intentosRestantes: 5 - nuevosIntentos,
-          });
+        return res.status(401).json({
+          error: "Contraseña incorrecta.",
+          intentosRestantes: 5 - nuevosIntentos,
+        });
       }
     }
 
@@ -195,9 +190,7 @@ export const solicitarRecuperacion = async (req, res) => {
       from: `"StockVelia" <${process.env.EMAIL_USER}>`,
       to: correo,
       subject: "Código de recuperación de contraseña - StockVelia",
-      html: `<p>Has solicitado restablecer tu contraseña en StockVelia.</p>
-                    <p>Tu código de verificación es: <b>${codigo}</b></p>
-                    <p>Este código vencerá en 15 minutos.</p>`,
+      html: plantillaRecuperacion(codigo),
     };
 
     await transporter.sendMail(opcionesCorreo);
