@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   IconUser,
   IconLock,
@@ -8,6 +9,7 @@ import {
 import { FcGoogle } from "react-icons/fc";
 import Checkbox from "../components/Checkbox";
 import ilustracion from "../assets/ilustracion_register.svg";
+import Swal from "sweetalert2";
 import "../styles/Register.css";
 
 function Register() {
@@ -18,11 +20,18 @@ function Register() {
   const [contraseña, setContraseña] = useState("");
   const [confirmarContraseña, setConfirmarContraseña] = useState("");
 
+  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (contraseña !== confirmarContraseña) {
-      alert("Las contraseñas no coinciden");
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Las contraseñas no coinciden",
+        confirmButtonColor: "#5e059e",
+      });
       return;
     }
 
@@ -44,28 +53,42 @@ function Register() {
       const datos = await respuesta.json();
 
       if (!respuesta.ok) {
-        alert(datos.error);
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: datos.error || "Hubo un error al registrarse",
+          confirmButtonColor: "#5e059e",
+        });
         return;
       }
 
-      alert("Usuario registrado correctamente");
+      Swal.fire({
+        icon: "success",
+        title: "¡Registro exitoso!",
+        text: "Usuario registrado correctamente",
+        timer: 1500,
+        showConfirmButton: false,
+      }).then(() => {
+        navigate("/");
+      });
 
-      console.log(datos);
     } catch (error) {
       console.error(error);
-      alert("Error al conectar con el servidor");
+      Swal.fire({
+        icon: "error",
+        title: "Error de conexión",
+        text: "No se pudo conectar con el servidor",
+      });
     }
   };
 
   return (
     <div className="contenedor-principal-registro">
       <div className="registro-contenedor">
-        {/* Sección derecha: ilustración */}
         <div className="registro-ilustracion">
           <img src={ilustracion} alt="Ilustración Register" />
         </div>
 
-        {/* Sección derecha: formulario */}
         <div className="registro-formulario">
           <h2>REGISTRATE</h2>
           <p>Crea tu cuenta y gestiona tu inventario fácilmente</p>
