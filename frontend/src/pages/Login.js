@@ -5,6 +5,7 @@ import { IconUser, IconLock } from "@tabler/icons-react";
 import { FcGoogle } from "react-icons/fc";
 import ilustracion from "../assets/ilustracion_login.svg";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 import "../styles/Login.css";
 
 function Login() {
@@ -31,27 +32,41 @@ function Login() {
       const datos = await respuesta.json();
 
       if (!respuesta.ok) {
-        alert(datos.error);
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: datos.error || "Hubo un error al iniciar sesión",
+          confirmButtonColor: "#5e059e",
+        });
         return;
       }
 
       localStorage.setItem("token", datos.token);
-      
       localStorage.setItem("usuario", JSON.stringify(datos.usuario));
 
-      alert("Inicio de sesión exitoso");
+      Swal.fire({
+        icon: "success",
+        title: "¡Bienvenido!",
+        text: "Inicio de sesión exitoso",
+        timer: 1500,
+        showConfirmButton: false,
+      }).then(() => {
+        navigate("/dashboard");
+      });
 
-      navigate("/dashboard");
     } catch (error) {
       console.error(error);
-      alert("Error al conectar con el servidor");
+      Swal.fire({
+        icon: "error",
+        title: "Error de conexión",
+        text: "No se pudo conectar con el servidor",
+      });
     }
   };
 
   return (
     <div className="contenedor-principal-login">
       <div className="login-contenedor">
-        {/* Sección izquierda: formulario */}
         <div className="login-formulario">
           <h2>INICIA SESIÓN</h2>
           <p>Gestiona tu negocio fácilmente</p>
@@ -108,7 +123,6 @@ function Login() {
           </div>
         </div>
 
-        {/* Sección derecha: ilustración */}
         <div className="login-ilustracion">
           <img src={ilustracion} alt="Ilustración Login" />
         </div>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { restablecerPassword } from "../services/authService";
+import Swal from "sweetalert2";
 import "../styles/Modales.css";
 
 function ModalNuevaContraseña({ abierto, alCerrar, correo, codigo }) {
@@ -10,12 +11,22 @@ function ModalNuevaContraseña({ abierto, alCerrar, correo, codigo }) {
 
   const guardarContraseña = async () => {
     if (contraseña.length < 8) {
-      alert("La contraseña debe tener mínimo 8 caracteres");
+      Swal.fire({
+        icon: "warning",
+        title: "Contraseña inválida",
+        text: "La contraseña debe tener mínimo 8 caracteres",
+        confirmButtonText: "Entendido",
+      });
       return;
     }
 
     if (contraseña !== confirmarContraseña) {
-      alert("Las contraseñas no coinciden");
+      Swal.fire({
+        icon: "error",
+        title: "Las contraseñas no coinciden",
+        text: "Verifica que ambas contraseñas sean iguales.",
+        confirmButtonText: "Entendido",
+      });
       return;
     }
 
@@ -26,10 +37,24 @@ function ModalNuevaContraseña({ abierto, alCerrar, correo, codigo }) {
         nuevaPassword: contraseña,
       });
 
-      alert("Contraseña actualizada correctamente");
-      alCerrar();
+      Swal.fire({
+        icon: "success",
+        title: "¡Contraseña actualizada!",
+        text: "Tu contraseña se actualizó correctamente.",
+        confirmButtonText: "Continuar",
+      }).then(() => {
+        alCerrar();
+      });
+
     } catch (error) {
-      alert(error.response?.data?.error || "Error al actualizar la contraseña");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text:
+          error.response?.data?.error ||
+          "Error al actualizar la contraseña",
+        confirmButtonText: "Entendido",
+      });
     }
   };
 
