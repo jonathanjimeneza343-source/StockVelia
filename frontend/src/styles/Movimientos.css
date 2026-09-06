@@ -1,0 +1,126 @@
+.seccion-contenedor {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.seccion-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 20px 28px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(94, 5, 158, 0.04);
+  border: 1px solid rgba(94, 5, 158, 0.04);
+}
+
+.seccion-header-flex h2 {
+  margin: 0;
+  color: #5e059e;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.seccion-header-flex p {
+  margin: 4px 0 0 0;
+  color: #7a7a7a;
+  font-size: 0.9rem;
+}
+
+.busqueda-contenedor {
+  display: flex;
+  align-items: center;
+  background-color: #f8f6ff;
+  border-radius: 12px;
+  padding: 10px 14px;
+  gap: 10px;
+  border: 1px solid #e1bafd;
+  width: 280px;
+}
+
+.icono-busqueda {
+  color: #5e059e;
+}
+
+.busqueda-contenedor input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.95rem;
+  width: 100%;
+  color: #333;
+}
+
+.tabla-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(94, 5, 158, 0.04);
+  border: 1px solid rgba(94, 5, 158, 0.04);
+  overflow-x: auto;
+}
+
+.tabla-datos {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.tabla-datos th {
+  padding: 14px 16px;
+  color: #5e059e;
+  background-color: #f8f6ff;
+  font-weight: 600;
+  border-bottom: 2px solid #e1bafd;
+}
+
+.tabla-datos td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #333;
+}
+
+.tabla-datos tr:hover td {
+  background-color: #fcfbff;
+}
+
+.badge-tipo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.badge-tipo.entrada {
+  background-color: #e6f9ed;
+  color: #10b981;
+}
+
+.badge-tipo.salida {
+  background-color: #fde8e8;
+  color: #ef4444;
+}
+
+.font-weight-600 {
+  font-weight: 600;
+}
+
+.cargando-texto {
+  text-align: center;
+  color: #7a7a7a;
+  padding: 30px;
+  font-size: 1rem;
+}
+
+.texto-observacion {
+  color: #666;
+  font-size: 0.85rem;
+  font-style: italic;
+}
