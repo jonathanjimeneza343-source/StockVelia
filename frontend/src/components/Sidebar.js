@@ -10,6 +10,7 @@ import {
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../services/authService";
+import Swal from "sweetalert2";
 import LogoStockVelia from "../assets/logo_stockvelia.png";
 import "../styles/Sidebar.css";
 
@@ -20,6 +21,20 @@ function Sidebar({ setSeccion }) {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
+    const resultado = await Swal.fire({
+      title: "¿Cerrar sesión?",
+      text: "¿Estás seguro de que deseas salir del sistema?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#6818a5",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, salir",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+    });
+
+    if (!resultado.isConfirmed) return;
+
     try {
       await logout();
       navigate("/", {
