@@ -21,9 +21,7 @@ function Usuarios() {
   const cargarUsuarios = async () => {
     try {
       const usuario = JSON.parse(localStorage.getItem("usuario"));
-
       const data = await getUsuarios(usuario.id_empresa);
-
       setUsuarios(data);
     } catch (error) {
       console.error(error);
@@ -111,6 +109,7 @@ function Usuarios() {
           ? "El usuario ya no puede iniciar sesión."
           : "El usuario puede volver a iniciar sesión.",
         confirmButtonText: "Aceptar",
+        confirmButtonColor: "#5e059e",
       });
     } catch (error) {
       console.error(error);
@@ -120,6 +119,7 @@ function Usuarios() {
         title: "Ocurrió un error",
         text: "No se pudo cambiar el estado del usuario.",
         confirmButtonText: "Entendido",
+        confirmButtonColor: "#5e059e",
       });
     }
   };
@@ -173,13 +173,28 @@ function Usuarios() {
               <tr key={u.id_usuario}>
                 <td>{u.nombre}</td>
                 <td>{u.correo}</td>
-                <td>{u.id_rol === 1 ? "Administrador" : "Empleado"}</td>
-                <td>{u.estado ? "Activo" : "Inactivo"}</td>
-
+                <td>
+                  {u.id_rol === 1 ? "Administrador" : "Empleado"}
+                </td>
+                <td>
+                  <span
+                    className={
+                      u.estado
+                        ? "estado-activo"
+                        : "estado-inactivo"
+                    }
+                  >
+                    {u.estado ? "Activo" : "Inactivo"}
+                  </span>
+                </td>
                 <td>
                   {u.id_rol !== 1 && (
                     <button
-                      className="btn-eliminar"
+                      className={
+                        u.estado
+                          ? "btn-desactivar"
+                          : "btn-activar"
+                      }
                       onClick={() => handleCambiarEstado(u)}
                     >
                       {u.estado ? "Desactivar" : "Activar"}

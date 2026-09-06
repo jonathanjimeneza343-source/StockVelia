@@ -2,7 +2,6 @@ import API from "./api";
 
 export const getUsuarios = async (idEmpresa) => {
   const response = await API.get(`/usuarios?id_empresa=${idEmpresa}`);
-
   return response.data;
 };
 

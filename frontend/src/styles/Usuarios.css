@@ -113,19 +113,44 @@
   background-color: #fcfbff;
 }
 
-.btn-eliminar {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid #8b2fc9;
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background-color: #dc97ff40;
-  color: #310055;
+.estado-activo {
+  color: #198754;
+  font-weight: bold;
 }
 
-.btn-eliminar:hover {
-  background-color: #8b2fc9;
-  color: #ffffff;
+.estado-inactivo {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.btn-desactivar {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: background 0.2s ease;
+}
+
+.btn-desactivar:hover {
+  background: #bb2d3b;
+}
+
+.btn-activar {
+  background: #198754;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: background 0.2s ease;
+}
+
+.btn-activar:hover {
+  background: #157347;
 }
