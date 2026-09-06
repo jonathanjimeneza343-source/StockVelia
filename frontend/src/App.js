@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LandingPage from "./pages/LandingPage"; // <-- 1. Importamos la Landing Page
 import Login from "./pages/Login"; 
 import Register from "./pages/Register";
 import RecuperarContraseña from "./pages/RecuperarContraseña";
@@ -9,8 +10,10 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<LandingPage />} />
+        
         <Route path="/login" element={<Login />} />
+        
         <Route path="/registro" element={<Register />} />
         <Route path="/recuperarContraseña" element={<RecuperarContraseña />} />
         <Route path="/dashboard" element={<Dashboard />} />

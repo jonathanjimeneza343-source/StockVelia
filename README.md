@@ -43,21 +43,7 @@ El proyecto resuelve la falta de control operativo en los inventarios de los peq
    npm install
    ```
 
-3. **Configurar el entorno (`.env`):**
-   Crea un archivo `.env` en la raíz de la carpeta `backend` con la siguiente estructura:
-   ```env
-   PORT=5000
-   DB_USER=postgres
-   DB_PASSWORD=tu_contraseña
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_NAME=stockvelia_db
-   JWT_SECRET=clave_segura_para_los_tokens_de_stockvelia
-   EMAIL_USER=soporte.stockvelia@gmail.com
-   EMAIL_PASS=tu_contraseña_de_aplicacion_de_gmail
-   ```
-
-4. **Arrancar el servidor:**
+3. **Arrancar el servidor:**
    ```bash
    npm run dev
    ```
