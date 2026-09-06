@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { solicitarRecuperacion } from "../services/authService";
 import ModalCodigo from "../components/ModalCodigo";
 import ModalNuevaContraseña from "../components/ModalNuevaContraseña";
+import Swal from "sweetalert2";
 import "../styles/RecuperarContraseña.css";
 
 function RecuperarContraseña() {
@@ -11,21 +12,36 @@ function RecuperarContraseña() {
   const [mostrarCodigo, setMostrarCodigo] = useState(false);
   const [mostrarNuevaContraseña, setMostrarNuevaContraseña] = useState(false);
   const [codigoVerificacion, setCodigoVerificacion] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
   const [cargando, setCargando] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMsg("");
     setCargando(true);
 
     try {
       await solicitarRecuperacion(correo);
+      
+      Swal.fire({
+        icon: "success",
+        iconColor: "#5e059e",
+        title: "¡Código enviado!",
+        text: "Revisa tu bandeja de entrada para continuar.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
       setMostrarCodigo(true);
     } catch (error) {
       const mensajeError =
         error.response?.data?.error || "Error al solicitar la recuperación";
-      setErrorMsg(mensajeError);
+      
+      Swal.fire({
+        icon: "error",
+        iconColor: "#5e059e",
+        title: "Oops...",
+        text: mensajeError,
+        confirmButtonColor: "#5e059e",
+      });
     } finally {
       setCargando(false);
     }
@@ -36,18 +52,8 @@ function RecuperarContraseña() {
       <div className="recuperarContraseña-contenedor">
         <h2>Recuperar contraseña</h2>
         <p>
-          Ingresa tu correo electrónico y te enviaremos un enlace para
-          restablecer tu contraseña
+          Ingresa tu correo electrónico y te enviaremos un código para restablecer tu contraseña.
         </p>
-
-        {errorMsg && (
-          <div
-            className="alerta-error-recuperar"
-            style={{ color: "red", marginBottom: "15px", textAlign: "center" }}
-          >
-            <strong>{errorMsg}</strong>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit}>
           <div className="input-recuperar-contraseña">
@@ -70,7 +76,7 @@ function RecuperarContraseña() {
 
           <div className="boton-volver-login">
             <Link to="/login" className="enlace-contenedor">
-              <IconArrowNarrowLeft size={25} />
+              <IconArrowNarrowLeft size={22} />
               <span>Volver al inicio de sesión</span>
             </Link>
           </div>
