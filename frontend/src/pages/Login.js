@@ -1,4 +1,3 @@
-// src/pages/Login.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconUser, IconLock } from "@tabler/icons-react";
@@ -11,11 +10,13 @@ import "../styles/Login.css";
 function Login() {
   const [correo, setCorreo] = useState("");
   const [contraseña, setContraseña] = useState("");
+  const [cargando, setCargando] = useState(false);
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setCargando(true);
 
     try {
       const respuesta = await fetch("http://localhost:5000/api/auth/login", {
@@ -34,6 +35,7 @@ function Login() {
       if (!respuesta.ok) {
         Swal.fire({
           icon: "error",
+          iconColor: "#5e059e",
           title: "Oops...",
           text: datos.error || "Hubo un error al iniciar sesión",
           confirmButtonColor: "#5e059e",
@@ -46,6 +48,7 @@ function Login() {
 
       Swal.fire({
         icon: "success",
+        iconColor: "#5e059e",
         title: "¡Bienvenido!",
         text: "Inicio de sesión exitoso",
         timer: 1500,
@@ -58,10 +61,24 @@ function Login() {
       console.error(error);
       Swal.fire({
         icon: "error",
+        iconColor: "#5e059e",
         title: "Error de conexión",
         text: "No se pudo conectar con el servidor",
+        confirmButtonColor: "#5e059e",
       });
+    } finally {
+      setCargando(false);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    Swal.fire({
+      icon: "info",
+      iconColor: "#5e059e",
+      title: "Próximamente",
+      text: "El inicio de sesión con Google estará disponible muy pronto.",
+      confirmButtonColor: "#5e059e",
+    });
   };
 
   return (
@@ -73,30 +90,33 @@ function Login() {
 
           <form onSubmit={handleSubmit}>
             <div className="login-input">
-              <IconUser size={25} />
+              <IconUser size={22} className="icono-login" />
               <input
-                placeholder="Correo Eléctronico"
+                placeholder="Correo Electrónico"
                 type="email"
                 value={correo}
                 onChange={(e) => setCorreo(e.target.value)}
                 required
+                disabled={cargando}
               />
             </div>
 
             <div className="login-input">
-              <IconLock size={25} />
+              <IconLock size={22} className="icono-login" />
               <input
                 placeholder="Contraseña"
                 type="password"
                 value={contraseña}
                 onChange={(e) => setContraseña(e.target.value)}
                 required
+                disabled={cargando}
               />
             </div>
 
-            <button className="boton-inicio" type="submit">
-              <strong>Iniciar Sesión</strong>
+            <button className="boton-inicio" type="submit" disabled={cargando}>
+              <strong>{cargando ? "Iniciando..." : "Iniciar Sesión"}</strong>
             </button>
+
             <div className="registro-link">
               <p>
                 ¿No tienes una cuenta? <Link to="/registro">Regístrate</Link>
@@ -113,13 +133,13 @@ function Login() {
           </div>
 
           <div className="login-opciones">
-            <button className="google-login">
-              <FcGoogle size={30} />
+            <button type="button" className="google-login" onClick={handleGoogleLogin}>
+              <FcGoogle size={24} />
               <span>
                 Iniciar con <strong>Google</strong>
               </span>
             </button>
-            <a href="/recuperarContraseña">¿Olvidaste tu Contraseña?</a>
+            <Link to="/recuperarContraseña">¿Olvidaste tu Contraseña?</Link>
           </div>
         </div>
 

@@ -1,60 +1,58 @@
 import React, { useState } from "react";
+import { IconLock } from "@tabler/icons-react";
 import { restablecerPassword } from "../services/authService";
 import Swal from "sweetalert2";
 import "../styles/Modales.css";
 
 function ModalNuevaContraseña({ abierto, alCerrar, correo, codigo }) {
-  const [contraseña, setContraseña] = useState("");
-  const [confirmarContraseña, setConfirmarContraseña] = useState("");
+  const [nuevaPassword, setNuevaPassword] = useState("");
+  const [confirmarPassword, setConfirmarPassword] = useState("");
+  const [cargando, setCargando] = useState(false);
 
   if (!abierto) return null;
 
-  const guardarContraseña = async () => {
-    if (contraseña.length < 8) {
-      Swal.fire({
-        icon: "warning",
-        title: "Contraseña inválida",
-        text: "La contraseña debe tener mínimo 8 caracteres",
-        confirmButtonText: "Entendido",
-      });
-      return;
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    if (contraseña !== confirmarContraseña) {
+    if (nuevaPassword !== confirmarPassword) {
       Swal.fire({
         icon: "error",
-        title: "Las contraseñas no coinciden",
-        text: "Verifica que ambas contraseñas sean iguales.",
-        confirmButtonText: "Entendido",
+        iconColor: "#5e059e",
+        title: "Oops...",
+        text: "Las contraseñas no coinciden",
+        confirmButtonColor: "#5e059e",
       });
       return;
     }
 
+    setCargando(true);
+
     try {
-      await restablecerPassword({
-        correo,
-        codigo,
-        nuevaPassword: contraseña,
-      });
+      await restablecerPassword({ correo, codigo, nuevaPassword });
 
       Swal.fire({
         icon: "success",
+        iconColor: "#5e059e",
         title: "¡Contraseña actualizada!",
-        text: "Tu contraseña se actualizó correctamente.",
-        confirmButtonText: "Continuar",
+        text: "Ya puedes iniciar sesión con tu nueva contraseña.",
+        timer: 2000,
+        showConfirmButton: false,
       }).then(() => {
         alCerrar();
+        window.location.href = "/login";
       });
 
     } catch (error) {
+      const mensaje = error.response?.data?.error || "No se pudo actualizar la contraseña";
       Swal.fire({
         icon: "error",
+        iconColor: "#5e059e",
         title: "Error",
-        text:
-          error.response?.data?.error ||
-          "Error al actualizar la contraseña",
-        confirmButtonText: "Entendido",
+        text: mensaje,
+        confirmButtonColor: "#5e059e",
       });
+    } finally {
+      setCargando(false);
     }
   };
 
@@ -63,31 +61,51 @@ function ModalNuevaContraseña({ abierto, alCerrar, correo, codigo }) {
       <div className="contenedor-modal">
         <div className="cabecera-modal">
           <h3>Nueva contraseña</h3>
-
           <button className="cerrar-modal" onClick={alCerrar}>
             ×
           </button>
         </div>
 
-        <input
-          type="password"
-          placeholder="Nueva contraseña"
-          value={contraseña}
-          onChange={(e) => setContraseña(e.target.value)}
-        />
+        <p>Ingresa y confirma tu nueva contraseña para finalizar el proceso.</p>
 
-        <input
-          type="password"
-          placeholder="Confirmar contraseña"
-          value={confirmarContraseña}
-          onChange={(e) => setConfirmarContraseña(e.target.value)}
-        />
+        <form onSubmit={handleSubmit} className="formulario-modal">
+          <div className="input-contenedor-modal">
+            <IconLock size={22} className="icono-input" />
+            <input
+              type="password"
+              placeholder="Nueva contraseña"
+              value={nuevaPassword}
+              onChange={(e) => setNuevaPassword(e.target.value)}
+              required
+            />
+          </div>
 
-        <div className="acciones-modal">
-          <button onClick={alCerrar}>Cancelar</button>
+          <div className="input-contenedor-modal">
+            <IconLock size={22} className="icono-input" />
+            <input
+              type="password"
+              placeholder="Confirmar contraseña"
+              value={confirmarPassword}
+              onChange={(e) => setConfirmarPassword(e.target.value)}
+              required
+            />
+          </div>
 
-          <button onClick={guardarContraseña}>Guardar</button>
-        </div>
+          <div className="acciones-modal">
+            <button
+              type="button"
+              className="btn-cancelar"
+              onClick={alCerrar}
+              disabled={cargando}
+            >
+              Cancelar
+            </button>
+
+            <button type="submit" className="btn-confirmar" disabled={cargando}>
+              {cargando ? "Guardando..." : "Actualizar"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

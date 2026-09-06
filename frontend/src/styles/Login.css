@@ -3,14 +3,18 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
+  width: 100vw;
   background: linear-gradient(90deg, #e1bafd, #ffffff);
   font-family: "Poppins", sans-serif;
+  box-sizing: border-box;
 }
 
 .login-contenedor {
   display: flex;
   width: 85%;
   height: 90%;
+  box-shadow: 0 15px 35px rgba(94, 5, 158, 0.12);
+  border-radius: 20px;
 }
 
 .login-formulario {
@@ -21,30 +25,26 @@
   background-color: #ffffff;
   width: 50%;
   border-radius: 20px 0 0 20px;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .login-formulario h2 {
   font-weight: 800;
   font-size: 1.6rem;
   margin: 5px;
+  color: #2b004a;
 }
 
 .login-formulario p {
   font-size: 1rem;
+  color: #555;
 }
 
 .login-formulario form {
   display: flex;
   flex-direction: column;
-}
-
-.login-input input {
-  font-size: 1rem;
-  outline: none;
-  border-radius: 16px;
-  border: none;
-  background-color: #f0edff;
-  width: 22vw;
+  align-items: center;
 }
 
 .login-input {
@@ -55,7 +55,32 @@
   padding: 15px 20px;
   margin: 10px;
   width: 22vw;
-  gap: 10px;
+  box-sizing: border-box;
+  gap: 12px;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.login-input:focus-within {
+  border-color: #ba61fa;
+}
+
+.icono-login {
+  color: #5e059d;
+  flex-shrink: 0;
+}
+
+.login-input input {
+  font-size: 1rem;
+  outline: none;
+  border: none;
+  background: transparent;
+  width: 100%;
+  color: #333;
+}
+
+.login-input input::placeholder {
+  color: #999;
 }
 
 .boton-inicio {
@@ -64,10 +89,17 @@
   border: none;
   background: linear-gradient(68deg, #ba61fa, #5e059e);
   width: 10vw;
+  min-width: 160px;
   align-self: center;
   padding: 15px 0;
   margin: 10px;
   color: #ffffff;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.boton-inicio:hover {
+  opacity: 0.9;
 }
 
 .registro-link {
@@ -75,8 +107,15 @@
   justify-content: center;
 }
 
-.registro-link a {
+.registro-link a,
+.login-opciones a {
   color: #248aff;
+  text-decoration: none;
+}
+
+.registro-link a:hover,
+.login-opciones a:hover {
+  text-decoration: underline;
 }
 
 .login-formulario strong {
@@ -91,6 +130,11 @@
   margin: 20px 0;
 }
 
+.separador-login p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
 .linea {
   flex: 1;
   height: 2px;
@@ -100,17 +144,32 @@
 .login-opciones {
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
-.login-opciones button {
+.google-login {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   border-radius: 16px;
-  border-color: #f0edff;
+  border: 1px solid #f0edff;
   background-color: #ffffff;
   margin-bottom: 20px;
   padding: 10px 20px;
+  width: 22vw;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background-color 0.2s ease;
+}
+
+.google-login:hover {
+  background-color: #f8f6ff;
+}
+
+.google-login span {
+  font-size: 0.95rem;
+  color: #333;
 }
 
 .login-opciones a {
@@ -118,9 +177,21 @@
   font-size: 0.9rem;
   align-self: center;
 }
+
+.swal2-icon.swal2-info {
+  border-color: #5e059e !important;
+  color: #5e059e !important;
+}
+
+.swal2-icon.swal2-success {
+  border-color: #5e059e !important;
+}
+.swal2-success-ring {
+  border-color: rgba(94, 5, 158, 0.3) !important;
+}
+
 /* ------------------------Estilos de ilustración--------------------------- */
 .login-ilustracion {
-  background-color: purple;
   width: 50%;
   border-radius: 0 20px 20px 0;
   background: linear-gradient(41deg, #5e059d, #ba61fa);
