@@ -1,12 +1,19 @@
 .dashboard {
   display: flex;
   height: 100vh;
+  max-height: 100vh;
   background-color: #f8f8fc;
+  overflow: hidden;
 }
 
 .contenido-dashboard {
   flex: 1;
   padding: 30px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden; 
 }
 
 .contenido-dashboard h1 {

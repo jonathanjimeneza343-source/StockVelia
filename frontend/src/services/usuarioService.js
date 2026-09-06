@@ -10,3 +10,8 @@ export const crearUsuario = async (datos) => {
   const response = await API.post("/usuarios", datos);
   return response.data;
 };
+
+export const cambiarEstadoUsuario = async (id) => {
+  const response = await API.put(`/usuarios/estado/${id}`);
+  return response.data;
+};
