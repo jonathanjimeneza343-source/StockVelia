@@ -180,10 +180,11 @@ function Usuarios() {
                   <span
                     className={
                       u.estado
-                        ? "estado-activo"
-                        : "estado-inactivo"
+                        ? "badge-estado activo"
+                        : "badge-estado inactivo"
                     }
                   >
+                    <span className="punto-estado"></span>
                     {u.estado ? "Activo" : "Inactivo"}
                   </span>
                 </td>
@@ -192,8 +193,8 @@ function Usuarios() {
                     <button
                       className={
                         u.estado
-                          ? "btn-desactivar"
-                          : "btn-activar"
+                          ? "btn-accion desactivar"
+                          : "btn-accion activar"
                       }
                       onClick={() => handleCambiarEstado(u)}
                     >

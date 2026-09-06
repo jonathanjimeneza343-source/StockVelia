@@ -2,52 +2,61 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  background: white;
-  padding: 15px 25px;
-
-  border-radius: 12px;
-  margin-bottom: 20px;
-
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  padding: 18px 28px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(94, 5, 158, 0.06);
+  border: 1px solid rgba(94, 5, 158, 0.04);
+  font-family: "Poppins", sans-serif;
 }
 
 .header-titulo h2 {
   margin: 0;
   color: #5e059e;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.header-subtitulo {
+  margin: 2px 0 0 0;
+  font-size: 0.85rem;
+  color: #8c8c8c;
 }
 
 .header-usuario {
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-
-.avatar {
-  width: 45px;
-  height: 45px;
-
-  border-radius: 50%;
-
-  background: linear-gradient(135deg, #5e059e, #ba61fa);
-
-  color: white;
-  font-weight: bold;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  gap: 14px;
 }
 
 .datos-usuario {
   display: flex;
   flex-direction: column;
+  text-align: right;
 }
 
 .datos-usuario span {
   font-weight: 600;
+  color: #2b004a;
+  font-size: 0.95rem;
 }
 
 .datos-usuario small {
-  color: #666;
+  color: #7a7a7a;
+  font-size: 0.8rem;
+}
+
+.avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #5e059e, #ba61fa);
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(94, 5, 158, 0.25);
 }

@@ -14,7 +14,7 @@ import Swal from "sweetalert2";
 import LogoStockVelia from "../assets/logo_stockvelia.png";
 import "../styles/Sidebar.css";
 
-function Sidebar({ setSeccion }) {
+function Sidebar({ seccion, setSeccion }) {
   const usuario = JSON.parse(localStorage.getItem("usuario"));
   const esAdmin = usuario?.id_rol === 1;
 
@@ -25,8 +25,9 @@ function Sidebar({ setSeccion }) {
       title: "¿Cerrar sesión?",
       text: "¿Estás seguro de que deseas salir del sistema?",
       icon: "warning",
+      iconColor: "#5e059e",
       showCancelButton: true,
-      confirmButtonColor: "#6818a5",
+      confirmButtonColor: "#5e059e",
       cancelButtonColor: "#d33",
       confirmButtonText: "Sí, salir",
       cancelButtonText: "Cancelar",
@@ -56,35 +57,53 @@ function Sidebar({ setSeccion }) {
         </div>
 
         <div className="sidebar-menu">
-          <button onClick={() => setSeccion("inicio")}>
+          <button
+            className={seccion === "inicio" ? "activo" : ""}
+            onClick={() => setSeccion("inicio")}
+          >
             <IconLayoutDashboard size={22} />
             <span>Dashboard</span>
           </button>
 
-          <button onClick={() => setSeccion("productos")}>
+          <button
+            className={seccion === "productos" ? "activo" : ""}
+            onClick={() => setSeccion("productos")}
+          >
             <IconPackage size={22} />
             <span>Productos</span>
           </button>
 
-          <button onClick={() => setSeccion("categorias")}>
+          <button
+            className={seccion === "categorias" ? "activo" : ""}
+            onClick={() => setSeccion("categorias")}
+          >
             <IconCategory size={22} />
             <span>Categorías</span>
           </button>
 
-          <button onClick={() => setSeccion("movimientos")}>
+          <button
+            className={seccion === "movimientos" ? "activo" : ""}
+            onClick={() => setSeccion("movimientos")}
+          >
             <IconArrowsExchange size={22} />
             <span>Movimientos</span>
           </button>
 
           {esAdmin && (
-            <button onClick={() => setSeccion("usuarios")}>
+            <button
+              className={seccion === "usuarios" ? "activo" : ""}
+              onClick={() => setSeccion("usuarios")}
+            >
               <IconUsers size={22} />
               <span>Usuarios</span>
             </button>
           )}
 
           {esAdmin && (
-            <button onClick={() => setSeccion("reportes")}>
+            <button
+              className={seccion === "reportes" ? "activo" : ""}
+              onClick={() => setSeccion("reportes")}
+            >
               <IconFileAnalytics size={22} />
               <span>Reportes</span>
             </button>

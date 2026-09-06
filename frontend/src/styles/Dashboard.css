@@ -4,6 +4,7 @@
   max-height: 100vh;
   background-color: #f8f8fc;
   overflow: hidden;
+  font-family: "Poppins", sans-serif; 
 }
 
 .contenido-dashboard {
@@ -13,14 +14,31 @@
   flex-direction: column;
   height: 100vh;
   box-sizing: border-box;
-  overflow: hidden; 
+  overflow-y: auto; 
+  overflow-x: hidden;
 }
 
 .contenido-dashboard h1 {
   margin: 0;
   font-size: 2rem;
+  color: #2b004a; 
 }
 
 .contenido-dashboard p {
   color: #666;
+}
+
+.contenido-dashboard > *:not(header) {
+  animation: fadeInDashboard 0.25s ease-in-out;
+}
+
+@keyframes fadeInDashboard {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
