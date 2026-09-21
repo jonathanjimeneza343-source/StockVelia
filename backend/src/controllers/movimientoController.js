@@ -11,7 +11,7 @@ export const registrarMovimiento = async (req, res) => {
         await client.query('BEGIN');
 
         const verificarEmpresa = await client.query(
-            'SELECT id_empresa, stock FROM productos WHERE id_producto = $1 FOR UPDATE', 
+            'SELECT id_empresa, stock, stock_minimo FROM productos WHERE id_producto = $1 FOR UPDATE', 
             [id_producto]
         );
 
@@ -21,6 +21,7 @@ export const registrarMovimiento = async (req, res) => {
         }
 
         const stockActual = verificarEmpresa.rows[0].stock;
+        const stockMinimo = verificarEmpresa.rows[0].stock_minimo;
         const tipoLower = tipo_movimiento.toLowerCase();
 
         let nuevoStock;
@@ -50,9 +51,14 @@ export const registrarMovimiento = async (req, res) => {
 
         await client.query('COMMIT');
 
+        const stockBajo = nuevoStock <= stockMinimo;
+
         res.status(201).json({
             mensaje: 'Movimiento de inventario procesado con éxito y stock actualizado.',
-            movimiento: nuevoMovimiento.rows[0]
+            movimiento: nuevoMovimiento.rows[0],
+            stock_actual: nuevoStock,
+            stock_minimo: stockMinimo,
+            stock_bajo: stockBajo
         });
 
     } catch (error) {

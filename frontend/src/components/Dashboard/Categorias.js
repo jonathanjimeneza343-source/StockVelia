@@ -1,21 +1,20 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { obtenerCategorias, crearCategoria, actualizarCategoria, eliminarCategoria } from "../../services/categoriaService";
+import ModalCategoria from "./modales/ModalCategoria";
 import "../../styles/Categorias.css";
 import Swal from "sweetalert2";
 
 function Categorias() {
   const [categorias, setCategorias] = useState([]);
-  const [mostrarForm, setMostrarForm] = useState(false);
-  const [idCategoriaEditando, setIdCategoriaEditando] = useState(null);
-
-  const [nombre, setNombre] = useState("");
-  const [descripcion, setDescripcion] = useState("");
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [categoriaAEditar, setCategoriaAEditar] = useState(null);
 
   const usuario = JSON.parse(localStorage.getItem("usuario"));
   const esAdmin = usuario?.id_rol === 1;
 
   const cargarCategorias = useCallback(async () => {
     try {
+      if (!usuario?.id_empresa) return;
       const data = await obtenerCategorias(usuario.id_empresa);
       setCategorias(data);
     } catch (error) {
@@ -27,28 +26,22 @@ function Categorias() {
     cargarCategorias();
   }, [cargarCategorias]);
 
-  const abrirFormularioCreacion = () => {
-    setIdCategoriaEditando(null);
-    setNombre("");
-    setDescripcion("");
-    setMostrarForm(!mostrarForm);
+  const abrirModalCrear = () => {
+    setCategoriaAEditar(null);
+    setModalAbierto(true);
   };
 
-  const iniciarEdicion = (cat) => {
-    setIdCategoriaEditando(cat.id_categoria);
-    setNombre(cat.nombre);
-    setDescripcion(cat.descripcion || "");
-    setMostrarForm(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const abrirModalEditar = (cat) => {
+    setCategoriaAEditar(cat);
+    setModalAbierto(true);
   };
 
-  const handleGuardar = async (e) => {
-    e.preventDefault();
+  const handleGuardarCategoria = async ({ nombre, descripcion, id_categoria }) => {
     try {
       const usuarioLogueado = JSON.parse(localStorage.getItem("usuario"));
 
-      if (idCategoriaEditando) {
-        await actualizarCategoria(idCategoriaEditando, {
+      if (id_categoria) {
+        await actualizarCategoria(id_categoria, {
           nombre,
           descripcion,
           id_empresa: usuarioLogueado.id_empresa,
@@ -77,12 +70,7 @@ function Categorias() {
         });
       }
 
-      setNombre("");
-      setDescripcion("");
-      setIdCategoriaEditando(null);
-      setMostrarForm(false);
       cargarCategorias();
-
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -135,35 +123,12 @@ function Categorias() {
         {esAdmin && (
           <button 
             className="btn-toggle-form" 
-            onClick={abrirFormularioCreacion}
+            onClick={abrirModalCrear}
           >
-            {mostrarForm ? "Cancelar" : "+ Nueva categoría"}
+            + Nueva categoría
           </button>
         )}
       </div>
-
-      {esAdmin && mostrarForm && (
-        <form className="categorias-form animate-fade" onSubmit={handleGuardar}>
-          <input
-            className="categorias-input"
-            type="text"
-            placeholder="Nombre de la categoría"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            required
-          />
-          <input
-            className="categorias-input"
-            type="text"
-            placeholder="Descripción (opcional)"
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-          />
-          <button type="submit" className="btn-submit">
-            {idCategoriaEditando ? "Actualizar categoría" : "Guardar categoría"}
-          </button>
-        </form>
-      )}
 
       <div className="categorias-cards-container">
         {categorias.length === 0 ? (
@@ -178,13 +143,12 @@ function Categorias() {
                   <h3>{cat.nombre}</h3>
                   <p className="categoria-desc">{cat.descripcion || "Sin descripción"}</p>
                   <div className="categoria-footer">
-                    <span className="categoria-id">ID: {cat.id_categoria}</span>
-                    <div style={{ display: "flex", gap: "6px" }}>
+                    <div style={{ display: "flex", gap: "6px", width: "100%", justifyContent: "flex-end" }}>
                       {esAdmin && (
                         <>
                           <button 
                             className="btn-action" 
-                            onClick={() => iniciarEdicion(cat)}
+                            onClick={() => abrirModalEditar(cat)}
                           >
                             Editar
                           </button>
@@ -204,6 +168,13 @@ function Categorias() {
           </div>
         )}
       </div>
+
+      <ModalCategoria 
+        isOpen={modalAbierto}
+        onClose={() => setModalAbierto(false)}
+        categoriaAEditar={categoriaAEditar}
+        onCategoriaExitososa={handleGuardarCategoria}
+      />
     </div>
   );
 }
