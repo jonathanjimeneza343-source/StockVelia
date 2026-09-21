@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { IconArrowUpRight, IconArrowDownLeft, IconSearch, IconPlus } from "@tabler/icons-react";
-import ModalMovimiento from "./ModalMovimiento";
+import ModalMovimiento from "./modales/ModalMovimiento";
 import "../../styles/Movimientos.css";
 
 function Movimientos() {

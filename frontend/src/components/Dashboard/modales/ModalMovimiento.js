@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { IconX } from "@tabler/icons-react";
-import "../../styles/ModalMovimiento.css";
+import Swal from "sweetalert2";
+import "../../../styles/ModalMovimiento.css";
 
 function ModalMovimiento({ isOpen, onClose, onMovimientoExitoso }) {
   const [productos, setproductos] = useState([]);
@@ -55,6 +56,32 @@ function ModalMovimiento({ isOpen, onClose, onMovimientoExitoso }) {
 
       if (!respuesta.ok) {
         throw new Error(resultado.error || "Error al procesar el movimiento");
+      }
+
+      Swal.fire({
+        icon: "success",
+        iconColor: "#5e059e",
+        title: "¡Movimiento registrado!",
+        showConfirmButton: false,
+        timer: 1500
+      });
+
+      if (resultado.stock_bajo) {
+        Swal.fire({
+          toast: true,
+          position: "bottom-end",
+          icon: "warning",
+          iconColor: "#5e059e",
+          title: "¡Atención: Stock Bajo!",
+          text: `El producto ha quedado con un stock crítico de ${resultado.stock_actual} unidades.`,
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.onMouseEnter = Swal.stopTimer;
+            toast.onMouseLeave = Swal.resumeTimer;
+          }
+        });
       }
 
       setFormData({ id_producto: "", tipo_movimiento: "Entrada", motivo: "", cantidad: "", observacion: "" });

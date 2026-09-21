@@ -1,24 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   getUsuarios,
   crearUsuario,
   cambiarEstadoUsuario,
 } from "../../services/usuarioService";
+import ModalUsuario from "./modales/ModalUsuario";
 import "../../styles/Usuarios.css";
 import Swal from "sweetalert2";
 
 function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);
+  const [modalAbierto, setModalAbierto] = useState(false);
 
-  const [nombre, setNombre] = useState("");
-  const [correo, setCorreo] = useState("");
-  const [password, setPassword] = useState("");
-
-  useEffect(() => {
-    cargarUsuarios();
-  }, []);
-
-  const cargarUsuarios = async () => {
+  const cargarUsuarios = useCallback(async () => {
     try {
       const usuario = JSON.parse(localStorage.getItem("usuario"));
       const data = await getUsuarios(usuario.id_empresa);
@@ -26,11 +20,13 @@ function Usuarios() {
     } catch (error) {
       console.error(error);
     }
-  };
+  }, []);
 
-  const handleCrear = async (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    cargarUsuarios();
+  }, [cargarUsuarios]);
 
+  const handleCrear = async ({ nombre, correo, password }) => {
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
     if (!passwordRegex.test(password)) {
       Swal.fire({
@@ -52,10 +48,7 @@ function Usuarios() {
         id_empresa: usuarioLogueado.id_empresa,
       });
 
-      setNombre("");
-      setCorreo("");
-      setPassword("");
-
+      setModalAbierto(false);
       cargarUsuarios();
 
       Swal.fire({
@@ -99,7 +92,6 @@ function Usuarios() {
 
     try {
       await cambiarEstadoUsuario(usuario.id_usuario);
-
       cargarUsuarios();
 
       await Swal.fire({
@@ -113,7 +105,6 @@ function Usuarios() {
       });
     } catch (error) {
       console.error(error);
-
       Swal.fire({
         icon: "error",
         title: "Ocurrió un error",
@@ -126,35 +117,12 @@ function Usuarios() {
 
   return (
     <div className="usuarios-container">
-      <h2>Gestión de Usuarios</h2>
-
-      <form className="usuarios-form" onSubmit={handleCrear}>
-        <input
-          type="text"
-          placeholder="Nombre"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          required
-        />
-
-        <input
-          type="email"
-          placeholder="Correo"
-          value={correo}
-          onChange={(e) => setCorreo(e.target.value)}
-          required
-        />
-
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-
-        <button type="submit">Crear empleado</button>
-      </form>
+      <div className="usuarios-header-top">
+        <h2>Gestión de Usuarios</h2>
+        <button className="btn-toggle-form" onClick={() => setModalAbierto(true)}>
+          + Nuevo empleado
+        </button>
+      </div>
 
       <div className="table-responsive">
         <table className="tabla-usuarios">
@@ -207,6 +175,12 @@ function Usuarios() {
           </tbody>
         </table>
       </div>
+
+      <ModalUsuario
+        isOpen={modalAbierto}
+        onClose={() => setModalAbierto(false)}
+        onGuardar={handleCrear}
+      />
     </div>
   );
 }

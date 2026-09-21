@@ -1,22 +1,15 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { obtenerProductos, crearProducto, actualizarProducto, eliminarProducto } from "../../services/productoService";
 import { obtenerCategorias } from "../../services/categoriaService";
+import ModalProducto from "./modales/ModalProducto";
 import "../../styles/Productos.css";
 import Swal from "sweetalert2";
 
 function Productos() {
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
-  const [mostrarForm, setMostrarForm] = useState(false);
-  const [idProductoEditando, setIdProductoEditando] = useState(null);
-
-  const [nombre, setNombre] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [precio, setPrecio] = useState("");
-  const [stock, setStock] = useState("");
-  const [codigo, setCodigo] = useState("");
-  const [imagen, setImagen] = useState("");
-  const [idCategoria, setIdCategoria] = useState("");
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [productoAEditar, setProductoAEditar] = useState(null);
 
   const usuario = JSON.parse(localStorage.getItem("usuario"));
   const esAdmin = usuario?.id_rol === 1;
@@ -24,12 +17,10 @@ function Productos() {
   const cargarDatos = useCallback(async () => {
     try {
       const idEmpresa = usuario.id_empresa;
-
       const [prodData, catData] = await Promise.all([
         obtenerProductos(idEmpresa),
         obtenerCategorias(idEmpresa)
       ]);
-
       setProductos(prodData);
       setCategorias(catData);
     } catch (error) {
@@ -41,34 +32,7 @@ function Productos() {
     cargarDatos();
   }, [cargarDatos]);
 
-  const abrirFormularioCreacion = () => {
-    setIdProductoEditando(null);
-    setNombre("");
-    setDescripcion("");
-    setPrecio("");
-    setStock("");
-    setCodigo("");
-    setImagen("");
-    setIdCategoria("");
-    setMostrarForm(!mostrarForm);
-  };
-
-  const iniciarEdicion = (p) => {
-    setIdProductoEditando(p.id_producto);
-    setNombre(p.nombre);
-    setDescripcion(p.descripcion || "");
-    setPrecio(p.precio);
-    setStock(p.stock);
-    setCodigo(p.codigo);
-    setImagen(p.imagen || "");
-    setIdCategoria(p.id_categoria);
-    setMostrarForm(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleGuardar = async (e) => {
-    e.preventDefault();
-    
+  const abrirModalCreacion = () => {
     if (categorias.length === 0) {
       Swal.fire({
         icon: "warning",
@@ -79,23 +43,22 @@ function Productos() {
       });
       return;
     }
+    setProductoAEditar(null);
+    setModalAbierto(true);
+  };
 
+  const abrirModalEdicion = (p) => {
+    setProductoAEditar(p);
+    setModalAbierto(true);
+  };
+
+  const handleGuardarProducto = async (datosProducto) => {
     try {
       const usuarioLogueado = JSON.parse(localStorage.getItem("usuario"));
+      datosProducto.id_empresa = usuarioLogueado.id_empresa;
 
-      const datosProducto = {
-        nombre,
-        descripcion,
-        precio: parseFloat(precio),
-        stock: parseInt(stock),
-        codigo,
-        imagen,
-        id_categoria: parseInt(idCategoria),
-        id_empresa: usuarioLogueado.id_empresa,
-      };
-
-      if (idProductoEditando) {
-        await actualizarProducto(idProductoEditando, datosProducto);
+      if (productoAEditar) {
+        await actualizarProducto(productoAEditar.id_producto, datosProducto);
         Swal.fire({
           icon: "success",
           title: "¡Producto actualizado!",
@@ -114,17 +77,9 @@ function Productos() {
         });
       }
 
-      setNombre("");
-      setDescripcion("");
-      setPrecio("");
-      setStock("");
-      setCodigo("");
-      setImagen("");
-      setIdCategoria("");
-      setIdProductoEditando(null);
-      setMostrarForm(false);
+      setModalAbierto(false);
+      setProductoAEditar(null);
       cargarDatos();
-
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -199,91 +154,11 @@ function Productos() {
       <div className="productos-header-top">
         <h2>Gestión de Productos</h2>
         {esAdmin && (
-          <button 
-            className="btn-toggle-form" 
-            onClick={abrirFormularioCreacion}
-          >
-            {mostrarForm ? "Cancelar" : "+ Nuevo producto"}
+          <button className="btn-toggle-form" onClick={abrirModalCreacion}>
+            + Nuevo producto
           </button>
         )}
       </div>
-
-      {esAdmin && mostrarForm && (
-        <form className="productos-form animate-fade" onSubmit={handleGuardar}>
-          <input
-            className="productos-input"
-            type="text"
-            placeholder="Código"
-            value={codigo}
-            onChange={(e) => setCodigo(e.target.value)}
-            required
-          />
-          <input
-            className="productos-input"
-            type="text"
-            placeholder="Nombre del producto"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            required
-          />
-
-          <select
-            className="productos-input productos-select" 
-            value={idCategoria}
-            onChange={(e) => setIdCategoria(e.target.value)}
-            required
-          >
-            <option value="">
-              {categorias.length === 0 ? "No hay categorías creadas" : "Selecciona una categoría"}
-            </option>
-            {categorias.map((cat) => (
-              <option key={cat.id_categoria} value={cat.id_categoria}>
-                {cat.nombre}
-              </option>
-            ))}
-          </select>
-
-          {categorias.length === 0 && (
-            <div className="alerta-sin-categorias">
-              ⚠️ Debes registrar categorías en su sección antes de poder asociarlas a un producto.
-            </div>
-          )}
-
-          <input
-            className="productos-input"
-            type="text"
-            placeholder="Descripción"
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-          />
-          <input
-            className="productos-input"
-            type="url"
-            placeholder="URL de la imagen (opcional)"
-            value={imagen}
-            onChange={(e) => setImagen(e.target.value)}
-          />
-          <input
-            className="productos-input"
-            type="number"
-            placeholder="Precio"
-            value={precio}
-            onChange={(e) => setPrecio(e.target.value)}
-            required
-          />
-          <input
-            className="productos-input"
-            type="number"
-            placeholder="Stock inicial"
-            value={stock}
-            onChange={(e) => setStock(e.target.value)}
-            required
-          />
-          <button type="submit" className="btn-submit">
-            {idProductoEditando ? "Actualizar producto" : "Guardar producto"}
-          </button>
-        </form>
-      )}
 
       <div className="products-cards-container">
         <div className="products-grid">
@@ -308,7 +183,7 @@ function Productos() {
                     <button className="btn-action" onClick={() => verDetalles(p)}>Detalles</button>
                     {esAdmin && (
                       <>
-                        <button className="btn-action" onClick={() => iniciarEdicion(p)}>Editar</button>
+                        <button className="btn-action" onClick={() => abrirModalEdicion(p)}>Editar</button>
                         <button className="btn-action btn-delete" onClick={() => handleEliminar(p.id_producto)}>Eliminar</button>
                       </>
                     )}
@@ -319,6 +194,14 @@ function Productos() {
           ))}
         </div>
       </div>
+
+      <ModalProducto
+        isOpen={modalAbierto}
+        onClose={() => setModalAbierto(false)}
+        onGuardar={handleGuardarProducto}
+        productoAEditar={productoAEditar}
+        categorias={categorias}
+      />
     </div>
   );
 }
