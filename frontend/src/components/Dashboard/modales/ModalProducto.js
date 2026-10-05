@@ -9,6 +9,7 @@ function ModalProducto({ isOpen, onClose, onGuardar, productoAEditar, categorias
   const [imagen, setImagen] = useState("");
   const [precio, setPrecio] = useState("");
   const [stock, setStock] = useState("");
+  const [stockMinimo, setStockMinimo] = useState("");
 
   useEffect(() => {
     if (productoAEditar) {
@@ -19,6 +20,7 @@ function ModalProducto({ isOpen, onClose, onGuardar, productoAEditar, categorias
       setImagen(productoAEditar.imagen || "");
       setPrecio(productoAEditar.precio || "");
       setStock(productoAEditar.stock || "");
+      setStockMinimo(productoAEditar.stock_minimo ?? 5);
     } else {
       setCodigo("");
       setNombre("");
@@ -27,6 +29,7 @@ function ModalProducto({ isOpen, onClose, onGuardar, productoAEditar, categorias
       setImagen("");
       setPrecio("");
       setStock("");
+      setStockMinimo("5");
     }
   }, [productoAEditar, isOpen]);
 
@@ -42,6 +45,7 @@ function ModalProducto({ isOpen, onClose, onGuardar, productoAEditar, categorias
       imagen,
       precio: parseFloat(precio),
       stock: parseInt(stock),
+      stock_minimo: parseInt(stockMinimo),
     });
   };
 
@@ -135,6 +139,17 @@ function ModalProducto({ isOpen, onClose, onGuardar, productoAEditar, categorias
                 required
               />
             </div>
+          </div>
+
+          <div className="modal-grupo-input">
+            <label>Stock mínimo de alerta</label>
+            <input
+              type="number"
+              placeholder="Ej. 5"
+              value={stockMinimo}
+              onChange={(e) => setStockMinimo(e.target.value)}
+              required
+            />
           </div>
 
           <div className="modal-botones">

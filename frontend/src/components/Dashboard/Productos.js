@@ -138,6 +138,7 @@ function Productos() {
           <p><strong>Descripción:</strong> ${p.descripcion || "Sin descripción"}</p>
           <p><strong>Precio:</strong> $${Number(p.precio).toLocaleString()}</p>
           <p><strong>Stock actual:</strong> ${p.stock}</p>
+          <p><strong>Stock mínimo:</strong> ${p.stock_minimo ?? 5}</p>
         </div>
       `,
       imageUrl: p.imagen || "https://placehold.co/200x200/fcfbff/6818a5?text=StockVelia",
@@ -169,7 +170,8 @@ function Productos() {
                   src={p.imagen || "https://placehold.co/150x150/fcfbff/6818a5?text=StockVelia"} 
                   alt={p.nombre} 
                 />
-                <span className={`stock-badge ${p.stock <= 5 ? "low" : ""}`}>
+              
+                <span className={`stock-badge ${p.stock <= (p.stock_minimo ?? 5) ? "low" : ""}`}>
                   Stock: {p.stock}
                 </span>
               </div>
