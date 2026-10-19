@@ -1,25 +1,25 @@
+SET TIME ZONE 'America/Bogota';
+
 -- TABLA DE EMPRESAS --------------------------------------------------------------
 CREATE TABLE empresa (
-    id_empresa SERIAL PRIMARY KEY,
+    id_empresa VARCHAR(20) PRIMARY KEY,
     nombre VARCHAR(150) NOT NULL,
     correo VARCHAR(150) UNIQUE NOT NULL,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     estado BOOLEAN default TRUE
 );
-ALTER TABLE empresa ALTER COLUMN id_empresa SET DEFAULT nextval('secuencia_unica_global');
 
 -- TABLA DE ROLES --------------------------------------------------------------
 CREATE TABLE roles (
-    id_rol SERIAL PRIMARY KEY,
+    id_rol VARCHAR(20) PRIMARY KEY,
     nombre VARCHAR(50) UNIQUE NOT NULL
 );
-ALTER TABLE roles ALTER COLUMN id_rol SET DEFAULT nextval('secuencia_unica_global');
 
 -- TABLA DE USUARIOS --------------------------------------------------------------
 CREATE TABLE usuario (
-    id_usuario SERIAL PRIMARY KEY,
-    id_empresa INTEGER NOT NULL,
-    id_rol INTEGER NOT NULL,
+    id_usuario VARCHAR(20) PRIMARY KEY,
+    id_empresa VARCHAR(20) NOT NULL,
+    id_rol VARCHAR(20) NOT NULL,
     nombre VARCHAR(100) NOT NULL,
     correo VARCHAR(150) UNIQUE NOT NULL,
     password TEXT NOT NULL,
@@ -30,20 +30,18 @@ CREATE TABLE usuario (
     CONSTRAINT fk_empresa FOREIGN KEY(id_empresa) REFERENCES empresa(id_empresa),
     CONSTRAINT fk_rol FOREIGN KEY(id_rol) REFERENCES roles(id_rol)
 );
-ALTER TABLE usuario ALTER COLUMN id_usuario SET DEFAULT nextval('secuencia_unica_global');
 
 -- TABLA DE PERMISOS --------------------------------------------------------------
 CREATE TABLE permisos (
-    id_permiso SERIAL PRIMARY KEY,
+    id_permiso VARCHAR(20) PRIMARY KEY,
     nombre VARCHAR(100) UNIQUE NOT NULL,
     descripcion TEXT
 );
-ALTER TABLE permisos ALTER COLUMN id_permiso SET DEFAULT nextval('secuencia_unica_global');
 
 -- TABLA DE RELACION ROLES PERMISOS --------------------------------------------------------------
 CREATE TABLE roles_permisos (
-    id_rol INTEGER NOT NULL,
-    id_permiso INTEGER NOT NULL,
+    id_rol VARCHAR(20) NOT NULL,
+    id_permiso VARCHAR(20) NOT NULL,
     PRIMARY KEY(id_rol, id_permiso),
     CONSTRAINT fk_roles_permisos_rol FOREIGN KEY(id_rol) REFERENCES roles(id_rol),
     CONSTRAINT fk_roles_permisos_permiso FOREIGN KEY(id_permiso) REFERENCES permisos(id_permiso)
@@ -51,17 +49,16 @@ CREATE TABLE roles_permisos (
 
 -- TABLA DE CATEGORIAS --------------------------------------------------------------
 CREATE TABLE categorias (
-    id_categoria SERIAL PRIMARY KEY,
+    id_categoria VARCHAR(20) PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL UNIQUE,
     descripcion TEXT
 );
-ALTER TABLE categorias ALTER COLUMN id_categoria SET DEFAULT nextval('secuencia_unica_global');
 
 -- TABLA DE PRODUCTOS --------------------------------------------------------------
 CREATE TABLE productos (
-    id_producto SERIAL PRIMARY KEY,
-    id_empresa INTEGER NOT NULL,
-    id_categoria INTEGER NOT NULL,
+    id_producto VARCHAR(20) PRIMARY KEY,
+    id_empresa VARCHAR(20) NOT NULL,
+    id_categoria VARCHAR(20) NOT NULL,
     codigo VARCHAR(50) UNIQUE NOT NULL,
     nombre VARCHAR(150) NOT NULL,
     descripcion TEXT,
@@ -73,13 +70,12 @@ CREATE TABLE productos (
     CONSTRAINT fk_empresa_producto FOREIGN KEY(id_empresa) REFERENCES empresa(id_empresa),
     CONSTRAINT fk_categoria_producto FOREIGN KEY(id_categoria) REFERENCES categorias(id_categoria)
 );
-ALTER TABLE productos ALTER COLUMN id_producto SET DEFAULT nextval('secuencia_unica_global');
 
 -- TABLA DE MOVIMIENTOS DE INVENTARIO --------------------------------------------------------------
 CREATE TABLE movimientos_inventario (
-    id_movimiento SERIAL PRIMARY KEY,
-    id_producto INTEGER NOT NULL,
-    id_usuario INTEGER NOT NULL,
+    id_movimiento VARCHAR(20) PRIMARY KEY,
+    id_producto VARCHAR(20) NOT NULL,
+    id_usuario VARCHAR(20) NOT NULL,
     tipo_movimiento VARCHAR(20) NOT NULL CHECK(tipo_movimiento IN ('ENTRADA', 'SALIDA', 'BAJA')),
     motivo VARCHAR(50) NOT NULL,
     cantidad INTEGER NOT NULL CHECK(cantidad > 0),
@@ -87,29 +83,26 @@ CREATE TABLE movimientos_inventario (
     CONSTRAINT fk_producto_mov FOREIGN KEY(id_producto) REFERENCES productos(id_producto),
     CONSTRAINT fk_usuario_mov FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
 );
-ALTER TABLE movimientos_inventario ALTER COLUMN id_movimiento SET DEFAULT nextval('secuencia_unica_global');
 
 -- TABLA DE AUDITORIAS --------------------------------------------------------------
 CREATE TABLE auditoria (
-    id_auditoria SERIAL PRIMARY KEY,
-    id_usuario INTEGER NOT NULL,
+    id_auditoria VARCHAR(20) PRIMARY KEY,
+    id_usuario VARCHAR(20) NOT NULL,
     tabla_afectada VARCHAR(50),
     accion VARCHAR(20),
-    registro_id INTEGER,
+    registro_id VARCHAR(20), 
     descripcion TEXT,
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_usuario_auditoria FOREIGN KEY(id_usuario) REFERENCES usuario(id_usuario)
 );
-ALTER TABLE auditoria ALTER COLUMN id_auditoria SET DEFAULT nextval('secuencia_unica_global');
 
 -- TABLA DE TOKENS BLACKLIST --------------------------------------------------------------
 CREATE TABLE tokens_blacklist (
-  id_token SERIAL PRIMARY KEY,
-  token TEXT NOT NULL,
-  fecha_expiracion TIMESTAMP NOT NULL,
-  fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id_token VARCHAR(20) PRIMARY KEY,
+    token TEXT NOT NULL,
+    fecha_expiracion TIMESTAMP NOT NULL,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-ALTER TABLE tokens_blacklist ALTER COLUMN id_token SET DEFAULT nextval('secuencia_unica_global');
 
 -- TABLA DE CÓDIGOS DE RECUPERACIÓN --------------------------------------------------------------
 CREATE TABLE codigos_recuperacion (
@@ -144,7 +137,7 @@ AFTER INSERT ON movimientos_inventario
 FOR EACH ROW EXECUTE FUNCTION actualizar_stock();
 
 -- ROLES ========================================================================================
-NSERT INTO roles (id_rol, nombre) VALUES 
+INSERT INTO roles (id_rol, nombre) VALUES 
 (1, 'Administrador'),
 (2, 'Empleado')
 ON CONFLICT (id_rol) DO NOTHING;
