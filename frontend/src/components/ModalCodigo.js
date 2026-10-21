@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { IconKey } from "@tabler/icons-react";
+import Swal from "sweetalert2";
 import "../styles/Modales.css";
 
 function ModalCodigo({ abierto, alCerrar, alVerificar }) {
@@ -7,8 +9,14 @@ function ModalCodigo({ abierto, alCerrar, alVerificar }) {
   if (!abierto) return null;
 
   const verificarCodigo = () => {
-    if (codigo.length !== 6) {
-      alert("Ingrese un código válido de 6 dígitos");
+    if (codigo.trim().length !== 6) {
+      Swal.fire({
+        icon: "warning",
+        iconColor: "#5e059e",
+        title: "Código incompleto",
+        text: "Por favor ingresa un código válido de 6 dígitos.",
+        confirmButtonColor: "#5e059e",
+      });
       return;
     }
 
@@ -20,30 +28,29 @@ function ModalCodigo({ abierto, alCerrar, alVerificar }) {
       <div className="contenedor-modal">
         <div className="cabecera-modal">
           <h3>Verificar código</h3>
-
-          <button
-            className="cerrar-modal"
-            onClick={alCerrar}
-          >
+          <button className="cerrar-modal" onClick={alCerrar}>
             ×
           </button>
         </div>
 
-        <p>Ingresa el código enviado a tu correo electrónico.</p>
+        <p>Ingresa el código de verificación de 6 dígitos enviado a tu correo.</p>
 
-        <input
-          type="text"
-          placeholder="Código de verificación"
-          value={codigo}
-          onChange={(e) => setCodigo(e.target.value)}
-        />
+        <div className="input-contenedor-modal">
+          <IconKey size={22} className="icono-input" />
+          <input
+            type="text"
+            placeholder="Ej: 123456"
+            maxLength={6}
+            value={codigo}
+            onChange={(e) => setCodigo(e.target.value)}
+          />
+        </div>
 
         <div className="acciones-modal">
-          <button onClick={alCerrar}>
+          <button type="button" className="btn-cancelar" onClick={alCerrar}>
             Cancelar
           </button>
-
-          <button onClick={verificarCodigo}>
+          <button type="button" className="btn-confirmar" onClick={verificarCodigo}>
             Verificar
           </button>
         </div>

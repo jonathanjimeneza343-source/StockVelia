@@ -3,8 +3,10 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
+  width: 100vw;
   background: linear-gradient(90deg, #ffffff, #e1bafd);
   font-family: "Poppins", sans-serif;
+  box-sizing: border-box;
 }
 
 .registro-contenedor {
@@ -21,36 +23,34 @@
   background-color: #ffffff;
   width: 65%;
   border-radius: 0 20px 20px 0;
+  box-sizing: border-box;
+  padding: 10px;
 }
 
 .registro-formulario h2 {
   font-weight: 800;
   font-size: 1.6rem;
   margin: 5px;
+  color: #2b004a;
 }
 
 .registro-formulario p {
   font-size: 1rem;
+  color: #555;
+  margin-bottom: 10px;
 }
 
 .registro-formulario form {
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .formulario-registro {
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 15px;
-}
-
-.formulario-registro input {
-  font-size: 1rem;
-  outline: none;
-  border-radius: 16px;
-  border: none;
-  background-color: #f0edff;
-  width: 22vw;
+  row-gap: 0px;
 }
 
 .registro-input {
@@ -58,10 +58,35 @@
   align-items: center;
   background-color: #f0edff;
   border-radius: 16px;
-  padding: 15px 20px;
-  margin: 10px;
-  width: 20vw;
+  padding: 12px 18px;
+  margin: 8px 0;
+  width: 22vw;
+  box-sizing: border-box;
   gap: 10px;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.registro-input:focus-within {
+  border-color: #ba61fa;
+}
+
+.icono-registro {
+  color: #5e059d;
+  flex-shrink: 0;
+}
+
+.registro-input input {
+  font-size: 1rem;
+  outline: none;
+  border: none;
+  background: transparent;
+  width: 100%;
+  color: #333;
+}
+
+.registro-input input::placeholder {
+  color: #999;
 }
 
 .terminos {
@@ -69,7 +94,7 @@
   justify-content: center;
   align-items: center;
   gap: 10px;
-  margin: 15px 0;
+  margin: 8px 0;
   font-size: 0.9rem;
 }
 
@@ -80,9 +105,15 @@
   background: linear-gradient(68deg, #ba61fa, #5e059e);
   width: 10vw;
   align-self: center;
-  padding: 15px 0;
-  margin: 10px;
+  padding: 12px 0;
+  margin: 8px;
   color: #ffffff;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.boton-registro:hover {
+  opacity: 0.9;
 }
 
 .login-opciones-registro {
@@ -90,18 +121,76 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  row-gap: 20px;
+}
+
+.separador-registro {
+  display: flex;
+  align-items: center;
+  width: 45vw; 
+  gap: 15px;
+  margin: 10px 0;
+}
+
+.separador-registro p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.linea-reg {
+  flex: 1;
+  height: 2px;
+  background-color: #d9d9d9;
 }
 
 .login-opciones-registro button {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   border-radius: 16px;
-  border-color: #f0edff;
+  border: 1px solid #f0edff;
   background-color: #ffffff;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   padding: 10px 20px;
+  width: 45vw;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background-color 0.2s ease;
+}
+
+.login-opciones-registro button:hover {
+  background-color: #f8f6ff;
+}
+
+.login-opciones-registro span {
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.registro-link {
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.registro-link a {
+  color: #248aff;
+  text-decoration: none;
+}
+
+.registro-link a:hover {
+  text-decoration: underline;
+}
+
+.swal2-icon.swal2-info {
+  border-color: #5e059e !important;
+  color: #5e059e !important;
+}
+
+.swal2-icon.swal2-success {
+  border-color: #5e059e !important;
+}
+.swal2-success-ring {
+  border-color: rgba(94, 5, 158, 0.3) !important;
 }
 
 /*--------------------Estilos de ilustración-----------------*/

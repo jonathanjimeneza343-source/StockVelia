@@ -2,16 +2,22 @@ import pool from '../config/db.js';
 import { registrarAuditoria } from '../config/auditoriaService.js';
 
 export const crearProducto = async (req, res) => {
-    const { id_categoria, codigo, nombre, descripcion, precio, stock, stock_minimo } = req.body;
+    // 1. Extraemos 'imagen' del req.body
+    const { id_categoria, codigo, nombre, descripcion, precio, stock, stock_minimo, imagen } = req.body;
     const { id_empresa, id_usuario } = req.usuario; 
+    
+    const stockMinimoFinal = (stock_minimo !== undefined && stock_minimo !== "" && !isNaN(stock_minimo)) ? stock_minimo : 5;
+    
     try {
         const productoExiste = await pool.query('SELECT * FROM productos WHERE codigo = $1 AND id_empresa = $2', [codigo, id_empresa]);
         if (productoExiste.rows.length > 0) {
             return res.status(400).json({ error: 'El código de barras o SKU ya está registrado en tu empresa.' });
         }
+        
+        // 2. Agregamos la columna 'imagen' en la consulta SQL de inserción ($9)
         const nuevoProducto = await pool.query(
-            'INSERT INTO productos (id_empresa, id_categoria, codigo, nombre, descripcion, precio, stock, stock_minimo) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-            [id_empresa, id_categoria, codigo, nombre, descripcion, precio, stock, stock_minimo]
+            'INSERT INTO productos (id_empresa, id_categoria, codigo, nombre, descripcion, precio, stock, stock_minimo, imagen) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
+            [id_empresa, id_categoria, codigo, nombre, descripcion, precio, stock, stockMinimoFinal, imagen || null]
         );
 
         await registrarAuditoria(id_usuario, 'productos', 'CREAR', nuevoProducto.rows[0].id_producto, `Producto creado: ${nombre} con stock inicial de ${stock}`);
@@ -42,13 +48,19 @@ export const obtenerProductos = async (req, res) => {
 
 export const actualizarProducto = async (req, res) => {
     const { id } = req.params;
-    const { id_categoria, codigo, nombre, descripcion, precio, stock_minimo } = req.body;
+    // 1. Extraemos 'imagen' también al actualizar
+    const { id_categoria, codigo, nombre, descripcion, precio, stock_minimo, imagen } = req.body;
     const { id_usuario, id_empresa } = req.usuario;
+
+    const stockMinimoFinal = (stock_minimo !== undefined && stock_minimo !== "" && !isNaN(stock_minimo)) ? stock_minimo : 5;
+
     try {
+        // 2. Actualizamos el campo 'imagen' en la base de datos ($7) y ajustamos los índices
         const resultado = await pool.query(
-            'UPDATE productos SET id_categoria = $1, codigo = $2, nombre = $3, descripcion = $4, precio = $5, stock_minimo = $6 WHERE id_producto = $7 AND id_empresa = $8 RETURNING *',
-            [id_categoria, codigo, nombre, descripcion, precio, stock_minimo, id, id_empresa]
+            'UPDATE productos SET id_categoria = $1, codigo = $2, nombre = $3, descripcion = $4, precio = $5, stock_minimo = $6, imagen = $7 WHERE id_producto = $8 AND id_empresa = $9 RETURNING *',
+            [id_categoria, codigo, nombre, descripcion, precio, stockMinimoFinal, imagen || null, id, id_empresa]
         );
+        
         if (resultado.rows.length === 0) {
             return res.status(404).json({ error: 'Producto no encontrado o no pertenece a tu empresa.' });
         }

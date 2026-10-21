@@ -1,0 +1,138 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(49, 0, 85, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(3px);
+}
+
+.modal-content {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 10px 30px rgba(94, 5, 157, 0.2);
+  border: 1px solid #d283ff40;
+  box-sizing: border-box;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #310055;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  transition: color 0.2s;
+}
+
+.modal-close-btn:hover {
+  color: #d33;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-grupo-input {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.modal-grupo-input label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4a0a77;
+}
+
+.modal-grupo-input input,
+.modal-grupo-input select {
+  padding: 10px 12px;
+  border: 1.5px solid #d283ff80;
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.95rem;
+  background-color: #ffffff;
+  color: #310055;
+  transition: all 0.2s ease;
+}
+
+.modal-grupo-input input:focus,
+.modal-grupo-input select:focus {
+  border-color: #8b2fc9;
+  box-shadow: 0 0 0 3px rgba(139, 47, 201, 0.15);
+}
+
+.modal-fila-doble {
+  display: flex;
+  gap: 12px; 
+  width: 100%;
+}
+
+.modal-fila-doble .modal-grupo-input {
+  flex: 1;
+  min-width: 0; 
+}
+
+.modal-botones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-cancelar {
+  padding: 10px 16px;
+  background-color: #f0e6ff;
+  color: #4a0a77;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-cancelar:hover {
+  background-color: #e2ccff;
+}
+
+.btn-guardar {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #6818a5, #4a0a77);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(74, 10, 119, 0.25);
+  transition: all 0.2s;
+}
+
+.btn-guardar:hover {
+  background: linear-gradient(135deg, #8b2fc9, #5a108f);
+}

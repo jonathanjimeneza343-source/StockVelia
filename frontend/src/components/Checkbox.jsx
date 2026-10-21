@@ -5,7 +5,7 @@ const Checkbox = () => {
   return (
     <StyledWrapper>
       <label className="container">
-        <input type="checkbox" defaultChecked="checked" />
+        <input type="checkbox" />
         <div className="checkmark" />
       </label>
     </StyledWrapper>

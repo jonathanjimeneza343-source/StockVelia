@@ -35,7 +35,7 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      <Sidebar setSeccion={setSeccion} />
+      <Sidebar seccion={seccion} setSeccion={setSeccion} />
       <div className="contenido-dashboard">
         <Header />
         {renderSeccion()}
