@@ -1,78 +1,170 @@
-import { jest, describe, it, expect, beforeEach } from "@jest/globals";
+import { test, mock } from 'node:test';
+import assert from 'node:assert';
+import bcrypt from 'bcrypt';
+import pool from '../config/db.js';
+import { listarUsuarios, crearUsuario, cambiarEstadoUsuario } from '../controllers/usuarioController.js';
 
-jest.unstable_mockModule("../config/db.js", () => ({
-  default: {
-    query: jest.fn(),
-  },
-}));
-jest.unstable_mockModule("bcrypt", () => ({
-  default: {
-    genSalt: jest.fn(),
-    hash: jest.fn(),
-  },
-}));
+// =========================================================================
+// CONFIGURACIÓN DE MOCKS INTELIGENTE
+// =========================================================================
 
-const { listarUsuarios, crearUsuario, cambiarEstadoUsuario } = await import("../controllers/usuarioController.js");
-const pool = (await import("../config/db.js")).default;
-const bcrypt = (await import("bcrypt")).default;
+mock.method(bcrypt, 'genSalt', async () => 'mocked_salt');
+mock.method(bcrypt, 'hash', async (password) => `hashed_${password}`);
 
-describe("Controlador de Usuarios", () => {
-  let req, res;
+const mockQuery = mock.method(pool, 'query', async (text, params) => {
+  if (text.includes('SELECT')) {
+    
+    if (params && params[0] === 'existente@example.com') {
+      return { rows: [{ id_usuario: 1, correo: 'existente@example.com' }] };
+    }
+    
+    return { rows: [] };
+  }
+  if (text.includes('INSERT')) {
+    return { rows: [{ id_usuario: 99, nombre: params[2], correo: params[3], id_rol: 2 }] };
+  }
+  if (text.includes('UPDATE')) {
+    return { rows: [{ id_usuario: Number(params[0]), nombre: 'Luis', correo: 'luis@example.com', id_rol: 2, estado: false }] };
+  }
+  return { rows: [] };
+});
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    req = { query: {}, body: {}, params: {} };
-    res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    };
+const crearMockReqRes = (query = {}, body = {}, params = {}) => {
+  const req = { query, body, params };
+  const res = {
+    statusCode: 200,
+    bodyData: null,
+    status(code) {
+      this.statusCode = code;
+      return this;
+    },
+    json(data) {
+      this.bodyData = data;
+      return this;
+    }
+  };
+  return { req, res };
+};
+
+// =========================================================================
+// 1. TESTS PARA listarUsuarios
+// =========================================================================
+
+test('listarUsuarios - Debería retornar la lista de usuarios correctamente', async () => {
+  const { req, res } = crearMockReqRes({ id_empresa: '1' }, {}, {});
+  const usuariosMock = [
+    { id_usuario: 1, nombre: 'Ana', correo: 'ana@example.com', id_rol: 2, estado: true }
+  ];
+
+  mockQuery.mock.mockImplementationOnce(async () => {
+    return { rows: usuariosMock };
   });
 
-  describe("crearUsuario", () => {
-    it("debe retornar error 400 si faltan campos obligatorios", async () => {
-      req.body = { nombre: "", correo: "", password: "" };
+  await listarUsuarios(req, res);
 
-      await crearUsuario(req, res);
+  assert.strictEqual(res.statusCode, 200);
+  assert.deepStrictEqual(res.bodyData, usuariosMock);
+});
 
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({ error: "Todos los campos son obligatorios." });
-    });
+test('listarUsuarios - Debería manejar errores del servidor (500)', async () => {
+  const { req, res } = crearMockReqRes({ id_empresa: '1' }, {}, {});
 
-    it("debe retornar error 400 si la contraseña no cumple con el regex", async () => {
-      req.body = { nombre: "Ana", correo: "ana@test.com", password: "123", id_empresa: 1 };
-
-      await crearUsuario(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({
-        error: "La contraseña debe tener al menos 6 caracteres, una letra mayúscula, una minúscula y un número.",
-      });
-    });
+  mockQuery.mock.mockImplementationOnce(async () => {
+    throw new Error('Error de conexión');
   });
 
-  describe("cambiarEstadoUsuario", () => {
-    it("debe cambiar el estado del usuario correctamente", async () => {
-      req.params.id = "2";
-      const usuarioActualizado = { id_usuario: 2, nombre: "Luis", correo: "luis@test.com", id_rol: 2, estado: false };
-      
-      pool.query.mockResolvedValueOnce({ rows: [usuarioActualizado] });
+  const spyConsole = mock.method(console, 'error', () => {});
 
-      await cambiarEstadoUsuario(req, res);
+  await listarUsuarios(req, res);
 
-      expect(res.json).toHaveBeenCalledWith({
-        mensaje: "Usuario desactivado correctamente.",
-        usuario: usuarioActualizado,
-      });
-    });
+  assert.strictEqual(res.statusCode, 500);
+  assert.deepStrictEqual(res.bodyData, { error: "Error al obtener usuarios" });
 
-    it("debe retornar 404 si el usuario no existe o no se puede modificar", async () => {
-      req.params.id = "1";
-      pool.query.mockResolvedValueOnce({ rows: [] });
+  spyConsole.mock.restore();
+});
 
-      await cambiarEstadoUsuario(req, res);
+// =========================================================================
+// 2. TESTS PARA crearUsuario
+// =========================================================================
 
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({ error: "Usuario no encontrado o no se puede modificar." });
-    });
+test('crearUsuario - Debería fallar si faltan campos obligatorios', async () => {
+  const { req, res } = crearMockReqRes({}, { nombre: 'Juan' }, {});
+
+  await crearUsuario(req, res);
+
+  assert.strictEqual(res.statusCode, 400);
+  assert.deepStrictEqual(res.bodyData, { error: "Todos los campos son obligatorios." });
+});
+
+test('crearUsuario - Debería fallar si la contraseña es débil', async () => {
+  const { req, res } = crearMockReqRes({}, {
+    nombre: 'Juan',
+    correo: 'juan@example.com',
+    password: '123'
+  }, {});
+
+  await crearUsuario(req, res);
+
+  assert.strictEqual(res.statusCode, 400);
+  assert.match(res.bodyData.error, /La contraseña debe tener al menos 6 caracteres/);
+});
+
+test('crearUsuario - Debería fallar si el correo ya está registrado', async () => {
+  const { req, res } = crearMockReqRes({}, {
+    nombre: 'Juan',
+    correo: 'existente@example.com',
+    password: 'Password123'
+  }, {});
+
+  await crearUsuario(req, res);
+
+  assert.strictEqual(res.statusCode, 400);
+  assert.deepStrictEqual(res.bodyData, { error: "El correo ya está registrado" });
+});
+
+test('crearUsuario - Debería crear el usuario exitosamente', async () => {
+  const datosUsuario = {
+    nombre: 'Juan',
+    correo: 'nuevo@example.com',
+    password: 'Password123',
+    id_empresa: 5
+  };
+  const { req, res } = crearMockReqRes({}, datosUsuario, {});
+
+  await crearUsuario(req, res);
+
+  assert.strictEqual(res.statusCode, 201);
+  assert.deepStrictEqual(res.bodyData, { id_usuario: 99, nombre: 'Juan', correo: 'nuevo@example.com', id_rol: 2 });
+});
+
+// =========================================================================
+// 3. TESTS PARA cambiarEstadoUsuario
+// =========================================================================
+
+test('cambiarEstadoUsuario - Debería cambiar el estado correctamente', async () => {
+  const { req, res } = crearMockReqRes({}, {}, { id: '2' });
+  const usuarioModificado = { id_usuario: 2, nombre: 'Luis', correo: 'luis@example.com', id_rol: 2, estado: false };
+
+  mockQuery.mock.mockImplementationOnce(async () => {
+    return { rows: [usuarioModificado] };
   });
+
+  await cambiarEstadoUsuario(req, res);
+
+  assert.strictEqual(res.statusCode, 200);
+  assert.strictEqual(res.bodyData.mensaje, "Usuario desactivado correctamente.");
+  assert.deepStrictEqual(res.bodyData.usuario, usuarioModificado);
+});
+
+test('cambiarEstadoUsuario - Debería retornar 404 si el usuario no existe', async () => {
+  const { req, res } = crearMockReqRes({}, {}, { id: '999' });
+
+  mockQuery.mock.mockImplementationOnce(async () => {
+    return { rows: [] };
+  });
+
+  await cambiarEstadoUsuario(req, res);
+
+  assert.strictEqual(res.statusCode, 404);
+  assert.deepStrictEqual(res.bodyData, { error: "Usuario no encontrado o no se puede modificar." });
 });

@@ -1,54 +1,65 @@
-import { jest, describe, it, expect, beforeEach } from "@jest/globals";
+import { test, mock } from 'node:test';
+import assert from 'node:assert';
+import request from 'supertest';
+import express from 'express';
+import bcrypt from 'bcrypt'; 
+import pool from '../config/db.js';
+import usuarioRoutes from '../routes/usuarioRoutes.js';
 
-jest.unstable_mockModule("../config/db.js", () => ({
-  default: {
-    query: jest.fn(),
-  },
-}));
+// =========================================================================
+// CONFIGURACIÓN DE MOCKS INTELIGENTE
+// =========================================================================
+mock.method(bcrypt, 'genSalt', async () => 'mocked_salt');
+mock.method(bcrypt, 'hash', async (password) => `hashed_${password}`);
 
-const request = (await import("supertest")).default;
-const express = (await import("express")).default;
-const usuarioRoutes = (await import("../routes/usuarioRoutes.js")).default;
-const pool = (await import("../config/db.js")).default;
+const mockQuery = mock.method(pool, 'query', async (text, params) => {
+  if (text.includes('SELECT')) {
+    return { rows: [] }; // Correo libre / sin registros previos
+  }
+  if (text.includes('INSERT')) {
+    return { rows: [{ id_usuario: 1, nombre: params[2], correo: params[3], id_rol: 2 }] };
+  }
+  if (text.includes('UPDATE')) {
+    return { rows: [{ id_usuario: 3, nombre: 'Pedro', correo: 'pedro@example.com', id_rol: 2, estado: true }] };
+  }
+  return { rows: [] };
+});
 
 const app = express();
 app.use(express.json());
 app.use("/usuarios", usuarioRoutes);
 
-describe("Rutas de Usuario (/usuarios)", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
+test('GET /usuarios - Debería responder con la lista de usuarios', async () => {
+  const mockUsuarios = [{ id_usuario: 1, nombre: 'Carlos', correo: 'carlos@example.com', id_rol: 2, estado: true }];
+  
+  mockQuery.mock.mockImplementationOnce(async () => {
+    return { rows: mockUsuarios };
   });
 
-  describe("GET /usuarios", () => {
-    it("debe responder con la lista de usuarios", async () => {
-      const mockUsuarios = [{ id_usuario: 1, nombre: "Carlos", correo: "carlos@test.com" }];
-      pool.query.mockResolvedValueOnce({ rows: mockUsuarios });
+  const response = await request(app).get("/usuarios?id_empresa=1");
 
-      const response = await request(app).get("/usuarios?id_empresa=1");
+  assert.strictEqual(response.status, 200);
+  assert.deepStrictEqual(response.body, mockUsuarios);
+});
 
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockUsuarios);
+test('POST /usuarios - Debería crear un usuario a través de la ruta', async () => {
+  const response = await request(app)
+    .post("/usuarios")
+    .set('Content-Type', 'application/json')
+    .send({
+      nombre: "Carlos",
+      correo: "carlos@example.com",
+      password: "Password123",
+      id_empresa: 1
     });
-  });
 
-  describe("POST /usuarios", () => {
-    it("debe crear un usuario correctamente mediante la ruta", async () => {
-      pool.query.mockResolvedValueOnce({ rows: [] }); // No existe el correo
-      const nuevoUsuario = { id_usuario: 1, nombre: "Carlos", correo: "carlos@test.com" };
-      pool.query.mockResolvedValueOnce({ rows: [nuevoUsuario] }); // Inserción
+  assert.strictEqual(response.status, 201);
+  assert.deepStrictEqual(response.body, { id_usuario: 1, nombre: 'Carlos', correo: 'carlos@example.com', id_rol: 2 });
+});
 
-      const response = await request(app)
-        .post("/usuarios")
-        .send({
-          nombre: "Carlos",
-          correo: "carlos@test.com",
-          password: "Password1",
-          id_empresa: 1,
-        });
+test('PUT /usuarios/estado/:id - Debería cambiar el estado por ruta', async () => {
+  const response = await request(app).put("/usuarios/estado/3");
 
-      expect(response.status).toBe(201);
-      expect(response.body).toEqual(nuevoUsuario);
-    });
-  });
+  assert.strictEqual(response.status, 200);
+  assert.strictEqual(response.body.mensaje, "Usuario activado correctamente.");
 });
