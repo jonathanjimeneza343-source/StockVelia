@@ -1,0 +1,4 @@
+INSERT INTO roles (id_rol, nombre)
+VALUES 
+(1, 'ADMINISTRADOR'),
+(2, 'EMPLEADO')
