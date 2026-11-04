@@ -70,7 +70,15 @@ export const crearUsuario = async (req, res) => {
       [id_empresa, 2, nombre, correo, passwordHash],
     );
 
-    res.status(201).json(resultado.rows[0]);
+    const usuarioCreado = resultado.rows[0];
+
+    // INSERT AGREGADO: Vincular el nuevo usuario en la tabla intermedia usuario_empresa
+    await pool.query(
+      "INSERT INTO usuario_empresa (id_usuario, id_empresa) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+      [usuarioCreado.id_usuario, id_empresa]
+    );
+
+    res.status(201).json(usuarioCreado);
   } catch (error) {
     console.error(error);
     res.status(500).json({

@@ -2,10 +2,14 @@ import pool from '../config/db.js';
 import { registrarAuditoria } from '../config/auditoriaService.js';
 
 export const crearCategoria = async (req, res) => {
-    const { nombre, descripcion, id_empresa } = req.body;
-    const { id_usuario } = req.usuario; 
+    const { nombre, descripcion } = req.body;
+    const { id_usuario, id_empresa } = req.usuario; // <-- Obtenemos id_empresa directamente del token seguro
 
     try {
+        if (!id_empresa) {
+            return res.status(400).json({ error: 'No se ha seleccionado una empresa activa.' });
+        }
+
         const categoriaExiste = await pool.query(
             'SELECT * FROM categorias WHERE nombre = $1 AND id_empresa = $2', 
             [nombre, id_empresa]
@@ -27,29 +31,25 @@ export const crearCategoria = async (req, res) => {
             categoria: nuevaCategoria.rows[0]
         });
     } catch (error) {
-        console.error(error);
+        console.error("Error al crear categoría:", error);
         res.status(500).json({ error: 'Error al crear la categoría.' });
     }
 };
 
 export const obtenerCategorias = async (req, res) => {
     try {
-        const { id_empresa } = req.query;
+        const id_empresa = req.usuario?.id_empresa; // <-- Obtenemos id_empresa del token
 
-        let query = 'SELECT * FROM categorias';
-        let params = [];
-
-        if (id_empresa) {
-            query += ' WHERE id_empresa = $1';
-            params.push(id_empresa);
+        if (!id_empresa) {
+            return res.status(400).json({ error: 'No se ha seleccionado una empresa activa.' });
         }
 
-        query += ' ORDER BY nombre ASC';
+        const query = 'SELECT * FROM categorias WHERE id_empresa = $1 ORDER BY nombre ASC';
+        const resultado = await pool.query(query, [id_empresa]);
 
-        const resultado = await pool.query(query, params);
         res.json(resultado.rows);
     } catch (error) {
-        console.error(error);
+        console.error("Error al obtener categorías:", error);
         res.status(500).json({ error: 'Error al obtener las categorías.' });
     }
 };

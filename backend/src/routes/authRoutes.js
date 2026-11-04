@@ -3,7 +3,8 @@ import {
     registrarEmpresaYUsuario, 
     loginUsuario, 
     solicitarRecuperacion, 
-    restablecerPassword 
+    restablecerPassword,
+    cambiarEmpresaActiva
 } from '../controllers/authController.js';
 import { verificarToken } from '../middlewares/authMiddleware.js';
 import pool from '../config/db.js';
@@ -14,6 +15,7 @@ router.post('/register', registrarEmpresaYUsuario);
 router.post('/login', loginUsuario);
 router.post('/forgot-password', solicitarRecuperacion);
 router.post('/reset-password', restablecerPassword);
+router.post('/change-company', verificarToken, cambiarEmpresaActiva);
 
 router.post('/logout', verificarToken, async (req, res) => {
     try {
