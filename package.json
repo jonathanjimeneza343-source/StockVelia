@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "joi": "^18.3.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8"
   }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   IconLayoutDashboard,
   IconPackage,
@@ -7,6 +7,8 @@ import {
   IconUsers,
   IconFileAnalytics,
   IconLogout,
+  IconChevronLeft,
+  IconChevronRight,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../services/authService";
@@ -15,6 +17,7 @@ import LogoStockVelia from "../assets/logo_stockvelia.png";
 import "../styles/Sidebar.css";
 
 function Sidebar({ seccion, setSeccion }) {
+  const [colapsada, setColapsada] = useState(false);
   const usuario = JSON.parse(localStorage.getItem("usuario"));
   const esAdmin = usuario?.id_rol === 1;
 
@@ -49,53 +52,68 @@ function Sidebar({ seccion, setSeccion }) {
   };
 
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${colapsada ? "colapsada" : ""}`}>
       <div>
-        <div className="sidebar-logo">
-          <img src={LogoStockVelia} alt="Logo de StockVelia" />
-          <h2>StockVelia</h2>
+        {/* Cabecera del logo con botón para colapsar */}
+        <div className="sidebar-header-wrapper">
+          <div className="sidebar-logo">
+            <img src={LogoStockVelia} alt="Logo de StockVelia" />
+            {!colapsada && <h2>StockVelia</h2>}
+          </div>
+          <button 
+            className="btn-toggle-sidebar" 
+            onClick={() => setColapsada(!colapsada)}
+            title={colapsada ? "Expandir barra lateral" : "Minimizar barra lateral"}
+          >
+            {colapsada ? <IconChevronRight size={18} /> : <IconChevronLeft size={18} />}
+          </button>
         </div>
 
         <div className="sidebar-menu">
           <button
             className={seccion === "inicio" ? "activo" : ""}
             onClick={() => setSeccion("inicio")}
+            title={colapsada ? "Dashboard" : ""}
           >
-            <IconLayoutDashboard size={22} />
-            <span>Dashboard</span>
+            <IconLayoutDashboard size={22} className="sidebar-icon" />
+            {!colapsada && <span>Dashboard</span>}
           </button>
 
           <button
             className={seccion === "productos" ? "activo" : ""}
             onClick={() => setSeccion("productos")}
+            title={colapsada ? "Productos" : ""}
           >
-            <IconPackage size={22} />
-            <span>Productos</span>
+            <IconPackage size={22} className="sidebar-icon" />
+            {!colapsada && <span>Productos</span>}
           </button>
 
           <button
             className={seccion === "categorias" ? "activo" : ""}
             onClick={() => setSeccion("categorias")}
+            title={colapsada ? "Categorías" : ""}
           >
-            <IconCategory size={22} />
-            <span>Categorías</span>
+            <IconCategory size={22} className="sidebar-icon" />
+            {!colapsada && <span>Categorías</span>}
           </button>
 
           <button
             className={seccion === "movimientos" ? "activo" : ""}
             onClick={() => setSeccion("movimientos")}
+            title={colapsada ? "Movimientos" : ""}
           >
-            <IconArrowsExchange size={22} />
-            <span>Movimientos</span>
+            <IconArrowsExchange size={22} className="sidebar-icon" />
+            {!colapsada && <span>Movimientos</span>}
           </button>
 
           {esAdmin && (
             <button
               className={seccion === "usuarios" ? "activo" : ""}
               onClick={() => setSeccion("usuarios")}
+              title={colapsada ? "Usuarios" : ""}
             >
-              <IconUsers size={22} />
-              <span>Usuarios</span>
+              <IconUsers size={22} className="sidebar-icon" />
+              {!colapsada && <span>Usuarios</span>}
             </button>
           )}
 
@@ -103,18 +121,19 @@ function Sidebar({ seccion, setSeccion }) {
             <button
               className={seccion === "reportes" ? "activo" : ""}
               onClick={() => setSeccion("reportes")}
+              title={colapsada ? "Reportes" : ""}
             >
-              <IconFileAnalytics size={22} />
-              <span>Reportes</span>
+              <IconFileAnalytics size={22} className="sidebar-icon" />
+              {!colapsada && <span>Reportes</span>}
             </button>
           )}
         </div>
       </div>
 
       <div className="sidebar-footer">
-        <button onClick={handleLogout}>
-          <IconLogout size={22} />
-          <span>Cerrar sesión</span>
+        <button onClick={handleLogout} title={colapsada ? "Cerrar sesión" : ""}>
+          <IconLogout size={22} className="sidebar-icon" />
+          {!colapsada && <span>Cerrar sesión</span>}
         </button>
       </div>
     </div>
