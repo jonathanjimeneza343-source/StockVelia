@@ -16,7 +16,9 @@ function InicioDashboard() {
 
   const cargarResumen = useCallback(async () => {
     try {
-      const idEmpresa = usuario.id_empresa;
+      const idEmpresa = usuario?.id_empresa;
+      if (!idEmpresa) return;
+
       const [productos, categorias] = await Promise.all([
         obtenerProductos(idEmpresa),
         obtenerCategorias(idEmpresa),
@@ -47,40 +49,58 @@ function InicioDashboard() {
 
   return (
     <div className="dashboard-container">
+      {/* Cabecera del Panel */}
       <div className="dashboard-header-top">
-        <h2>Panel Principal</h2>
-        <p className="dashboard-welcome">
-          Bienvenido de nuevo, <strong>{usuario?.nombre || "Administrador"}</strong>. Aquí tienes el estado actual de tu inventario.
-        </p>
+        <div>
+          <h2>Panel Principal</h2>
+          <p className="dashboard-welcome">
+            Bienvenido de nuevo, <strong>{usuario?.nombre || "Administrador"}</strong>. Aquí tienes el estado actual de tu inventario.
+          </p>
+        </div>
       </div>
 
+      {/* Tarjetas de Métricas */}
       <div className="dashboard-cards-grid">
-        <div className="dash-card">
-          <span className="dash-card-title">Total Productos</span>
-          <p className="dash-card-number">{stats.totalProductos}</p>
+        <div className="dash-card card-purple">
+          <div className="dash-card-info">
+            <span className="dash-card-title">Productos Totales</span>
+            <p className="dash-card-number">{stats.totalProductos}</p>
+          </div>
+          <div className="dash-icon-box purple-box">📦</div>
         </div>
 
-        <div className="dash-card">
-          <span className="dash-card-title">Categorías</span>
-          <p className="dash-card-number">{stats.totalCategorias}</p>
+        <div className="dash-card card-blue">
+          <div className="dash-card-info">
+            <span className="dash-card-title">Categorías</span>
+            <p className="dash-card-number">{stats.totalCategorias}</p>
+          </div>
+          <div className="dash-icon-box blue-box">🏷️</div>
         </div>
 
-        <div className="dash-card alert">
-          <span className="dash-card-title">Stock Bajo (≤ 5)</span>
-          <p className="dash-card-number low">{stats.stockBajo}</p>
+        <div className="dash-card card-amber">
+          <div className="dash-card-info">
+            <span className="dash-card-title">Stock Bajo (≤ 5)</span>
+            <p className="dash-card-number low">{stats.stockBajo}</p>
+          </div>
+          <div className="dash-icon-box amber-box">⚠️</div>
         </div>
 
-        <div className="dash-card">
-          <span className="dash-card-title">Valor del Inventario</span>
-          <p className="dash-card-number">${stats.valorInventario.toLocaleString()}</p>
+        <div className="dash-card card-emerald">
+          <div className="dash-card-info">
+            <span className="dash-card-title">Valor del Inventario</span>
+            <p className="dash-card-number">${stats.valorInventario.toLocaleString()}</p>
+          </div>
+          <div className="dash-icon-box emerald-box">💰</div>
         </div>
       </div>
 
+      {/* Sección de Alertas */}
       <div className="dashboard-section">
-        <h3>Alertas de Stock Crítico</h3>
+        <h3 className="section-title">🔔 Alertas de Stock Crítico</h3>
         {productosBajos.length === 0 ? (
           <div className="dashboard-empty">
-            <p>¡Excelente! No hay productos con stock crítico en este momento.</p>
+            <span className="empty-icon">✅</span>
+            <p>¡Excelente! No hay productos con stock crítico en este momento. El inventario está saludable.</p>
           </div>
         ) : (
           <div className="table-responsive">
@@ -97,7 +117,7 @@ function InicioDashboard() {
                 {productosBajos.map((p) => (
                   <tr key={p.id_producto}>
                     <td>{p.codigo}</td>
-                    <td>{p.nombre}</td>
+                    <td className="font-weight-medium">{p.nombre}</td>
                     <td>
                       <span className="badge-low">{p.stock} unidades</span>
                     </td>
