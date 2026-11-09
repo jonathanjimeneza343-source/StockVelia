@@ -1,16 +1,40 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { IconUser, IconLock } from "@tabler/icons-react";
+import { useNavigate, Link } from "react-router-dom";
+import {
+  IconMail,
+  IconLock,
+  IconEye,
+  IconEyeOff,
+  IconArrowLeft,
+  IconBellRinging,
+  IconPackage,
+} from "@tabler/icons-react";
 import { FcGoogle } from "react-icons/fc";
-import ilustracion from "../assets/ilustracion_login.svg";
-import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
-import "../styles/Login.css";
+import ilustracion from "../assets/ilustracion_login.svg";
+import AuthBrand from "../components/AuthBrand";
+import "../styles/Auth.css";
+
+const CHIPS = [
+  {
+    tone: "warn",
+    icon: <IconBellRinging size={18} />,
+    title: "Aceite 1 L bajó de su mínimo",
+    sub: "Quedan 7 uds · mínimo 8",
+  },
+  {
+    tone: "ok",
+    icon: <IconPackage size={18} />,
+    title: "Entrada registrada",
+    sub: "Aceite 1 L · +24 uds",
+  },
+];
 
 function Login() {
   const [correo, setCorreo] = useState("");
   const [contraseña, setContraseña] = useState("");
   const [cargando, setCargando] = useState(false);
+  const [ver, setVer] = useState(false);
 
   const navigate = useNavigate();
 
@@ -56,7 +80,6 @@ function Login() {
       }).then(() => {
         navigate("/dashboard");
       });
-
     } catch (error) {
       console.error(error);
       Swal.fire({
@@ -82,70 +105,105 @@ function Login() {
   };
 
   return (
-    <div className="contenedor-principal-login">
-      <div className="login-contenedor">
-        <div className="login-formulario">
-          <h2>INICIA SESIÓN</h2>
-          <p>Gestiona tu negocio fácilmente</p>
+    <div className="au-page au-page--login">
+      <div className="au-card au-card--login">
+        <section className="au-main">
+          <Link to="/" className="au-back">
+            <IconArrowLeft size={18} />
+            Volver al inicio
+          </Link>
 
-          <form onSubmit={handleSubmit}>
-            <div className="login-input">
-              <IconUser size={22} className="icono-login" />
-              <input
-                placeholder="Correo Electrónico"
-                type="email"
-                value={correo}
-                onChange={(e) => setCorreo(e.target.value)}
-                required
-                disabled={cargando}
-              />
+          <div className="au-inner">
+            <header className="au-head">
+              <h1>Inicia sesión</h1>
+              <p>Gestiona tu negocio fácilmente</p>
+            </header>
+
+            <form className="au-form" onSubmit={handleSubmit}>
+              <div className="au-field">
+                <label className="au-label" htmlFor="login-correo">
+                  Correo electrónico
+                </label>
+                <div className="au-control">
+                  <IconMail size={20} className="au-ico" />
+                  <input
+                    id="login-correo"
+                    placeholder="nombre@correo.com"
+                    type="email"
+                    autoComplete="email"
+                    value={correo}
+                    onChange={(e) => setCorreo(e.target.value)}
+                    required
+                    disabled={cargando}
+                  />
+                </div>
+              </div>
+
+              <div className="au-field">
+                <div className="au-top">
+                  <label className="au-label" htmlFor="login-pass">
+                    Contraseña
+                  </label>
+                  <Link to="/recuperarContraseña" className="au-link au-link--sm">
+                    ¿Olvidaste tu contraseña?
+                  </Link>
+                </div>
+                <div className="au-control">
+                  <IconLock size={20} className="au-ico" />
+                  <input
+                    id="login-pass"
+                    placeholder="Tu contraseña"
+                    type={ver ? "text" : "password"}
+                    autoComplete="current-password"
+                    value={contraseña}
+                    onChange={(e) => setContraseña(e.target.value)}
+                    required
+                    disabled={cargando}
+                  />
+                  <button
+                    type="button"
+                    className="au-eye"
+                    onClick={() => setVer(!ver)}
+                    aria-label={ver ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    aria-pressed={ver}
+                  >
+                    {ver ? <IconEyeOff size={20} /> : <IconEye size={20} />}
+                  </button>
+                </div>
+              </div>
+
+              <button className="au-btn" type="submit" disabled={cargando}>
+                {cargando && <span className="au-spin" aria-hidden="true" />}
+                <span>{cargando ? "Iniciando…" : "Iniciar sesión"}</span>
+              </button>
+            </form>
+
+            <div className="au-or">
+              <span>o</span>
             </div>
 
-            <div className="login-input">
-              <IconLock size={22} className="icono-login" />
-              <input
-                placeholder="Contraseña"
-                type="password"
-                value={contraseña}
-                onChange={(e) => setContraseña(e.target.value)}
-                required
-                disabled={cargando}
-              />
-            </div>
-
-            <button className="boton-inicio" type="submit" disabled={cargando}>
-              <strong>{cargando ? "Iniciando..." : "Iniciar Sesión"}</strong>
-            </button>
-
-            <div className="registro-link">
-              <p>
-                ¿No tienes una cuenta? <Link to="/registro">Regístrate</Link>
-              </p>
-            </div>
-          </form>
-
-          <div className="separador-login">
-            <div className="linea"></div>
-            <p>
-              <strong>Iniciar</strong> con otros
-            </p>
-            <div className="linea"></div>
-          </div>
-
-          <div className="login-opciones">
-            <button type="button" className="google-login" onClick={handleGoogleLogin}>
-              <FcGoogle size={24} />
+            <button type="button" className="au-google" onClick={handleGoogleLogin}>
+              <FcGoogle size={22} />
               <span>
                 Iniciar con <strong>Google</strong>
               </span>
             </button>
-            <Link to="/recuperarContraseña">¿Olvidaste tu Contraseña?</Link>
-          </div>
-        </div>
 
-        <div className="login-ilustracion">
-          <img src={ilustracion} alt="Ilustración Login" />
-        </div>
+            <p className="au-switch">
+              ¿No tienes una cuenta?{" "}
+              <Link to="/registro" className="au-link">
+                Regístrate
+              </Link>
+            </p>
+          </div>
+        </section>
+
+        <AuthBrand
+          illustration={ilustracion}
+          title="Tu inventario, bajo control."
+          text="Existencias en tiempo real, alertas antes de que se agote y reportes listos para tu contabilidad."
+          chips={CHIPS}
+        />
       </div>
     </div>
   );

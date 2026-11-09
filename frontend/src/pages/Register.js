@@ -5,12 +5,35 @@ import {
   IconLock,
   IconMail,
   IconBuildingStore,
+  IconEye,
+  IconEyeOff,
+  IconCheck,
+  IconArrowLeft,
+  IconBellRinging,
+  IconPackage,
 } from "@tabler/icons-react";
 import { FcGoogle } from "react-icons/fc";
-import Checkbox from "../components/Checkbox";
-import ilustracion from "../assets/ilustracion_register.svg";
 import Swal from "sweetalert2";
-import "../styles/Register.css";
+import ilustracion from "../assets/ilustracion_register.svg";
+import AuthBrand from "../components/AuthBrand";
+import "../styles/Auth.css";
+
+const CHIPS = [
+  {
+    tone: "ok",
+    icon: <IconPackage size={18} />,
+    title: "Producto registrado",
+    sub: "Arroz 500 g · 18 uds",
+  },
+  {
+    tone: "warn",
+    icon: <IconBellRinging size={18} />,
+    title: "Alerta configurada",
+    sub: "Aviso cuando baje de 10 uds",
+  },
+];
+
+const STEPS = ["Crea tu cuenta", "Registra tus productos", "Empieza a controlar"];
 
 function Register() {
   const [nombres, setNombres] = useState("");
@@ -19,9 +42,22 @@ function Register() {
   const [correo, setCorreo] = useState("");
   const [contraseña, setContraseña] = useState("");
   const [confirmarContraseña, setConfirmarContraseña] = useState("");
+  const [acepta, setAcepta] = useState(false);
+  const [ver, setVer] = useState(false);
   const [cargando, setCargando] = useState(false);
 
   const navigate = useNavigate();
+
+  // Requisitos en vivo (los mismos que valida el submit)
+  const reqs = [
+    ["6 o más caracteres", contraseña.length >= 6],
+    ["Una mayúscula", /[A-Z]/.test(contraseña)],
+    ["Una minúscula", /[a-z]/.test(contraseña)],
+    ["Un número", /\d/.test(contraseña)],
+  ];
+
+  const hayConfirmacion = confirmarContraseña.length > 0;
+  const coinciden = contraseña === confirmarContraseña;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -113,125 +149,213 @@ function Register() {
     });
   };
 
+  const eye = (
+    <button
+      type="button"
+      className="au-eye"
+      onClick={() => setVer(!ver)}
+      aria-label={ver ? "Ocultar contraseñas" : "Mostrar contraseñas"}
+      aria-pressed={ver}
+    >
+      {ver ? <IconEyeOff size={20} /> : <IconEye size={20} />}
+    </button>
+  );
+
   return (
-    <div className="contenedor-principal-registro">
-      <div className="registro-contenedor">
-        <div className="registro-ilustracion">
-          <img src={ilustracion} alt="Ilustración Register" />
-        </div>
+    <div className="au-page au-page--register">
+      <div className="au-card au-card--register">
+        <AuthBrand
+          illustration={ilustracion}
+          title="Crea tu cuenta gratis."
+          text="Registra tus productos y empieza a controlar tu inventario hoy."
+          steps={STEPS}
+          chips={CHIPS}
+        />
 
-        <div className="registro-formulario">
-          <h2>REGÍSTRATE</h2>
-          <p>Crea tu cuenta y gestiona tu inventario fácilmente</p>
+        <section className="au-main">
+          <Link to="/" className="au-back">
+            <IconArrowLeft size={18} />
+            Volver al inicio
+          </Link>
 
-          <form onSubmit={handleSubmit}>
-            <div className="formulario-registro">
-              <div className="registro-input">
-                <IconUser size={22} className="icono-registro" />
+          <div className="au-inner au-inner--wide">
+            <header className="au-head">
+              <h1>Regístrate</h1>
+              <p>Crea tu cuenta y gestiona tu inventario fácilmente</p>
+            </header>
+
+            <form className="au-form au-form--grid" onSubmit={handleSubmit}>
+              <div className="au-field">
+                <label className="au-label" htmlFor="reg-nombres">
+                  Nombres
+                </label>
+                <div className="au-control">
+                  <IconUser size={20} className="au-ico" />
+                  <input
+                    id="reg-nombres"
+                    placeholder="Laura"
+                    type="text"
+                    autoComplete="given-name"
+                    value={nombres}
+                    onChange={(e) => setNombres(e.target.value)}
+                    required
+                    disabled={cargando}
+                  />
+                </div>
+              </div>
+
+              <div className="au-field">
+                <label className="au-label" htmlFor="reg-apellidos">
+                  Apellidos
+                </label>
+                <div className="au-control">
+                  <IconUser size={20} className="au-ico" />
+                  <input
+                    id="reg-apellidos"
+                    placeholder="Martínez"
+                    type="text"
+                    autoComplete="family-name"
+                    value={apellidos}
+                    onChange={(e) => setApellidos(e.target.value)}
+                    required
+                    disabled={cargando}
+                  />
+                </div>
+              </div>
+
+              <div className="au-field">
+                <label className="au-label" htmlFor="reg-negocio">
+                  Nombre del negocio
+                </label>
+                <div className="au-control">
+                  <IconBuildingStore size={20} className="au-ico" />
+                  <input
+                    id="reg-negocio"
+                    placeholder="Tienda La Esquina"
+                    type="text"
+                    autoComplete="organization"
+                    value={nombreEmpresa}
+                    onChange={(e) => setNombreEmpresa(e.target.value)}
+                    required
+                    disabled={cargando}
+                  />
+                </div>
+              </div>
+
+              <div className="au-field">
+                <label className="au-label" htmlFor="reg-correo">
+                  Correo
+                </label>
+                <div className="au-control">
+                  <IconMail size={20} className="au-ico" />
+                  <input
+                    id="reg-correo"
+                    placeholder="nombre@correo.com"
+                    type="email"
+                    autoComplete="email"
+                    value={correo}
+                    onChange={(e) => setCorreo(e.target.value)}
+                    required
+                    disabled={cargando}
+                  />
+                </div>
+              </div>
+
+              <div className="au-field">
+                <label className="au-label" htmlFor="reg-pass">
+                  Contraseña
+                </label>
+                <div className="au-control">
+                  <IconLock size={20} className="au-ico" />
+                  <input
+                    id="reg-pass"
+                    placeholder="Crea una contraseña"
+                    type={ver ? "text" : "password"}
+                    autoComplete="new-password"
+                    value={contraseña}
+                    onChange={(e) => setContraseña(e.target.value)}
+                    required
+                    disabled={cargando}
+                  />
+                  {eye}
+                </div>
+              </div>
+
+              <div className="au-field">
+                <label className="au-label" htmlFor="reg-pass2">
+                  Confirmar contraseña
+                </label>
+                <div
+                  className={`au-control ${hayConfirmacion ? (coinciden ? "is-ok" : "is-bad") : ""
+                    }`}
+                >
+                  <IconLock size={20} className="au-ico" />
+                  <input
+                    id="reg-pass2"
+                    placeholder="Repite la contraseña"
+                    type={ver ? "text" : "password"}
+                    autoComplete="new-password"
+                    value={confirmarContraseña}
+                    onChange={(e) => setConfirmarContraseña(e.target.value)}
+                    required
+                    disabled={cargando}
+                    aria-invalid={hayConfirmacion && !coinciden}
+                  />
+                  {eye}
+                </div>
+                <span className="au-hint" role="status" aria-live="polite">
+                  {hayConfirmacion && !coinciden ? "Las contraseñas no coinciden" : ""}
+                </span>
+              </div>
+
+              <ul className="au-reqs au-span" aria-label="Requisitos de la contraseña">
+                {reqs.map(([label, ok]) => (
+                  <li key={label} className={ok ? "ok" : ""}>
+                    <IconCheck size={14} stroke={3} />
+                    {label}
+                  </li>
+                ))}
+              </ul>
+
+              <label className="au-check au-span">
                 <input
-                  placeholder="Nombres"
-                  type="text"
-                  value={nombres}
-                  onChange={(e) => setNombres(e.target.value)}
+                  type="checkbox"
+                  checked={acepta}
+                  onChange={(e) => setAcepta(e.target.checked)}
                   required
                   disabled={cargando}
                 />
-              </div>
+                <span className="au-box">
+                  <IconCheck size={14} stroke={3.5} />
+                </span>
+                <span>Acepto los términos y condiciones</span>
+              </label>
 
-              <div className="registro-input">
-                <IconUser size={22} className="icono-registro" />
-                <input
-                  placeholder="Apellidos"
-                  type="text"
-                  value={apellidos}
-                  onChange={(e) => setApellidos(e.target.value)}
-                  required
-                  disabled={cargando}
-                />
-              </div>
+              <button className="au-btn au-span" type="submit" disabled={cargando}>
+                {cargando && <span className="au-spin" aria-hidden="true" />}
+                <span>{cargando ? "Registrando…" : "Registrarse"}</span>
+              </button>
+            </form>
 
-              <div className="registro-input">
-                <IconBuildingStore size={22} className="icono-registro" />
-                <input
-                  placeholder="Nombre del negocio"
-                  type="text"
-                  value={nombreEmpresa}
-                  onChange={(e) => setNombreEmpresa(e.target.value)}
-                  required
-                  disabled={cargando}
-                />
-              </div>
-
-              <div className="registro-input">
-                <IconMail size={22} className="icono-registro" />
-                <input
-                  placeholder="Correo"
-                  type="email"
-                  value={correo}
-                  onChange={(e) => setCorreo(e.target.value)}
-                  required
-                  disabled={cargando}
-                />
-              </div>
-
-              <div className="registro-input">
-                <IconLock size={22} className="icono-registro" />
-                <input
-                  placeholder="Contraseña"
-                  type="password"
-                  value={contraseña}
-                  onChange={(e) => setContraseña(e.target.value)}
-                  required
-                  disabled={cargando}
-                />
-              </div>
-
-              <div className="registro-input">
-                <IconLock size={22} className="icono-registro" />
-                <input
-                  placeholder="Confirmar contraseña"
-                  type="password"
-                  value={confirmarContraseña}
-                  onChange={(e) => setConfirmarContraseña(e.target.value)}
-                  required
-                  disabled={cargando}
-                />
-              </div>
+            <div className="au-or">
+              <span>o</span>
             </div>
 
-            <div className="terminos">
-              <Checkbox />
-              <span>Acepto los términos y condiciones</span>
-            </div>
-
-            <button className="boton-registro" type="submit" disabled={cargando}>
-              <strong>{cargando ? "Registrando..." : "Registrarse"}</strong>
+            <button type="button" className="au-google" onClick={handleGoogleRegister}>
+              <FcGoogle size={22} />
+              <span>
+                Registrarse con <strong>Google</strong>
+              </span>
             </button>
 
-            <div className="login-opciones-registro">
-              <div className="separador-registro">
-                <div className="linea-reg"></div>
-                <p><strong>Registrarse</strong> con otros</p>
-                <div className="linea-reg"></div>
-              </div>
-
-              <button
-                type="button"
-                className="google-registro-btn"
-                onClick={handleGoogleRegister}
-              >
-                <FcGoogle size={24} />
-                <span>
-                  Registrarse con <strong>Google</strong>
-                </span>
-              </button>
-
-              <p className="registro-link">
-                ¿Ya tienes una cuenta? <Link to="/login">Inicia sesión</Link>
-              </p>
-            </div>
-          </form>
-        </div>
+            <p className="au-switch">
+              ¿Ya tienes una cuenta?{" "}
+              <Link to="/login" className="au-link">
+                Inicia sesión
+              </Link>
+            </p>
+          </div>
+        </section>
       </div>
     </div>
   );

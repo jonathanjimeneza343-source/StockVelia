@@ -30,6 +30,10 @@ function CountUp({ to, suffix = '' }) {
     return <span ref={ref}>{v}{suffix}</span>;
 }
 
+function Next({ to, children, light }) {
+    return <Reveal className={`next-wrap ${light ? 'light' : ''}`}><a href={to} className="next-link">{children}<i aria-hidden="true">↓</i></a></Reveal>;
+}
+
 /* ---------- Datos ---------- */
 const INITIAL = [
     { id: 1, name: 'Arroz 500 g', code: '7701001', cat: 'Granos', cost: 2800, price: 3500, stock: 18, min: 10, on: true },
@@ -87,12 +91,14 @@ const ROLES = {
     operador: ['Registrar entradas y salidas'],
 };
 const ALL_PERMS = ROLES.admin;
+const links = [['#diagnostico', 'Por qué'], ['#solucion', 'Solución'], ['#historia', 'Cómo funciona'], ['#capacidades', 'Capacidades'], ['#sectores', 'Sectores'], ['#faq', 'FAQ']];
+const FAQ_LINK = { 2: ['#historia', 'Ver cómo funcionan las alertas'], 3: ['#capacidades', 'Ver seguridad por roles'], 4: ['#capacidades', 'Ver la exportación'], 5: ['#comparativo', 'Ver la comparación'] };
 
 const PROBLEMS = [
-    ['leak', 'Fugas de capital hormiga', 'Productos vencidos, deterioros y diferencias de inventario que nunca se detectan a tiempo.', 'Tu capital, mes a mes', 'Detecta mermas y diferencias con cada movimiento que registras.'],
-    ['gap', 'Quiebres de stock', 'No anticipar la falta de mercancía de alta rotación: el cliente termina comprando en la competencia.', 'Tus productos estrella en el estante', 'Alertas visuales cuando un producto cruza su mínimo, para reabastecer a tiempo.'],
-    ['lock', 'Dinero atrapado', 'Mercancía que no rota y bloquea el flujo de caja que tu negocio necesita para crecer.', 'Mercancía sin rotar en bodega', 'La clasificación ABC señala el stock estancado para convertirlo en liquidez.'],
-    ['blind', 'Cero visibilidad financiera', 'Registros manuales con errores humanos hacen imposible obtener reportes de auditoría confiables.', 'Conteo manual: ¿cuánto hay de verdad?', 'Historiales y reportes PDF o Excel confiables, con cada acción ligada a su usuario.'],
+    ['leak', 'Fugas de capital hormiga', 'Productos vencidos, deterioros y diferencias de inventario que nunca se detectan a tiempo.', 'Tu capital, mes a mes', 'Detecta mermas y diferencias con cada movimiento que registras.', '#historia', 'Cómo se registra cada movimiento'],
+    ['gap', 'Quiebres de stock', 'No anticipar la falta de mercancía de alta rotación: el cliente termina comprando en la competencia.', 'Tus productos estrella en el estante', 'Alertas visuales cuando un producto cruza su mínimo, para reabastecer a tiempo.', '#capacidades', 'Ver las alertas en tiempo real'],
+    ['lock', 'Dinero atrapado', 'Mercancía que no rota y bloquea el flujo de caja que tu negocio necesita para crecer.', 'Mercancía sin rotar en bodega', 'La clasificación ABC señala el stock estancado para convertirlo en liquidez.', '#capacidades', 'Ver la clasificación ABC'],
+    ['blind', 'Cero visibilidad financiera', 'Registros manuales con errores humanos hacen imposible obtener reportes de auditoría confiables.', 'Conteo manual: ¿cuánto hay de verdad?', 'Historiales y reportes PDF o Excel confiables, con cada acción ligada a su usuario.', '#capacidades', 'Ver reportes y roles'],
 ];
 const PILLARS = [
     ['Más ligero que un ERP', 'Olvídate de sistemas complejos y costosos, imposibles de implementar en un negocio en crecimiento.'],
@@ -110,10 +116,47 @@ const SECTORS = [
 ];
 
 function ProblemVisual({ k }) {
-    if (k === 'leak') return <div className="pv pv-leak"><i /></div>;
-    if (k === 'gap') return <div className="pv pv-gap">{[0, 1, 2, 3, 4, 5].map((i) => <i key={i} style={{ '--i': i }} className={i > 2 ? 'gone' : ''} />)}</div>;
-    if (k === 'lock') return <div className="pv pv-lock">{Array.from({ length: 8 }, (_, i) => <i key={i} style={{ '--i': i }} />)}</div>;
-    return <div className="pv pv-blind"><i style={{ width: '90%' }} /><i style={{ width: '65%' }} /><i style={{ width: '78%' }} /><b>?</b></div>;
+    if (k === 'leak') return (
+        <div className="pv pv-leak">
+            <div className="pv-top"><span>Capital en inventario</span><b>$12.400.000</b></div>
+            <span className="bar"><em /></span>
+            <div className="leaks">
+                {[['Vencidos', '−$180.000'], ['Deterioro', '−$95.000'], ['Diferencias', '−$140.000']].map(([n, v], i) => (
+                    <span key={n} style={{ '--i': i }}>{n} <b>{v}</b></span>
+                ))}
+            </div>
+        </div>
+    );
+    if (k === 'gap') return (
+        <div className="pv pv-gap">
+            <div className="shelf">
+                {[['🍚', 'Arroz', '18 uds'], ['🛢️', 'Aceite', '12 uds'], ['🥛', 'Leche', 'Agotado', true], ['🧂', 'Sal', 'Agotado', true]].map(([e, n, q, miss], i) => (
+                    <div key={n} style={{ '--i': i }} className={`slot ${miss ? 'miss' : ''}`}>
+                        <span className="emo">{e}</span><b>{n}</b><small>{q}</small>
+                    </div>
+                ))}
+            </div>
+            <div className="pv-note">Cliente que se va con la competencia: <b>−$32.000 hoy</b></div>
+        </div>
+    );
+    if (k === 'lock') return (
+        <div className="pv pv-lock">
+            <div className="pv-top"><span>Sin movimiento · 90 días</span><b>$4.800.000 🔒</b></div>
+            <div className="boxes">{Array.from({ length: 8 }, (_, i) => <span key={i} style={{ '--i': i }}>📦</span>)}</div>
+            <div className="pv-note">Rotación en el último trimestre: <b>0 ventas</b></div>
+        </div>
+    );
+    return (
+        <div className="pv pv-blind">
+            <div className="ledger">
+                <div className="hd"><span>Producto</span><span>Libro</span><span>Real</span></div>
+                {[['Arroz 500 g', '18', '15'], ['Aceite 1 L', '12', '9'], ['Detergente', '7', '11']].map(([n, a, b]) => (
+                    <div key={n}><span>{n}</span><small>{a}</small><em>{b}</em></div>
+                ))}
+            </div>
+            <b>?</b>
+        </div>
+    );
 }
 
 /* ---------- Visuales de la historia ---------- */
@@ -163,6 +206,8 @@ function LandingPage() {
     const [day, setDay] = useState(0);
     const [dayPause, setDayPause] = useState(false);
     const [faq, setFaq] = useState(0);
+    const [current, setCurrent] = useState('');
+    const pillsRef = useRef(null);
     const heroRef = useRef(null);
     const toastT = useRef(null);
     const stepRefs = useRef([]);
@@ -170,6 +215,9 @@ function LandingPage() {
     useEffect(() => {
         const onScroll = () => {
             setScrolled(window.scrollY > 10);
+            let cur = '';
+            links.forEach(([h]) => { const el = document.getElementById(h.slice(1)); if (el && el.getBoundingClientRect().top <= 150) cur = h.slice(1); });
+            setCurrent(cur);
             const p = Math.min(window.scrollY / 520, 1);
             heroRef.current?.style.setProperty('--p', p.toFixed(3));
         };
@@ -188,6 +236,27 @@ function LandingPage() {
         const t = setInterval(() => setDay((d) => (d + 1) % DAY.length), 4200);
         return () => clearInterval(t);
     }, [dayPause]);
+
+    useEffect(() => {
+        const box = pillsRef.current; if (!box) return;
+        const place = () => {
+            const a = box.querySelector('a.on');
+            if (!a) { box.style.setProperty('--io', 0); return; }
+            box.style.setProperty('--ix', `${a.offsetLeft}px`);
+            box.style.setProperty('--iw', `${a.offsetWidth}px`);
+            box.style.setProperty('--io', 1);
+        };
+        place(); window.addEventListener('resize', place);
+        return () => window.removeEventListener('resize', place);
+    }, [current]);
+
+    useEffect(() => {
+        document.body.style.overflow = menu ? 'hidden' : '';
+        const onKey = (e) => { if (e.key === 'Escape') setMenu(false); };
+        const onResize = () => { if (window.innerWidth > 900) setMenu(false); };
+        window.addEventListener('keydown', onKey); window.addEventListener('resize', onResize);
+        return () => { window.removeEventListener('keydown', onKey); window.removeEventListener('resize', onResize); document.body.style.overflow = ''; };
+    }, [menu]);
 
     const flash = useCallback((msg, type) => {
         setToast({ msg, type }); clearTimeout(toastT.current);
@@ -216,18 +285,24 @@ function LandingPage() {
         c.style.setProperty('--mx', `${e.clientX - r.left}px`); c.style.setProperty('--my', `${e.clientY - r.top}px`);
     };
 
-    const links = [['#diagnostico', 'Por qué'], ['#solucion', 'Solución'], ['#historia', 'Cómo funciona'], ['#capacidades', 'Capacidades'], ['#sectores', 'Sectores']];
     const abcData = [['A', 80, '20% de productos'], ['B', 15, '30% de productos'], ['C', 5, '50% de productos']];
 
     return (
         <div className="landing-scope">
             <header className={`landing-navbar ${scrolled ? 'is-scrolled' : ''}`}>
-                <a href="#inicio" className="navbar-brand"><img src={logoStockvelia} alt="" className="navbar-logo" /><span className="brand-name">StockVelia</span></a>
-                <button className={`menu-toggle ${menu ? 'open' : ''}`} onClick={() => setMenu(!menu)} aria-label="Abrir menú" aria-expanded={menu}><span /><span /></button>
-                <nav className={`navbar-links ${menu ? 'open' : ''}`}>
-                    {links.map(([h, l]) => <a key={h} href={h} onClick={() => setMenu(false)}>{l}</a>)}
-                    <Link to="/login" className="nav-login">Iniciar sesión</Link>
-                    <Link to="/registro" className="pill-btn small">Empezar gratis</Link>
+                <a href="#inicio" className="navbar-brand" onClick={() => setMenu(false)}><img src={logoStockvelia} alt="" className="navbar-logo" /><span className="brand-name">StockVelia</span></a>
+                <button className={`menu-toggle ${menu ? 'open' : ''}`} onClick={() => setMenu(!menu)} aria-label={menu ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menu} aria-controls="nav-principal"><span /><span /></button>
+                <nav id="nav-principal" className={`navbar-links ${menu ? 'open' : ''}`} aria-label="Principal">
+                    <div className="nav-pills" ref={pillsRef}>
+                        <span className="nav-ind" aria-hidden="true" />
+                        {links.map(([h, l], i) => (
+                            <a key={h} href={h} className={current === h.slice(1) ? 'on' : ''} aria-current={current === h.slice(1) ? 'true' : undefined} style={{ '--n': i }} onClick={() => setMenu(false)}><em>{String(i + 1).padStart(2, '0')}</em>{l}</a>
+                        ))}
+                    </div>
+                    <div className="nav-cta">
+                        <Link to="/login" className="nav-login" onClick={() => setMenu(false)}>Iniciar sesión</Link>
+                        <Link to="/registro" className="pill-btn small" onClick={() => setMenu(false)}>Empezar gratis</Link>
+                    </div>
                 </nav>
             </header>
 
@@ -237,7 +312,7 @@ function LandingPage() {
                     <div className="hero-glow" aria-hidden="true" />
                     <p className="hero-kicker">Inteligencia financiera para tu negocio</p>
                     <h1 className="hero-title">
-                        {['Tu', 'inventario,', 'bajo', 'control.'].map((w, i) => <span key={w} style={{ '--w': i }}>{w}&nbsp;</span>)}
+                        {['Tu', 'Inventario,', 'Bajo', 'Control.'].map((w, i) => <span key={w} style={{ '--w': i }}>{w}&nbsp;</span>)}
                     </h1>
                     <p className="hero-sub">StockVelia centraliza y protege tu inventario en tiempo real para que dejes de perder dinero en silencio.</p>
                     <div className="hero-actions">
@@ -325,6 +400,7 @@ function LandingPage() {
                             <div className={`toast ${toast ? `show ${toast.type}` : ''}`} role="status" aria-live="polite">{toast?.msg}</div>
                         </div>
                         <p className="stage-hint">Es una demo real: registra una venta con <b>−1</b> y mira cómo reacciona.</p>
+                        <Next to="#diagnostico">¿Por qué nace StockVelia?</Next>
                     </div>
                 </section>
 
@@ -338,10 +414,11 @@ function LandingPage() {
                     <Reveal as="h2" className="big-h">¿Por qué nace StockVelia?</Reveal>
                     <Reveal as="p" delay={100} className="big-p">La supervivencia de un pequeño negocio depende de su agilidad financiera. Pero casi todos llevan el inventario en cuadernos, hojas de cálculo estáticas o de memoria. Eso deja puntos ciegos que drenan tus finanzas en silencio.</Reveal>
                     <div className="prob-grid">
-                        {PROBLEMS.map(([k, t, d, cap, fix], i) => (
-                            <Reveal key={k} delay={(i % 2) * 120} className="prob-card"><h3>{t}</h3><p>{d}</p><ProblemVisual k={k} /><small className="pv-cap">{cap}</small><div className="fix"><b>Con StockVelia</b>{fix}</div></Reveal>
+                        {PROBLEMS.map(([k, t, d, cap, fix, to, lbl], i) => (
+                            <Reveal key={k} delay={(i % 2) * 120} className="prob-card"><h3>{t}</h3><p>{d}</p><ProblemVisual k={k} /><small className="pv-cap">{cap}</small><div className="fix"><b>Con StockVelia</b>{fix}<a href={to} className="fix-link">{lbl} ›</a></div></Reveal>
                         ))}
                     </div>
+                    <Next to="#solucion">Descubre la solución</Next>
                 </section>
 
                 {/* SOLUCIÓN */}
@@ -351,7 +428,7 @@ function LandingPage() {
                     <div className="pillars">
                         {PILLARS.map(([t, d], i) => <Reveal key={t} delay={i * 110} className="pillar"><h3>{t}</h3><p>{d}</p></Reveal>)}
                     </div>
-                    <Reveal className="compare">
+                    <Reveal id="comparativo" className="compare">
                         <div className="cmp-head"><div className="role-switch">{Object.entries(COMPARE).map(([k, v]) => <button key={k} className={vs === k ? 'on' : ''} onClick={() => setVs(k)}>vs {v.name}</button>)}</div></div>
                         <div className="cmp-row cmp-top"><span /><span>{COMPARE[vs].name}</span><span className="us">StockVelia</span></div>
                         <div key={vs}>
@@ -364,10 +441,11 @@ function LandingPage() {
                             ))}
                         </div>
                     </Reveal>
+                    <Next to="#dia">Mira un día con StockVelia</Next>
                 </section>
 
                 {/* UN DÍA */}
-                <section className="impact">
+                <section id="dia" className="impact">
                     <Reveal as="h2" className="big-h">Un día con StockVelia.</Reveal>
                     <Reveal as="p" delay={100} className="big-p">Desde que llega la mercancía hasta el cierre. Toca cualquier hora para verlo.</Reveal>
                     <div className="day" onMouseEnter={() => setDayPause(true)} onMouseLeave={() => setDayPause(false)}>
@@ -391,6 +469,7 @@ function LandingPage() {
                             <Reveal key={t} delay={i * 120} className="impact-item"><b><CountUp to={n} suffix={sf} /></b><p>{t}</p></Reveal>
                         ))}
                     </div>
+                    <Next to="#historia">Entiende cómo funciona</Next>
                 </section>
 
                 {/* HISTORIA STICKY */}
@@ -407,6 +486,7 @@ function LandingPage() {
                         <div className="story-sticky"><div className="story-card" key={STORY[active].k}><StoryVisual k={STORY[active].k} /></div>
                             <div className="story-dots">{STORY.map((s, i) => <i key={s.k} className={active === i ? 'on' : ''} />)}</div></div>
                     </div>
+                    <Next to="#capacidades" light>Explora las capacidades</Next>
                 </section>
 
                 {/* BENTO */}
@@ -436,6 +516,7 @@ function LandingPage() {
                             <ol className="mini-steps"><li>Crea tu cuenta</li><li>Registra tus productos</li><li>Empieza a controlar</li></ol>
                         </Reveal>
                     </div>
+                    <Next to="#sectores">Encuentra tu tipo de negocio</Next>
                 </section>
 
                 {/* SECTORES */}
@@ -459,6 +540,7 @@ function LandingPage() {
                             ))}</ul>
                         </div>
                     </div>
+                    <Next to="#beneficios">Mira lo que gana tu negocio</Next>
                 </section>
 
                 {/* BENEFICIOS */}
@@ -469,6 +551,7 @@ function LandingPage() {
                             <Reveal key={t} delay={i * 90} className="benefit"><span>{i + 1}</span><div><h3>{t}</h3><p>{d}</p></div></Reveal>
                         ))}
                     </div>
+                    <Next to="#faq" light>Resuelve tus dudas</Next>
                 </section>
 
                 {/* OBJETIVO */}
@@ -488,7 +571,7 @@ function LandingPage() {
                         {FAQ.map(([qq, a], i) => (
                             <Reveal key={qq} delay={i * 60} className={`faq-item ${faq === i ? 'open' : ''}`}>
                                 <button onClick={() => setFaq(faq === i ? -1 : i)} aria-expanded={faq === i}><span>{qq}</span><i /></button>
-                                <div className="faq-a"><p>{a}</p></div>
+                                <div className="faq-a"><p>{a}{FAQ_LINK[i] && <> <a className="faq-link" href={FAQ_LINK[i][0]}>{FAQ_LINK[i][1]} ›</a></>}</p></div>
                             </Reveal>
                         ))}
                     </div>
@@ -505,10 +588,10 @@ function LandingPage() {
             <footer className="landing-footer">
                 <div className="foot-top">
                     <div className="foot-brand"><img src={logoStockvelia} alt="" /><b>StockVelia</b><p>Inteligencia financiera y control de inventarios para tu negocio.</p></div>
-                    <div className="foot-col"><h5>Explora</h5>{links.map(([h, l]) => <a key={h} href={h}>{l}</a>)}<a href="#faq">Preguntas</a></div>
+                    <div className="foot-col"><h5>Explora</h5>{links.map(([h, l]) => <a key={h} href={h}>{l}</a>)}</div>
                     <div className="foot-col"><h5>Tu cuenta</h5><Link to="/login">Iniciar sesión</Link><Link to="/registro">Crear cuenta</Link></div>
                 </div>
-                <p className="foot-copy">&copy; {new Date().getFullYear()} StockVelia. Todos los derechos reservados.</p>
+                <p className="foot-copy"><span>&copy; {new Date().getFullYear()} StockVelia. Todos los derechos reservados.</span><a href="#inicio" className="to-top">Volver arriba ↑</a></p>
             </footer>
         </div>
     );
