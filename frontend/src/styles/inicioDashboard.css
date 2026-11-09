@@ -1,102 +1,187 @@
+/* Contenedor principal del Dashboard - Ajustado para evitar scroll extra */
 .dashboard-container {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 1.5rem;
+  background-color: #f8fafc;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden; /* Evita cualquier scroll horizontal por desbordamiento */
+}
+
+/* Cabecera */
+.dashboard-header-top {
+  margin-bottom: 1.5rem;
+  background: #ffffff;
+  padding: 1.25rem 1.5rem;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
 }
 
 .dashboard-header-top h2 {
-  color: #2c1a4d;
-  margin-bottom: 0.5rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 0.2rem 0;
 }
 
 .dashboard-welcome {
-  color: #666;
-  margin-bottom: 2rem;
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 0;
 }
 
+.dashboard-welcome strong {
+  color: #334155;
+}
+
+/* Cuadrícula de tarjetas de métricas */
 .dashboard-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
+/* Diseño base de las tarjetas */
 .dash-card {
-  background: #fcfbff;
-  border: 1px solid #eae6f2;
-  border-radius: 10px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
-  transition: transform 0.2s ease;
+  background: #ffffff;
+  padding: 1.25rem;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease-in-out;
 }
 
 .dash-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 12px -3px rgba(0, 0, 0, 0.05);
 }
 
+/* Bordes laterales distintivos por tarjeta */
+.dash-card.card-purple { border-left: 4px solid #7c3aed; }
+.dash-card.card-blue { border-left: 4px solid #3b82f6; }
+.dash-card.card-amber { border-left: 4px solid #f59e0b; }
+.dash-card.card-emerald { border-left: 4px solid #10b981; }
+
 .dash-card-title {
-  font-size: 0.9rem;
-  color: #6818a5;
-  font-weight: 600;
+  font-size: 0.7rem;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
 }
 
 .dash-card-number {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #2c1a4d;
-  margin-top: 0.5rem;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0.25rem 0 0 0;
 }
 
 .dash-card-number.low {
-  color: #d33;
+  color: #d97706;
 }
 
-.dashboard-section h3 {
-  color: #2c1a4d;
+/* Cajas de iconos para las tarjetas */
+.dash-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.purple-box { background-color: #f3e8ff; color: #7c3aed; }
+.blue-box { background-color: #eff6ff; color: #3b82f6; }
+.amber-box { background-color: #fef3c7; color: #d97706; }
+.emerald-box { background-color: #ecfdf5; color: #10b981; }
+
+/* Sección inferior de alertas y tablas */
+.dashboard-section {
+  background: #ffffff;
+  padding: 1.25rem 1.5rem;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
+}
+
+.section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e293b;
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
+/* Estado vacío de alertas */
 .dashboard-empty {
-  background: #fcfbff;
-  padding: 1.5rem;
-  border-radius: 8px;
-  border: 1px solid #eae6f2;
-  color: #666;
-  text-align: center;
+  background-color: #f0fdf4;
+  border: 1px solid #dcfce7;
+  padding: 1rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #166534;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
+.empty-icon {
+  font-size: 1.1rem;
+}
+
+/* Tabla de stock crítico */
 .table-responsive {
+  width: 100%;
   overflow-x: auto;
 }
 
 .dash-table {
   width: 100%;
   border-collapse: collapse;
-  background: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-  border: 1px solid #eae6f2;
-}
-
-.dash-table th, .dash-table td {
-  padding: 12px 16px;
   text-align: left;
-  border-bottom: 1px solid #eae6f2;
 }
 
 .dash-table th {
-  background: #fcfbff;
-  color: #6818a5;
-  font-weight: 600;
+  background-color: #f8fafc;
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.badge-low {
-  background: #ffebee;
-  color: #c62828;
-  padding: 4px 8px;
-  border-radius: 4px;
+.dash-table td {
+  padding: 0.75rem;
+  color: #334155;
   font-size: 0.85rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.dash-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.font-weight-medium {
+  font-weight: 500;
+}
+
+/* Insignia de stock bajo */
+.badge-low {
+  background-color: #fef3c7;
+  color: #b45309;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
   font-weight: 600;
 }
