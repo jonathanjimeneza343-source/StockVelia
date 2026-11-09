@@ -8,7 +8,6 @@ import {
   IconEye,
   IconEyeOff,
   IconCheck,
-  IconArrowLeft,
   IconBellRinging,
   IconPackage,
 } from "@tabler/icons-react";
@@ -16,6 +15,8 @@ import { FcGoogle } from "react-icons/fc";
 import Swal from "sweetalert2";
 import ilustracion from "../assets/ilustracion_register.svg";
 import AuthBrand from "../components/AuthBrand";
+import AuthBackdrop from "../components/AuthBackdrop";
+import AuthTopBar from "../components/AuthTopBar";
 import "../styles/Auth.css";
 
 const CHIPS = [
@@ -163,6 +164,9 @@ function Register() {
 
   return (
     <div className="au-page au-page--register">
+      <AuthBackdrop />
+      <AuthTopBar />
+
       <div className="au-card au-card--register">
         <AuthBrand
           illustration={ilustracion}
@@ -173,11 +177,6 @@ function Register() {
         />
 
         <section className="au-main">
-          <Link to="/" className="au-back">
-            <IconArrowLeft size={18} />
-            Volver al inicio
-          </Link>
-
           <div className="au-inner au-inner--wide">
             <header className="au-head">
               <h1>Regístrate</h1>
@@ -286,8 +285,9 @@ function Register() {
                   Confirmar contraseña
                 </label>
                 <div
-                  className={`au-control ${hayConfirmacion ? (coinciden ? "is-ok" : "is-bad") : ""
-                    }`}
+                  className={`au-control ${
+                    hayConfirmacion ? (coinciden ? "is-ok" : "is-bad") : ""
+                  }`}
                 >
                   <IconLock size={20} className="au-ico" />
                   <input

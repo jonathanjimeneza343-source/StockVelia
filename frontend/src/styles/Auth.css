@@ -3,8 +3,16 @@
 /* ==========================================================================
    StockVelia · Auth.css  (Login + Registro)
    Reemplaza a Login.css y Register.css.
-   Todo va con prefijo "au-" y keyframes "au-*" para no chocar con la landing.
+   Prefijo "au-" y keyframes "au-*" para no chocar con la landing.
    ========================================================================== */
+
+/* sin scroll global mientras estas páginas están montadas */
+html:has(.au-page),
+body:has(.au-page) {
+    margin: 0;
+    height: 100%;
+    overflow: hidden
+}
 
 .au-page {
     --p1: #5E059D;
@@ -20,15 +28,16 @@
     --ease: cubic-bezier(.22, 1, .36, 1);
     --spring: cubic-bezier(.34, 1.56, .64, 1);
 
-    position: relative;
+    /* tamaños que se adaptan a la altura de la pantalla (así no hace falta scroll) */
+    --ch: clamp(48px, 6.4vh, 64px);
+    --gap: clamp(9px, 1.7vh, 20px);
+
+    position: fixed;
+    inset: 0;
     isolation: isolate;
-    overflow-x: clip;
-    min-height: 100vh;
-    min-height: 100dvh;
-    width: 100%;
-    display: grid;
-    place-items: center;
-    padding: clamp(12px, 3vw, 40px);
+    overflow: hidden;
+    display: flex;
+    padding: clamp(60px, 9vh, 84px) clamp(12px, 3vw, 40px) clamp(14px, 2.4vh, 28px);
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
     color: var(--ink);
     line-height: 1.5;
@@ -54,7 +63,7 @@
     border-radius: 8px
 }
 
-/* fondo: resplandor + rejilla (mismo lenguaje que el hero de la landing) */
+/* resplandor + rejilla */
 .au-page::before {
     content: '';
     position: absolute;
@@ -88,13 +97,122 @@
     mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000, transparent)
 }
 
+/* ---------- fondo con iconos animados ---------- */
+.au-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden
+}
+
+.au-bg span {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--s);
+    height: var(--s);
+    display: grid;
+    place-items: center;
+    border-radius: 28%;
+    color: var(--p1);
+    background: rgba(255, 255, 255, .7);
+    border: 1px solid rgba(94, 5, 157, .14);
+    box-shadow: 0 14px 28px -14px rgba(94, 5, 157, .5);
+    animation: au-bob var(--t) ease-in-out var(--d) infinite
+}
+
+.au-bg svg {
+    width: 52%;
+    height: 52%
+}
+
+/* ---------- barra superior: logo + volver ---------- */
+.au-topbar {
+    position: absolute;
+    z-index: 3;
+    top: clamp(10px, 2.2vh, 22px);
+    left: clamp(14px, 2.6vw, 36px);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: clamp(10px, 1.6vw, 22px);
+    animation: au-rise .75s var(--ease) .1s backwards
+}
+
+.au-top-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--p1);
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 1.2rem;
+    letter-spacing: -.03em
+}
+
+.au-top-mark {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--p1), #2a0348);
+    box-shadow: 0 10px 22px -10px rgba(94, 5, 157, .7);
+    transition: transform .4s var(--spring)
+}
+
+.au-top-mark img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain
+}
+
+.au-top-brand:hover .au-top-mark {
+    transform: rotate(-8deg) scale(1.06)
+}
+
+.au-top-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+    padding: 0 18px 0 14px;
+    border-radius: 980px;
+    background: rgba(255, 255, 255, .78);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid var(--line);
+    color: var(--p1);
+    font-weight: 600;
+    font-size: .92rem;
+    text-decoration: none;
+    transition: background .3s, border-color .3s, transform .4s var(--spring)
+}
+
+.au-top-back svg {
+    transition: transform .4s var(--spring)
+}
+
+.au-top-back:hover {
+    background: #fff;
+    border-color: var(--p3);
+    transform: translateY(-2px)
+}
+
+.au-top-back:hover svg {
+    transform: translateX(-3px)
+}
+
 /* ---------- tarjeta ---------- */
 .au-card {
     position: relative;
     z-index: 1;
     display: grid;
-    width: min(1140px, 100%);
-    min-height: 660px;
+    margin: auto;
+    width: min(1280px, 100%);
+    height: 100%;
+    max-height: 880px;
     border-radius: 32px;
     background: #fff;
     overflow: hidden;
@@ -115,70 +233,48 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
-    padding: clamp(22px, 3.5vw, 40px) clamp(24px, 5vw, 64px) clamp(28px, 4vw, 48px)
+    min-height: 0;
+    padding: clamp(18px, 3vh, 40px) clamp(28px, 5vw, 72px)
 }
 
 .au-inner {
     width: 100%;
-    max-width: 420px;
+    max-width: 480px;
     margin: auto
 }
 
 .au-inner--wide {
-    max-width: 640px
+    max-width: 760px
 }
 
-.au-back {
-    align-self: flex-start;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-left: -10px;
-    padding: 8px 14px 8px 10px;
-    border-radius: 980px;
-    font-size: .88rem;
-    font-weight: 600;
-    color: var(--mute);
-    text-decoration: none;
-    transition: color .3s, background .3s
-}
-
-.au-back svg {
-    transition: transform .4s var(--spring)
-}
-
-.au-back:hover {
-    color: var(--p1);
-    background: rgba(94, 5, 157, .07)
-}
-
-.au-back:hover svg {
-    transform: translateX(-3px)
+/* el "volver" ahora vive en la barra superior; si aún queda en el JSX, se oculta */
+.au-main .au-back {
+    display: none
 }
 
 .au-head h1 {
-    font-size: clamp(2rem, 3.2vw, 2.6rem);
+    font-size: clamp(1.9rem, 4.6vh, 2.9rem);
     font-weight: 800;
     letter-spacing: -.04em;
     line-height: 1.05
 }
 
 .au-head p {
-    margin-top: 10px;
+    margin-top: clamp(6px, 1.1vh, 12px);
     color: var(--mute);
-    font-size: 1.05rem
+    font-size: clamp(1rem, 1.9vh, 1.15rem)
 }
 
 /* ---------- campos ---------- */
 .au-form {
     display: grid;
-    gap: 16px;
-    margin-top: 30px
+    gap: var(--gap);
+    margin-top: clamp(16px, 3.2vh, 34px)
 }
 
 .au-form--grid {
     grid-template-columns: 1fr 1fr;
-    column-gap: 16px;
+    column-gap: 18px;
     align-items: start
 }
 
@@ -193,7 +289,8 @@
     min-width: 0
 }
 
-.au-top {
+.au-top-row,
+.au-field>.au-top {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
@@ -201,7 +298,7 @@
 }
 
 .au-label {
-    font-size: .84rem;
+    font-size: .92rem;
     font-weight: 600
 }
 
@@ -209,9 +306,9 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    height: 52px;
-    padding: 0 16px;
-    border-radius: 16px;
+    height: var(--ch);
+    padding: 0 18px;
+    border-radius: 18px;
     background: var(--field);
     border: 1.5px solid transparent;
     transition: border-color .25s, box-shadow .3s, background .25s
@@ -247,6 +344,8 @@
 
 .au-ico {
     flex: none;
+    width: 22px;
+    height: 22px;
     color: var(--p1);
     transition: transform .4s var(--spring)
 }
@@ -263,7 +362,7 @@
     outline: 0;
     background: transparent;
     font: inherit;
-    font-size: .98rem;
+    font-size: clamp(.98rem, 1.9vh, 1.08rem);
     color: var(--ink)
 }
 
@@ -288,8 +387,8 @@
 
 .au-eye {
     flex: none;
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     margin-right: -8px;
     display: grid;
     place-items: center;
@@ -311,7 +410,7 @@
 }
 
 .au-hint {
-    font-size: .78rem;
+    font-size: .8rem;
     font-weight: 500;
     color: var(--bad)
 }
@@ -327,9 +426,9 @@
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    padding: 5px 11px 5px 8px;
+    padding: 5px 12px 5px 8px;
     border-radius: 980px;
-    font-size: .76rem;
+    font-size: .8rem;
     font-weight: 600;
     color: #8a8294;
     background: #f3eff8;
@@ -358,7 +457,7 @@
     align-items: center;
     gap: 11px;
     width: fit-content;
-    font-size: .92rem;
+    font-size: .98rem;
     color: var(--mute);
     cursor: pointer
 }
@@ -368,8 +467,8 @@
     left: 0;
     top: 50%;
     translate: 0 -50%;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     margin: 0;
     opacity: 0;
     cursor: pointer
@@ -377,11 +476,11 @@
 
 .au-box {
     flex: none;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     display: grid;
     place-items: center;
-    border-radius: 7px;
+    border-radius: 8px;
     background: var(--field);
     border: 1.5px solid #d9cbe9;
     color: #fff;
@@ -425,15 +524,15 @@
     justify-content: center;
     gap: 10px;
     width: 100%;
-    height: 54px;
-    margin-top: 6px;
+    height: clamp(50px, 6.4vh, 62px);
+    margin-top: 4px;
     border: 0;
     border-radius: 980px;
     background: linear-gradient(105deg, var(--p1), var(--p2));
     color: #fff;
     font: inherit;
     font-weight: 700;
-    font-size: 1.02rem;
+    font-size: clamp(1rem, 1.9vh, 1.1rem);
     cursor: pointer;
     box-shadow: 0 14px 30px -10px rgba(94, 5, 157, .55);
     transition: transform .4s var(--spring), box-shadow .4s var(--ease), filter .3s
@@ -477,9 +576,9 @@
     display: flex;
     align-items: center;
     gap: 14px;
-    margin: 22px 0 16px;
+    margin: clamp(12px, 2.2vh, 24px) 0 clamp(10px, 1.8vh, 18px);
     color: var(--mute);
-    font-size: .85rem
+    font-size: .9rem
 }
 
 .au-or::before,
@@ -496,14 +595,14 @@
     justify-content: center;
     gap: 10px;
     width: 100%;
-    height: 52px;
+    height: clamp(48px, 6vh, 58px);
     border-radius: 980px;
     border: 1.5px solid var(--line);
     background: #fff;
     color: var(--ink);
     font: inherit;
     font-weight: 500;
-    font-size: .95rem;
+    font-size: clamp(.95rem, 1.8vh, 1.05rem);
     cursor: pointer;
     transition: border-color .3s, background .3s, transform .4s var(--spring), box-shadow .3s
 }
@@ -524,9 +623,9 @@
 }
 
 .au-switch {
-    margin-top: 22px;
+    margin-top: clamp(12px, 2vh, 22px);
     text-align: center;
-    font-size: .93rem;
+    font-size: 1rem;
     color: var(--mute)
 }
 
@@ -557,7 +656,7 @@
 }
 
 .au-link--sm {
-    font-size: .82rem
+    font-size: .88rem
 }
 
 /* ---------- panel de marca ---------- */
@@ -567,8 +666,9 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    padding: clamp(24px, 3.4vw, 44px);
+    gap: 16px;
+    min-height: 0;
+    padding: clamp(24px, 3.4vw, 48px);
     color: #fff;
     background: linear-gradient(160deg, var(--p1), #2a0348 62%, var(--p1));
     background-size: 100% 200%;
@@ -601,34 +701,23 @@
     mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, #000, transparent)
 }
 
-.au-logo {
-    align-self: flex-start;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    color: #fff;
-    text-decoration: none;
-    font-weight: 800;
-    font-size: 1.25rem;
-    letter-spacing: -.03em
-}
-
-.au-logo img {
-    height: 48px;
-    width: auto;
-    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .35))
+/* el logo ya está en la barra superior; en el panel se oculta para no duplicarlo */
+.au-brand .au-logo {
+    display: none
 }
 
 .au-stage {
     position: relative;
     flex: 1;
-    min-height: 260px;
+    min-height: 0;
     display: grid;
     place-items: center
 }
 
 .au-stage>img {
-    width: min(86%, 420px);
+    max-width: 86%;
+    max-height: 100%;
+    width: auto;
     height: auto;
     filter: drop-shadow(0 30px 40px rgba(20, 0, 40, .4));
     animation: au-float 6s ease-in-out infinite
@@ -639,7 +728,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    max-width: 230px;
+    max-width: 240px;
     padding: 10px 14px 10px 10px;
     border-radius: 18px;
     background: rgba(255, 255, 255, .12);
@@ -652,8 +741,8 @@
 
 .au-chip i {
     flex: none;
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     display: grid;
     place-items: center;
     border-radius: 11px;
@@ -662,13 +751,13 @@
 
 .au-chip b {
     display: block;
-    font-size: .8rem;
+    font-size: .84rem;
     line-height: 1.25
 }
 
 .au-chip small {
     display: block;
-    font-size: .72rem;
+    font-size: .76rem;
     color: rgba(255, 255, 255, .72)
 }
 
@@ -694,7 +783,7 @@
 }
 
 .au-copy-title {
-    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    font-size: clamp(1.5rem, 2.4vw, 2.1rem);
     font-weight: 800;
     letter-spacing: -.035em;
     line-height: 1.1
@@ -702,9 +791,9 @@
 
 .au-copy-text {
     margin-top: 10px;
-    max-width: 380px;
+    max-width: 400px;
     color: rgba(255, 255, 255, .74);
-    font-size: .98rem
+    font-size: 1rem
 }
 
 .au-steps {
@@ -723,7 +812,7 @@
     padding: 6px 14px 6px 6px;
     border-radius: 980px;
     background: rgba(255, 255, 255, .14);
-    font-size: .82rem;
+    font-size: .84rem;
     font-weight: 600
 }
 
@@ -740,14 +829,9 @@
     font-weight: 800
 }
 
-/* ---------- entrada escalonada (un solo momento orquestado) ---------- */
-.au-back,
+/* ---------- entrada escalonada ---------- */
 .au-inner>* {
     animation: au-rise .75s var(--ease) backwards
-}
-
-.au-back {
-    animation-delay: .1s
 }
 
 .au-inner> :nth-child(1) {
@@ -787,6 +871,18 @@
 @keyframes au-float {
     50% {
         transform: translateY(-12px)
+    }
+}
+
+@keyframes au-bob {
+
+    0%,
+    100% {
+        transform: translate(0, 0) rotate(-6deg)
+    }
+
+    50% {
+        transform: translate(var(--dx, 10px), -30px) rotate(8deg)
     }
 }
 
@@ -838,32 +934,22 @@
     }
 }
 
-@media (max-height: 760px) and (min-width: 901px) {
-    .au-form {
-        gap: 12px;
-        margin-top: 22px
-    }
-
-    .au-control {
-        height: 48px
-    }
-
-    .au-or {
-        margin: 16px 0 12px
-    }
-
-    .au-switch {
-        margin-top: 16px
-    }
-}
-
 @media (max-width: 900px) {
+
+    /* en móvil la página sí puede desplazarse (scrollbar oculta) para que el formulario nunca quede cortado */
     .au-page {
-        padding: 12px
+        overflow-y: auto;
+        scrollbar-width: none;
+        padding: 72px 12px 16px
+    }
+
+    .au-page::-webkit-scrollbar {
+        display: none
     }
 
     .au-card {
-        min-height: 0;
+        height: auto;
+        max-height: none;
         border-radius: 26px
     }
 
@@ -872,31 +958,20 @@
         grid-template-columns: 1fr
     }
 
-    /* el panel de marca se vuelve una franja superior con el logo */
     .au-brand {
-        order: -1;
-        padding: 16px 22px
-    }
-
-    .au-stage,
-    .au-copy {
         display: none
     }
 
-    .au-logo img {
-        height: 40px
-    }
-
     .au-main {
-        padding: 18px 22px 30px
-    }
-
-    .au-inner {
-        margin: 16px auto 0
+        padding: 28px 22px 32px
     }
 
     .au-form--grid {
         grid-template-columns: 1fr
+    }
+
+    .au-bg span:nth-child(n+7) {
+        display: none
     }
 }
 
@@ -912,7 +987,7 @@
 }
 
 /* ==========================================================================
-   SweetAlert2 con la misma identidad (se conservan tus reglas anteriores)
+   SweetAlert2 con la misma identidad
    ========================================================================== */
 .swal2-popup {
     border-radius: 28px !important;

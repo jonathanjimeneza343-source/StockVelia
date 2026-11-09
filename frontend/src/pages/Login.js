@@ -5,7 +5,6 @@ import {
   IconLock,
   IconEye,
   IconEyeOff,
-  IconArrowLeft,
   IconBellRinging,
   IconPackage,
 } from "@tabler/icons-react";
@@ -13,6 +12,8 @@ import { FcGoogle } from "react-icons/fc";
 import Swal from "sweetalert2";
 import ilustracion from "../assets/ilustracion_login.svg";
 import AuthBrand from "../components/AuthBrand";
+import AuthBackdrop from "../components/AuthBackdrop";
+import AuthTopBar from "../components/AuthTopBar";
 import "../styles/Auth.css";
 
 const CHIPS = [
@@ -106,13 +107,11 @@ function Login() {
 
   return (
     <div className="au-page au-page--login">
+      <AuthBackdrop />
+      <AuthTopBar />
+
       <div className="au-card au-card--login">
         <section className="au-main">
-          <Link to="/" className="au-back">
-            <IconArrowLeft size={18} />
-            Volver al inicio
-          </Link>
-
           <div className="au-inner">
             <header className="au-head">
               <h1>Inicia sesión</h1>
