@@ -1,1 +1,3 @@
-psql -U postgres -d stockvelia_db -f "C:\Users\Sena1234\Documents\jonathan\stockvelia_db.sql"
+cd C:\Program Files\PostgreSQL\18\bin
+
+psql -U postgres -d stockvelia_db -f "C:\Users\Sena1234\Documents\Jonathan\stockvelia_db.sql"

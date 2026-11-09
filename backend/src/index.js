@@ -3,6 +3,8 @@ dotenv.config();
 
 import express from 'express';
 import cors from 'cors';
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 import pool from './config/db.js'; 
 import authRoutes from './routes/authRoutes.js'; 
 import categoriaRoutes from './routes/categoriaRoutes.js'; 
@@ -20,6 +22,43 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
+
+// --- CONFIGURACIÓN DE SWAGGER ---
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'API de StockVelia',
+      version: '1.0.0',
+      description: 'Documentación oficial completa de la API del sistema de gestión e inventario StockVelia',
+    },
+    servers: [
+      {
+        url: `http://localhost:${PORT}`,
+        description: 'Servidor de desarrollo',
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+  },
+  apis: [
+    './src/routes/*.js', 
+    './src/docs/*.js', 
+    './src/routes/*.swagger.js',
+    './src/docs/*.swagger.js',
+    './app.js'
+  ], 
+};
+
+const swaggerDocs = swaggerJSDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.use('/api/auth', authRoutes); 
 app.use('/api/categorias', categoriaRoutes); 
@@ -47,4 +86,5 @@ app.get('/', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`Servidor corriendo con éxito en http://localhost:${PORT}`);
+    console.log(`Documentación de Swagger disponible en http://localhost:${PORT}/api-docs`);
 });
