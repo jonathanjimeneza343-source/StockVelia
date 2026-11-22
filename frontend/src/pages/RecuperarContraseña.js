@@ -16,11 +16,14 @@ function RecuperarContraseña() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const correoLimpio = correo.trim();
+    if (!correoLimpio) return;
+
     setCargando(true);
 
     try {
-      await solicitarRecuperacion(correo);
-      
+      await solicitarRecuperacion(correoLimpio);
+
       Swal.fire({
         icon: "success",
         iconColor: "#5e059e",
@@ -34,7 +37,7 @@ function RecuperarContraseña() {
     } catch (error) {
       const mensajeError =
         error.response?.data?.error || "Error al solicitar la recuperación";
-      
+
       Swal.fire({
         icon: "error",
         iconColor: "#5e059e",
@@ -91,13 +94,13 @@ function RecuperarContraseña() {
           setMostrarCodigo(false);
           setMostrarNuevaContraseña(true);
         }}
-        correo={correo}
+        correo={correo.trim()}
       />
 
       <ModalNuevaContraseña
         abierto={mostrarNuevaContraseña}
         alCerrar={() => setMostrarNuevaContraseña(false)}
-        correo={correo}
+        correo={correo.trim()}
         codigo={codigoVerificacion}
       />
     </div>

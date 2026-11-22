@@ -16,9 +16,17 @@ import Swal from "sweetalert2";
 import LogoStockVelia from "../assets/logo_stockvelia.png";
 import "../styles/Sidebar.css";
 
+function obtenerUsuario() {
+  try {
+    return JSON.parse(localStorage.getItem("usuario"));
+  } catch {
+    return null;
+  }
+}
+
 function Sidebar({ seccion, setSeccion }) {
   const [colapsada, setColapsada] = useState(false);
-  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  const usuario = obtenerUsuario();
   const esAdmin = usuario?.id_rol === 1;
 
   const navigate = useNavigate();
@@ -41,12 +49,14 @@ function Sidebar({ seccion, setSeccion }) {
 
     try {
       await logout();
+      localStorage.removeItem("usuario");
       navigate("/", {
         state: { mensajeCierre: "Sesión cerrada con éxito. Token revocado." },
       });
     } catch (error) {
       console.error("Error al cerrar sesión de forma limpia:", error);
       localStorage.removeItem("token");
+      localStorage.removeItem("usuario");
       navigate("/", { state: { mensajeCierre: "Sesión cerrada con éxito." } });
     }
   };
@@ -54,14 +64,13 @@ function Sidebar({ seccion, setSeccion }) {
   return (
     <div className={`sidebar ${colapsada ? "colapsada" : ""}`}>
       <div>
-        {/* Cabecera del logo con botón para colapsar */}
         <div className="sidebar-header-wrapper">
           <div className="sidebar-logo">
             <img src={LogoStockVelia} alt="Logo de StockVelia" />
             {!colapsada && <h2>StockVelia</h2>}
           </div>
-          <button 
-            className="btn-toggle-sidebar" 
+          <button
+            className="btn-toggle-sidebar"
             onClick={() => setColapsada(!colapsada)}
             title={colapsada ? "Expandir barra lateral" : "Minimizar barra lateral"}
           >

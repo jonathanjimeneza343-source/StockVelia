@@ -1,4 +1,4 @@
-import API from "./api"; 
+import API from "./api";
 
 export const obtenerReporteInventario = async (idEmpresa) => {
   const response = await API.get(`/reportes/inventario/${idEmpresa}`);

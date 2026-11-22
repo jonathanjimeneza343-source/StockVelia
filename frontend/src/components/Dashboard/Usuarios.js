@@ -8,15 +8,25 @@ import ModalUsuario from "./modales/ModalUsuario";
 import "../../styles/Usuarios.css";
 import Swal from "sweetalert2";
 
+function obtenerUsuarioGuardado() {
+  try {
+    return JSON.parse(localStorage.getItem("usuario")) || {};
+  } catch {
+    return {};
+  }
+}
+
 function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);
   const [modalAbierto, setModalAbierto] = useState(false);
 
   const cargarUsuarios = useCallback(async () => {
     try {
-      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      const usuario = obtenerUsuarioGuardado();
+      if (!usuario?.id_empresa) return;
+
       const data = await getUsuarios(usuario.id_empresa);
-      setUsuarios(data);
+      setUsuarios(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error(error);
     }
@@ -31,6 +41,7 @@ function Usuarios() {
     if (!passwordRegex.test(password)) {
       Swal.fire({
         icon: "warning",
+        iconColor: "#5e059e",
         title: "Contraseña insegura",
         text: "La contraseña debe tener al menos 6 caracteres, una letra mayúscula, una minúscula y un número.",
         confirmButtonColor: "#5e059e",
@@ -39,11 +50,11 @@ function Usuarios() {
     }
 
     try {
-      const usuarioLogueado = JSON.parse(localStorage.getItem("usuario"));
+      const usuarioLogueado = obtenerUsuarioGuardado();
 
       await crearUsuario({
-        nombre,
-        correo,
+        nombre: nombre.trim(),
+        correo: correo.trim(),
         password,
         id_empresa: usuarioLogueado.id_empresa,
       });
@@ -53,6 +64,7 @@ function Usuarios() {
 
       Swal.fire({
         icon: "success",
+        iconColor: "#5e059e",
         title: "¡Empleado creado!",
         text: "El nuevo usuario ha sido registrado con éxito.",
         confirmButtonText: "Aceptar",
@@ -61,6 +73,7 @@ function Usuarios() {
     } catch (error) {
       Swal.fire({
         icon: "error",
+        iconColor: "#5e059e",
         title: "Error al crear usuario",
         text:
           error.response?.data?.error || "No se pudo registrar el empleado.",
@@ -96,6 +109,7 @@ function Usuarios() {
 
       await Swal.fire({
         icon: "success",
+        iconColor: "#5e059e",
         title: usuario.estado ? "Usuario desactivado" : "Usuario activado",
         text: usuario.estado
           ? "El usuario ya no puede iniciar sesión."
@@ -107,6 +121,7 @@ function Usuarios() {
       console.error(error);
       Swal.fire({
         icon: "error",
+        iconColor: "#5e059e",
         title: "Ocurrió un error",
         text: "No se pudo cambiar el estado del usuario.",
         confirmButtonText: "Entendido",
@@ -141,15 +156,11 @@ function Usuarios() {
               <tr key={u.id_usuario}>
                 <td>{u.nombre}</td>
                 <td>{u.correo}</td>
-                <td>
-                  {u.id_rol === 1 ? "Administrador" : "Empleado"}
-                </td>
+                <td>{u.id_rol === 1 ? "Administrador" : "Empleado"}</td>
                 <td>
                   <span
                     className={
-                      u.estado
-                        ? "badge-estado activo"
-                        : "badge-estado inactivo"
+                      u.estado ? "badge-estado activo" : "badge-estado inactivo"
                     }
                   >
                     <span className="punto-estado"></span>

@@ -14,6 +14,18 @@ function ModalNuevaContraseña({ abierto, alCerrar, correo, codigo }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+    if (!passwordRegex.test(nuevaPassword)) {
+      Swal.fire({
+        icon: "warning",
+        iconColor: "#5e059e",
+        title: "Contraseña insegura",
+        text: "La contraseña debe tener al menos 6 caracteres, una letra mayúscula, una minúscula y un número.",
+        confirmButtonColor: "#5e059e",
+      });
+      return;
+    }
+
     if (nuevaPassword !== confirmarPassword) {
       Swal.fire({
         icon: "error",
@@ -30,6 +42,9 @@ function ModalNuevaContraseña({ abierto, alCerrar, correo, codigo }) {
     try {
       await restablecerPassword({ correo, codigo, nuevaPassword });
 
+      setNuevaPassword("");
+      setConfirmarPassword("");
+
       Swal.fire({
         icon: "success",
         iconColor: "#5e059e",
@@ -41,9 +56,9 @@ function ModalNuevaContraseña({ abierto, alCerrar, correo, codigo }) {
         alCerrar();
         window.location.href = "/login";
       });
-
     } catch (error) {
-      const mensaje = error.response?.data?.error || "No se pudo actualizar la contraseña";
+      const mensaje =
+        error.response?.data?.error || "No se pudo actualizar la contraseña";
       Swal.fire({
         icon: "error",
         iconColor: "#5e059e",
@@ -77,6 +92,7 @@ function ModalNuevaContraseña({ abierto, alCerrar, correo, codigo }) {
               value={nuevaPassword}
               onChange={(e) => setNuevaPassword(e.target.value)}
               required
+              disabled={cargando}
             />
           </div>
 
@@ -88,6 +104,7 @@ function ModalNuevaContraseña({ abierto, alCerrar, correo, codigo }) {
               value={confirmarPassword}
               onChange={(e) => setConfirmarPassword(e.target.value)}
               required
+              disabled={cargando}
             />
           </div>
 

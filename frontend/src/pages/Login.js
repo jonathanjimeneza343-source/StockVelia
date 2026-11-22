@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { IconUser, IconLock } from "@tabler/icons-react";
 import { FcGoogle } from "react-icons/fc";
 import ilustracion from "../assets/ilustracion_login.svg";
-import { Link } from "react-router-dom";
+import { login } from "../services/authService";
 import Swal from "sweetalert2";
 import "../styles/Login.css";
 
@@ -19,32 +19,11 @@ function Login() {
     setCargando(true);
 
     try {
-      const respuesta = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          correo,
-          password: contraseña,
-        }),
-      });
+      const datos = await login(correo.trim(), contraseña);
 
-      const datos = await respuesta.json();
-
-      if (!respuesta.ok) {
-        Swal.fire({
-          icon: "error",
-          iconColor: "#5e059e",
-          title: "Oops...",
-          text: datos.error || "Hubo un error al iniciar sesión",
-          confirmButtonColor: "#5e059e",
-        });
-        return;
+      if (datos.usuario) {
+        localStorage.setItem("usuario", JSON.stringify(datos.usuario));
       }
-
-      localStorage.setItem("token", datos.token);
-      localStorage.setItem("usuario", JSON.stringify(datos.usuario));
 
       Swal.fire({
         icon: "success",
@@ -56,14 +35,18 @@ function Login() {
       }).then(() => {
         navigate("/dashboard");
       });
-
     } catch (error) {
-      console.error(error);
+      const mensajeError =
+        error.response?.data?.error ||
+        (error.request
+          ? "No se pudo conectar con el servidor"
+          : "Hubo un error al iniciar sesión");
+
       Swal.fire({
         icon: "error",
         iconColor: "#5e059e",
-        title: "Error de conexión",
-        text: "No se pudo conectar con el servidor",
+        title: error.request ? "Error de conexión" : "Oops...",
+        text: mensajeError,
         confirmButtonColor: "#5e059e",
       });
     } finally {

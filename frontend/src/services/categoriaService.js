@@ -1,7 +1,7 @@
 import API from "./api";
 
-export const obtenerCategorias = async (idEmpresa) => {
-  const response = await API.get(`/categorias?id_empresa=${idEmpresa}`);
+export const obtenerCategorias = async () => {
+  const response = await API.get("/categorias");
   return response.data;
 };
 
