@@ -9,7 +9,8 @@ function ModalCodigo({ abierto, alCerrar, alVerificar }) {
   if (!abierto) return null;
 
   const verificarCodigo = () => {
-    if (codigo.trim().length !== 6) {
+    const codigoLimpio = codigo.trim();
+    if (codigoLimpio.length !== 6) {
       Swal.fire({
         icon: "warning",
         iconColor: "#5e059e",
@@ -20,7 +21,7 @@ function ModalCodigo({ abierto, alCerrar, alVerificar }) {
       return;
     }
 
-    alVerificar(codigo);
+    alVerificar(codigoLimpio);
   };
 
   return (

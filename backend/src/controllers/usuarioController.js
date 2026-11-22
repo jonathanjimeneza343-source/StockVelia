@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 
 export const listarUsuarios = async (req, res) => {
   try {
-    const idEmpresa = req.query.id_empresa;
+    const idEmpresa = req.usuario.id_empresa;
 
     const resultado = await pool.query(
       `
@@ -22,7 +22,7 @@ export const listarUsuarios = async (req, res) => {
 
     res.json(resultado.rows);
   } catch (error) {
-    console.error(error);
+    console.error("Error al obtener usuarios:", error.message);
     res.status(500).json({
       error: "Error al obtener usuarios",
     });
@@ -31,7 +31,14 @@ export const listarUsuarios = async (req, res) => {
 
 export const crearUsuario = async (req, res) => {
   try {
-    const { nombre, correo, password, id_empresa } = req.body;
+    if (req.usuario.id_rol !== 1) {
+      return res.status(403).json({
+        error: "No tienes permisos para crear usuarios.",
+      });
+    }
+
+    const { nombre, correo, password } = req.body;
+    const idEmpresa = req.usuario.id_empresa;
 
     if (!nombre || !correo || !password) {
       return res.status(400).json({
@@ -47,9 +54,10 @@ export const crearUsuario = async (req, res) => {
       });
     }
 
-    const existe = await pool.query("SELECT * FROM usuario WHERE correo = $1", [
-      correo,
-    ]);
+    const existe = await pool.query(
+      "SELECT 1 FROM usuario WHERE correo = $1 LIMIT 1",
+      [correo.trim().toLowerCase()],
+    );
 
     if (existe.rows.length > 0) {
       return res.status(400).json({
@@ -65,22 +73,21 @@ export const crearUsuario = async (req, res) => {
       INSERT INTO usuario
       (id_empresa, id_rol, nombre, correo, password)
       VALUES ($1, $2, $3, $4, $5)
-      RETURNING *
+      RETURNING id_usuario, id_empresa, id_rol, nombre, correo, estado
       `,
-      [id_empresa, 2, nombre, correo, passwordHash],
+      [idEmpresa, 2, nombre.trim(), correo.trim().toLowerCase(), passwordHash],
     );
 
     const usuarioCreado = resultado.rows[0];
 
-    // INSERT AGREGADO: Vincular el nuevo usuario en la tabla intermedia usuario_empresa
     await pool.query(
       "INSERT INTO usuario_empresa (id_usuario, id_empresa) VALUES ($1, $2) ON CONFLICT DO NOTHING",
-      [usuarioCreado.id_usuario, id_empresa]
+      [usuarioCreado.id_usuario, idEmpresa],
     );
 
     res.status(201).json(usuarioCreado);
   } catch (error) {
-    console.error(error);
+    console.error("Error al crear usuario:", error.message);
     res.status(500).json({
       error: "Error al crear usuario",
     });
@@ -89,22 +96,30 @@ export const crearUsuario = async (req, res) => {
 
 export const cambiarEstadoUsuario = async (req, res) => {
   try {
+    if (req.usuario.id_rol !== 1) {
+      return res.status(403).json({
+        error: "No tienes permisos para modificar el estado de usuarios.",
+      });
+    }
+
     const { id } = req.params;
+    const idEmpresa = req.usuario.id_empresa;
 
     const resultado = await pool.query(
       `
       UPDATE usuario
       SET estado = NOT estado
       WHERE id_usuario = $1
+      AND id_empresa = $2
       AND id_rol != 1
       RETURNING id_usuario, nombre, correo, id_rol, estado
       `,
-      [id],
+      [id, idEmpresa],
     );
 
     if (resultado.rows.length === 0) {
       return res.status(404).json({
-        error: "Usuario no encontrado o no se puede modificar.",
+        error: "Usuario no encontrado en tu empresa o no se puede modificar.",
       });
     }
 
@@ -115,7 +130,7 @@ export const cambiarEstadoUsuario = async (req, res) => {
       usuario: resultado.rows[0],
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error al cambiar el estado del usuario:", error.message);
     res.status(500).json({
       error: "Error al cambiar el estado del usuario",
     });

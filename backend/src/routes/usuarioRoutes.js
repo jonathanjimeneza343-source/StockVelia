@@ -1,12 +1,14 @@
 import express from "express";
-
 import {
   listarUsuarios,
   crearUsuario,
-  cambiarEstadoUsuario
+  cambiarEstadoUsuario,
 } from "../controllers/usuarioController.js";
+import { verificarToken } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
+
+router.use(verificarToken);
 
 router.get("/", listarUsuarios);
 router.post("/", crearUsuario);

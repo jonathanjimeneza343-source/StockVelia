@@ -1,15 +1,21 @@
-import API from './api';
+import API from "./api";
+export {
+  obtenerProductos as getProductos,
+  crearProducto as createProducto,
+  actualizarProducto as updateProducto,
+  eliminarProducto as deleteProducto,
+} from "./productoService";
+export {
+  obtenerCategorias as getCategorias,
+  crearCategoria as createCategoria,
+} from "./categoriaService";
 
-// Productos
-export const getProductos = async () => (await API.get('/productos')).data;
-export const createProducto = async (data) => (await API.post('/productos', data)).data;
-export const updateProducto = async (id, data) => (await API.put(`/productos/${id}`, data)).data;
-export const deleteProducto = async (id) => (await API.delete(`/productos/${id}`)).data;
+export const getMovimientos = async () => {
+  const response = await API.get("/movimientos");
+  return response.data;
+};
 
-// Categorías
-export const getCategorias = async () => (await API.get('/categorias')).data;
-export const createCategoria = async (data) => (await API.post('/categorias', data)).data;
-
-// Movimientos de Stock
-export const getMovimientos = async () => (await API.get('/movimientos')).data;
-export const registerMovimiento = async (data) => (await API.post('/movimientos', data)).data;
+export const registerMovimiento = async (data) => {
+  const response = await API.post("/movimientos", data);
+  return response.data;
+};

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../../../styles/ModalUsuario.css";
 
 function ModalUsuario({ isOpen, onClose, onGuardar }) {
@@ -6,14 +6,23 @@ function ModalUsuario({ isOpen, onClose, onGuardar }) {
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
 
+  useEffect(() => {
+    if (isOpen) {
+      setNombre("");
+      setCorreo("");
+      setPassword("");
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onGuardar({ nombre, correo, password });
-    setNombre("");
-    setCorreo("");
-    setPassword("");
+    onGuardar({
+      nombre: nombre.trim(),
+      correo: correo.trim(),
+      password,
+    });
   };
 
   return (

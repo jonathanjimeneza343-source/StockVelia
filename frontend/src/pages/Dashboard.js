@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
+import Header from "../components/Header";
 
 import InicioDashboard from "../components/Dashboard/InicioDashboard";
 import Productos from "../components/Dashboard/Productos";
@@ -7,12 +9,19 @@ import Categorias from "../components/Dashboard/Categorias";
 import Movimientos from "../components/Dashboard/Movimientos";
 import Usuarios from "../components/Dashboard/Usuarios";
 import Reportes from "../components/Dashboard/Reportes";
-import Header from "../components/Header";
 
 import "../styles/Dashboard.css";
 
 function Dashboard() {
   const [seccion, setSeccion] = useState("inicio");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login", { replace: true });
+    }
+  }, [navigate]);
 
   const renderSeccion = () => {
     switch (seccion) {

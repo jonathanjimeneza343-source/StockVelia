@@ -9,6 +9,7 @@ import {
 import { FcGoogle } from "react-icons/fc";
 import Checkbox from "../components/Checkbox";
 import ilustracion from "../assets/ilustracion_register.svg";
+import { register } from "../services/authService";
 import Swal from "sweetalert2";
 import "../styles/Register.css";
 
@@ -52,32 +53,13 @@ function Register() {
     setCargando(true);
 
     try {
-      const respuesta = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nombre_empresa: nombreEmpresa,
-          nombre_usuario: nombres,
-          apellido_usuario: apellidos,
-          email: correo,
-          password: contraseña,
-        }),
+      await register({
+        nombre_empresa: nombreEmpresa.trim(),
+        nombre_usuario: nombres.trim(),
+        apellido_usuario: apellidos.trim(),
+        email: correo.trim(),
+        password: contraseña,
       });
-
-      const datos = await respuesta.json();
-
-      if (!respuesta.ok) {
-        Swal.fire({
-          icon: "error",
-          iconColor: "#5e059e",
-          title: "Oops...",
-          text: datos.error || "Hubo un error al registrarse",
-          confirmButtonColor: "#5e059e",
-        });
-        return;
-      }
 
       Swal.fire({
         icon: "success",
@@ -87,15 +69,20 @@ function Register() {
         timer: 1500,
         showConfirmButton: false,
       }).then(() => {
-        navigate("/");
+        navigate("/login");
       });
     } catch (error) {
-      console.error(error);
+      const mensajeError =
+        error.response?.data?.error ||
+        (error.request
+          ? "No se pudo conectar con el servidor"
+          : "Hubo un error al registrarse");
+
       Swal.fire({
         icon: "error",
         iconColor: "#5e059e",
-        title: "Error de conexión",
-        text: "No se pudo conectar con el servidor",
+        title: error.request ? "Error de conexión" : "Oops...",
+        text: mensajeError,
         confirmButtonColor: "#5e059e",
       });
     } finally {

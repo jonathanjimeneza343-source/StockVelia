@@ -9,17 +9,17 @@ function ModalProducto({ isOpen, onClose, onGuardar, productoAEditar, categorias
   const [imagen, setImagen] = useState("");
   const [precio, setPrecio] = useState("");
   const [stock, setStock] = useState("");
-  const [stockMinimo, setStockMinimo] = useState("");
+  const [stockMinimo, setStockMinimo] = useState("5");
 
   useEffect(() => {
     if (productoAEditar) {
       setCodigo(productoAEditar.codigo || "");
       setNombre(productoAEditar.nombre || "");
-      setIdCategoria(productoAEditar.id_categoria || "");
+      setIdCategoria(productoAEditar.id_categoria ?? "");
       setDescripcion(productoAEditar.descripcion || "");
       setImagen(productoAEditar.imagen || "");
-      setPrecio(productoAEditar.precio || "");
-      setStock(productoAEditar.stock || "");
+      setPrecio(productoAEditar.precio ?? "");
+      setStock(productoAEditar.stock ?? "");
       setStockMinimo(productoAEditar.stock_minimo ?? 5);
     } else {
       setCodigo("");
@@ -38,14 +38,14 @@ function ModalProducto({ isOpen, onClose, onGuardar, productoAEditar, categorias
   const handleSubmit = (e) => {
     e.preventDefault();
     onGuardar({
-      codigo,
-      nombre,
-      id_categoria: parseInt(idCategoria),
-      descripcion,
-      imagen,
+      codigo: codigo.trim(),
+      nombre: nombre.trim(),
+      id_categoria: parseInt(idCategoria, 10),
+      descripcion: descripcion.trim(),
+      imagen: imagen.trim(),
       precio: parseFloat(precio),
-      stock: parseInt(stock),
-      stock_minimo: parseInt(stockMinimo),
+      stock: parseInt(stock, 10),
+      stock_minimo: parseInt(stockMinimo, 10),
     });
   };
 

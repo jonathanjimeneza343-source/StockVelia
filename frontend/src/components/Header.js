@@ -1,27 +1,44 @@
 import React, { useState, useEffect, useRef } from "react";
-import { IconUserCircle, IconBuildingStore, IconChevronDown, IconPlus, IconX, IconCheck } from "@tabler/icons-react";
+import {
+  IconUserCircle,
+  IconBuildingStore,
+  IconChevronDown,
+  IconPlus,
+  IconX,
+  IconCheck,
+} from "@tabler/icons-react";
+import Swal from "sweetalert2";
 import api from "../services/api";
 import "../styles/Header.css";
 
+function obtenerUsuarioGuardado() {
+  try {
+    return JSON.parse(localStorage.getItem("usuario")) || {};
+  } catch {
+    return {};
+  }
+}
+
 function Header() {
-  const usuario = JSON.parse(localStorage.getItem("usuario")) || {};
+  const usuario = obtenerUsuarioGuardado();
   const empresasDisponibles = usuario.empresasDisponibles || [];
   const esAdmin = usuario.id_rol === 1;
 
-  // Estados para el menú desplegable personalizado y el modal
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [nombreNuevaEmpresa, setNombreNuevaEmpresa] = useState("");
+  const [passwordNuevaEmpresa, setPasswordNuevaEmpresa] = useState("");
   const [cargando, setCargando] = useState(false);
-  
+
   const menuRef = useRef(null);
 
   const empresaActual = empresasDisponibles.find(
     (emp) => emp.id_empresa === Number(usuario.id_empresa)
   );
-  const nombreEmpresaActual = empresaActual ? empresaActual.nombre_empresa : (usuario.nombre_empresa || "StockVelia");
+  const nombreEmpresaActual = empresaActual
+    ? empresaActual.nombre_empresa
+    : usuario.nombre_empresa || "StockVelia";
 
-  // Cerrar el menú si se hace clic fuera de él
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -46,40 +63,64 @@ function Header() {
         id_empresa: response.data.id_empresa,
         nombre_empresa: response.data.nombre_empresa,
       };
-      
-      localStorage.setItem("token", response.data.token);
+
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+      }
       localStorage.setItem("usuario", JSON.stringify(usuarioActualizado));
 
       window.location.reload();
     } catch (error) {
       console.error("Error al cambiar de empresa:", error);
-      alert("No se pudo cambiar de empresa.");
+      Swal.fire({
+        icon: "error",
+        iconColor: "#5e059e",
+        title: "Error",
+        text: error.response?.data?.error || "No se pudo cambiar de empresa.",
+        confirmButtonColor: "#5e059e",
+      });
     }
   };
 
   const handleCrearEmpresa = async (e) => {
     e.preventDefault();
-    if (!nombreNuevaEmpresa.trim()) return;
+    const nombreLimpio = nombreNuevaEmpresa.trim();
+    if (!nombreLimpio || !passwordNuevaEmpresa) return;
 
     try {
       setCargando(true);
       await api.post("/auth/register", {
-        nombre_empresa: nombreNuevaEmpresa,
+        nombre_empresa: nombreLimpio,
         nombre_usuario: usuario.nombre?.split(" ")[0] || "Usuario",
         apellido_usuario: usuario.nombre?.split(" ").slice(1).join(" ") || "",
         email: usuario.correo,
-        password: "TempPassword123*"
+        password: passwordNuevaEmpresa,
       });
 
-      alert("¡Microempresa creada con éxito! Por favor vuelve a iniciar sesión.");
       setModalAbierto(false);
-      
+      setNombreNuevaEmpresa("");
+      setPasswordNuevaEmpresa("");
+
+      await Swal.fire({
+        icon: "success",
+        iconColor: "#5e059e",
+        title: "¡Microempresa creada!",
+        text: "Por favor vuelve a iniciar sesión para trabajar con tu nueva empresa.",
+        confirmButtonColor: "#5e059e",
+      });
+
       localStorage.removeItem("token");
       localStorage.removeItem("usuario");
       window.location.href = "/login";
     } catch (error) {
       console.error("Error al crear la empresa:", error);
-      alert(error.response?.data?.error || "Error al registrar la nueva empresa.");
+      Swal.fire({
+        icon: "error",
+        iconColor: "#5e059e",
+        title: "Oops...",
+        text: error.response?.data?.error || "Error al registrar la nueva empresa.",
+        confirmButtonColor: "#5e059e",
+      });
     } finally {
       setCargando(false);
     }
@@ -90,17 +131,19 @@ function Header() {
       <header className="header">
         <div className="header-titulo">
           {empresasDisponibles.length > 0 ? (
-            /* Menú desplegable personalizado moderno */
             <div className="dropdown-container" ref={menuRef}>
-              <div 
-                className="dropdown-trigger" 
+              <div
+                className="dropdown-trigger"
                 onClick={() => setMenuAbierto(!menuAbierto)}
               >
                 <div className="selector-empresa-icon-container">
                   <IconBuildingStore size={18} className="icono-tienda" />
                 </div>
                 <span className="texto-empresa-activo">{nombreEmpresaActual}</span>
-                <IconChevronDown size={14} className={`icono-flecha ${menuAbierto ? "girar" : ""}`} />
+                <IconChevronDown
+                  size={14}
+                  className={`icono-flecha ${menuAbierto ? "girar" : ""}`}
+                />
               </div>
 
               {menuAbierto && (
@@ -139,7 +182,6 @@ function Header() {
               )}
             </div>
           ) : (
-            /* Insignia fija si solo tiene una empresa */
             <div className="badge-empresa-unica">
               <IconBuildingStore size={18} className="icono-tienda" />
               <span className="texto-empresa-unica">{nombreEmpresaActual}</span>
@@ -151,7 +193,9 @@ function Header() {
         <div className="header-usuario">
           <div className="datos-usuario">
             <span className="nombre-usuario-txt">{usuario?.nombre || "Usuario"}</span>
-            <small className="rol-usuario-txt">{esAdmin ? "Administrador" : "Empleado"}</small>
+            <small className="rol-usuario-txt">
+              {esAdmin ? "Administrador" : "Empleado"}
+            </small>
           </div>
 
           <div className="avatar">
@@ -164,17 +208,19 @@ function Header() {
         </div>
       </header>
 
-      {/* MODAL PARA CREAR NUEVA EMPRESA */}
       {modalAbierto && esAdmin && (
         <div className="modal-overlay">
           <div className="modal-contenido">
             <div className="modal-header">
               <h3>Registrar Nueva Microempresa</h3>
-              <button className="modal-cerrar" onClick={() => setModalAbierto(false)}>
+              <button
+                className="modal-cerrar"
+                onClick={() => setModalAbierto(false)}
+              >
                 <IconX size={20} />
               </button>
             </div>
-            
+
             <form onSubmit={handleCrearEmpresa}>
               <div className="form-group">
                 <label>Nombre de la nueva empresa</label>
@@ -188,12 +234,28 @@ function Header() {
                 />
               </div>
 
+              <div className="form-group">
+                <label>Contraseña para el acceso</label>
+                <input
+                  type="password"
+                  placeholder="Mín. 6 caracteres, mayúscula, minúscula y número"
+                  value={passwordNuevaEmpresa}
+                  onChange={(e) => setPasswordNuevaEmpresa(e.target.value)}
+                  required
+                />
+              </div>
+
               <p className="modal-info">
-                Esta microempresa se asociará a tu cuenta actual ({usuario.correo}), manteniendo inventarios independientes.
+                Esta microempresa se asociará a tu cuenta actual ({usuario.correo}),
+                manteniendo inventarios independientes.
               </p>
 
               <div className="modal-acciones">
-                <button type="button" className="btn-cancelar" onClick={() => setModalAbierto(false)}>
+                <button
+                  type="button"
+                  className="btn-cancelar"
+                  onClick={() => setModalAbierto(false)}
+                >
                   Cancelar
                 </button>
                 <button type="submit" className="btn-guardar" disabled={cargando}>

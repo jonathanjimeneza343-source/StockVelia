@@ -1,22 +1,35 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { obtenerCategorias, crearCategoria, actualizarCategoria, eliminarCategoria } from "../../services/categoriaService";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import {
+  obtenerCategorias,
+  crearCategoria,
+  actualizarCategoria,
+  eliminarCategoria,
+} from "../../services/categoriaService";
 import ModalCategoria from "./modales/ModalCategoria";
 import "../../styles/Categorias.css";
 import Swal from "sweetalert2";
+
+function obtenerUsuarioGuardado() {
+  try {
+    return JSON.parse(localStorage.getItem("usuario")) || {};
+  } catch {
+    return {};
+  }
+}
 
 function Categorias() {
   const [categorias, setCategorias] = useState([]);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [categoriaAEditar, setCategoriaAEditar] = useState(null);
 
-  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  const usuario = useMemo(() => obtenerUsuarioGuardado(), []);
   const esAdmin = usuario?.id_rol === 1;
 
   const cargarCategorias = useCallback(async () => {
     try {
       if (!usuario?.id_empresa) return;
-      const data = await obtenerCategorias(usuario.id_empresa);
-      setCategorias(data);
+      const data = await obtenerCategorias();
+      setCategorias(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error al cargar categorías:", error);
     }
@@ -38,7 +51,7 @@ function Categorias() {
 
   const handleGuardarCategoria = async ({ nombre, descripcion, id_categoria }) => {
     try {
-      const usuarioLogueado = JSON.parse(localStorage.getItem("usuario"));
+      const usuarioLogueado = obtenerUsuarioGuardado();
 
       if (id_categoria) {
         await actualizarCategoria(id_categoria, {
@@ -49,6 +62,7 @@ function Categorias() {
 
         Swal.fire({
           icon: "success",
+          iconColor: "#5e059e",
           title: "¡Categoría actualizada!",
           text: "Los cambios se han guardado con éxito.",
           confirmButtonText: "Aceptar",
@@ -63,6 +77,7 @@ function Categorias() {
 
         Swal.fire({
           icon: "success",
+          iconColor: "#5e059e",
           title: "¡Categoría creada!",
           text: "La categoría se ha registrado con éxito.",
           confirmButtonText: "Aceptar",
@@ -70,10 +85,13 @@ function Categorias() {
         });
       }
 
+      setModalAbierto(false);
+      setCategoriaAEditar(null);
       cargarCategorias();
     } catch (error) {
       Swal.fire({
         icon: "error",
+        iconColor: "#5e059e",
         title: "Ops...",
         text: error.response?.data?.error || "No se pudo completar la operación.",
         confirmButtonText: "Entendido",
@@ -82,7 +100,7 @@ function Categorias() {
     }
   };
 
-  const handleEliminar = async (id_categoria) => {
+  const handleEliminar = (id_categoria) => {
     Swal.fire({
       title: "¿Estás seguro?",
       text: "Esta acción no se puede deshacer. Si hay productos vinculados, la operación podría fallar.",
@@ -91,7 +109,7 @@ function Categorias() {
       confirmButtonColor: "#d33",
       cancelButtonColor: "#5e059e",
       confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar"
+      cancelButtonText: "Cancelar",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -99,6 +117,7 @@ function Categorias() {
           cargarCategorias();
           Swal.fire({
             icon: "success",
+            iconColor: "#5e059e",
             title: "¡Eliminado!",
             text: "La categoría ha sido eliminada.",
             confirmButtonColor: "#5e059e",
@@ -106,6 +125,7 @@ function Categorias() {
         } catch (error) {
           Swal.fire({
             icon: "error",
+            iconColor: "#5e059e",
             title: "Error al eliminar",
             text: error.response?.data?.error || "No se pudo eliminar la categoría.",
             confirmButtonText: "Entendido",
@@ -121,10 +141,7 @@ function Categorias() {
       <div className="categorias-header-top">
         <h2>Gestión de Categorías</h2>
         {esAdmin && (
-          <button 
-            className="btn-toggle-form" 
-            onClick={abrirModalCrear}
-          >
+          <button className="btn-toggle-form" onClick={abrirModalCrear}>
             + Nueva categoría
           </button>
         )}
@@ -133,7 +150,10 @@ function Categorias() {
       <div className="categorias-cards-container">
         {categorias.length === 0 ? (
           <div className="categorias-vacio">
-            <p>No hay categorías registradas todavía. ¡Crea la primera con el botón superior!</p>
+            <p>
+              No hay categorías registradas todavía. ¡Crea la primera con el botón
+              superior!
+            </p>
           </div>
         ) : (
           <div className="categorias-grid">
@@ -141,19 +161,28 @@ function Categorias() {
               <div className="categoria-card" key={cat.id_categoria}>
                 <div className="categoria-info">
                   <h3>{cat.nombre}</h3>
-                  <p className="categoria-desc">{cat.descripcion || "Sin descripción"}</p>
+                  <p className="categoria-desc">
+                    {cat.descripcion || "Sin descripción"}
+                  </p>
                   <div className="categoria-footer">
-                    <div style={{ display: "flex", gap: "6px", width: "100%", justifyContent: "flex-end" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "6px",
+                        width: "100%",
+                        justifyContent: "flex-end",
+                      }}
+                    >
                       {esAdmin && (
                         <>
-                          <button 
-                            className="btn-action" 
+                          <button
+                            className="btn-action"
                             onClick={() => abrirModalEditar(cat)}
                           >
                             Editar
                           </button>
-                          <button 
-                            className="btn-action btn-delete" 
+                          <button
+                            className="btn-action btn-delete"
                             onClick={() => handleEliminar(cat.id_categoria)}
                           >
                             Eliminar
@@ -169,7 +198,7 @@ function Categorias() {
         )}
       </div>
 
-      <ModalCategoria 
+      <ModalCategoria
         isOpen={modalAbierto}
         onClose={() => setModalAbierto(false)}
         categoriaAEditar={categoriaAEditar}

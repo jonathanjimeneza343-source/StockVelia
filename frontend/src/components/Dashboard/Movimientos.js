@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { IconArrowUpRight, IconArrowDownLeft, IconSearch, IconPlus } from "@tabler/icons-react";
+import {
+  IconArrowUpRight,
+  IconArrowDownLeft,
+  IconSearch,
+  IconPlus,
+} from "@tabler/icons-react";
+import api from "../../services/api";
 import ModalMovimiento from "./modales/ModalMovimiento";
 import "../../styles/Movimientos.css";
 
@@ -9,33 +15,27 @@ function Movimientos() {
   const [cargando, setCargando] = useState(true);
   const [modalAbierto, setModalAbierto] = useState(false);
 
-  const token = localStorage.getItem("token");
-
   const cargarMovimientos = useCallback(async () => {
     try {
-      const respuesta = await fetch("http://localhost:5000/api/movimientos", {
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      });
-      if (!respuesta.ok) throw new Error("Error al obtener el historial de movimientos");
-      const datos = await respuesta.json();
-      setMovimientos(datos);
+      setCargando(true);
+      const respuesta = await api.get("/movimientos");
+      setMovimientos(Array.isArray(respuesta.data) ? respuesta.data : []);
     } catch (error) {
-      console.error(error);
+      console.error("Error al obtener el historial de movimientos:", error);
       setMovimientos([]);
     } finally {
       setCargando(false);
     }
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     cargarMovimientos();
   }, [cargarMovimientos]);
 
-  const movimientosFiltrados = movimientos.filter((m) =>
-    m.nombre_producto?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    m.motivo?.toLowerCase().includes(busqueda.toLowerCase())
+  const movimientosFiltrados = movimientos.filter(
+    (m) =>
+      m.nombre_producto?.toLowerCase().includes(busqueda.toLowerCase()) ||
+      m.motivo?.toLowerCase().includes(busqueda.toLowerCase())
   );
 
   return (
@@ -45,7 +45,7 @@ function Movimientos() {
           <h2>Movimientos de Inventario</h2>
           <p>Historial en tiempo real de entradas, salidas y motivos registrados</p>
         </div>
-        
+
         <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
           <div className="busqueda-contenedor">
             <IconSearch size={20} className="icono-busqueda" />
@@ -56,10 +56,15 @@ function Movimientos() {
               onChange={(e) => setBusqueda(e.target.value)}
             />
           </div>
-          
-          <button 
-            className="btn-guardar" 
-            style={{ display: "flex", alignItems: "center", gap: "6px", padding: "10px 16px" }}
+
+          <button
+            className="btn-guardar"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "10px 16px",
+            }}
             onClick={() => setModalAbierto(true)}
           >
             <IconPlus size={18} /> Nuevo Movimiento
@@ -71,7 +76,9 @@ function Movimientos() {
         {cargando ? (
           <p className="cargando-texto">Cargando movimientos...</p>
         ) : movimientosFiltrados.length === 0 ? (
-          <p className="cargando-texto">No se encontraron movimientos registrados.</p>
+          <p className="cargando-texto">
+            No se encontraron movimientos registrados.
+          </p>
         ) : (
           <table className="tabla-datos">
             <thead>
@@ -87,12 +94,21 @@ function Movimientos() {
             </thead>
             <tbody>
               {movimientosFiltrados.map((m) => {
-                const esEntrada = m.tipo_movimiento?.toLowerCase() === "entrada";
+                const esEntrada =
+                  m.tipo_movimiento?.toLowerCase() === "entrada";
                 return (
                   <tr key={m.id_movimiento}>
                     <td>
-                      <span className={`badge-tipo ${esEntrada ? "entrada" : "salida"}`}>
-                        {esEntrada ? <IconArrowDownLeft size={16} /> : <IconArrowUpRight size={16} />}
+                      <span
+                        className={`badge-tipo ${
+                          esEntrada ? "entrada" : "salida"
+                        }`}
+                      >
+                        {esEntrada ? (
+                          <IconArrowDownLeft size={16} />
+                        ) : (
+                          <IconArrowUpRight size={16} />
+                        )}
                         {m.tipo_movimiento}
                       </span>
                     </td>
@@ -100,7 +116,9 @@ function Movimientos() {
                     <td>{m.motivo}</td>
                     <td>{m.cantidad} un.</td>
                     <td>{m.nombre_usuario}</td>
-                    <td className="texto-observacion">{m.observacion || "Sin observaciones"}</td>
+                    <td className="texto-observacion">
+                      {m.observacion || "Sin observaciones"}
+                    </td>
                     <td>{m.fecha_formateada || "N/A"}</td>
                   </tr>
                 );
@@ -110,10 +128,10 @@ function Movimientos() {
         )}
       </div>
 
-      <ModalMovimiento 
-        isOpen={modalAbierto} 
-        onClose={() => setModalAbierto(false)} 
-        onMovimientoExitoso={cargarMovimientos} 
+      <ModalMovimiento
+        isOpen={modalAbierto}
+        onClose={() => setModalAbierto(false)}
+        onMovimientoExitoso={cargarMovimientos}
       />
     </div>
   );

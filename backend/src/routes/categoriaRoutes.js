@@ -1,10 +1,19 @@
-import { Router } from 'express';
-import { crearCategoria, obtenerCategorias } from '../controllers/categoriaController.js';
-import { verificarToken } from '../middlewares/authMiddleware.js';
+import { Router } from "express";
+import {
+  crearCategoria,
+  obtenerCategorias,
+  actualizarCategoria,
+  eliminarCategoria,
+} from "../controllers/categoriaController.js";
+import { verificarToken } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
-router.post('/', verificarToken, crearCategoria);
-router.get('/', verificarToken, obtenerCategorias);
+router.use(verificarToken);
+
+router.post("/", crearCategoria);
+router.get("/", obtenerCategorias);
+router.put("/:id", actualizarCategoria);
+router.delete("/:id", eliminarCategoria);
 
 export default router;

@@ -122,7 +122,7 @@ function LandingPage() {
                         <p>Algoritmo automatizado para identificar los productos que generan tus ingresos.</p>
                     </div>
                     <div className="stat-card">
-                        <h3>&lt; 2 Segundos</h3>
+                        <h3> 2 Segundos</h3>
                         <p>En procesamiento de transacciones, traslados de inventario y actualizaciones.</p>
                     </div>
                 </div>
@@ -187,7 +187,7 @@ function LandingPage() {
                         <span className="reports-badge">Hojas de datos e informes</span>
                         <h2>Exporta tu información con un solo clic</h2>
                         <p>
-                            Genera reportes instantáneos del estado actual de tus almacenes, listas de precios para proveedores, historiales de auditoría completos y la sábana de movimientos de inventario en formatos estándar **PDF** y **Excel (XLSX)**. Ideal para revisiones contables y auditorías imprevistas.
+                            Genera reportes instantáneos del estado actual de tus almacenes, listas de precios para proveedores, historiales de auditoría completos y la sábana de movimientos de inventario en formatos estándar <strong>PDF</strong> y <strong>Excel (XLSX)</strong>. Ideal para revisiones contables y auditorías imprevistas.
                         </p>
                         <ul className="reports-list">
                             <li>✓ Reportes de valoración de inventario (Costo total).</li>
@@ -255,7 +255,7 @@ function LandingPage() {
 
             {/* --- FOOTER --- */}
             <footer className="landing-footer">
-                <p>&copy; {new Date().getFullYear()} Stockvelia. Todos los derechos reservados.</p>
+                <p>© {new Date().getFullYear()} Stockvelia. Todos los derechos reservados.</p>
                 <div className="footer-links">
                     <Link to="/login">Ingresar</Link>
                     <Link to="/registro">Crear Cuenta</Link>
