@@ -5,6 +5,7 @@ import {
   cambiarEmpresaActiva,
   solicitarRecuperacion,
   restablecerPassword,
+  logoutUsuario,
 } from "../controllers/authController.js";
 import { verificarToken } from "../middlewares/authMiddleware.js";
 
@@ -15,6 +16,8 @@ router.post("/register", registrarEmpresaYUsuario);
 router.post("/login", loginUsuario);
 
 router.post("/change-company", verificarToken, cambiarEmpresaActiva);
+
+router.post("/logout", verificarToken, logoutUsuario);
 
 router.post("/forgot-password", solicitarRecuperacion);
 router.post("/reset-password", restablecerPassword);

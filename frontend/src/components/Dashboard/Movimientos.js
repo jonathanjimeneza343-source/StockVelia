@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   IconArrowUpRight,
   IconArrowDownLeft,
@@ -9,43 +9,101 @@ import api from "../../services/api";
 import ModalMovimiento from "./modales/ModalMovimiento";
 import "../../styles/Movimientos.css";
 
+const cacheMovimientosPorEmpresa = new Map();
+const peticionesMovimientosEnCurso = new Map();
+
+function obtenerUsuarioGuardado() {
+  try {
+    return JSON.parse(localStorage.getItem("usuario")) || {};
+  } catch {
+    return {};
+  }
+}
+
 function Movimientos() {
-  const [movimientos, setMovimientos] = useState([]);
+  const usuario = useMemo(() => obtenerUsuarioGuardado(), []);
+  const idEmpresa = usuario?.id_empresa;
+  const cacheInicial = idEmpresa ? cacheMovimientosPorEmpresa.get(idEmpresa) : null;
+
+  const [movimientos, setMovimientos] = useState(
+    Array.isArray(cacheInicial) ? cacheInicial : []
+  );
   const [busqueda, setBusqueda] = useState("");
-  const [cargando, setCargando] = useState(true);
+  const [cargando, setCargando] = useState(!cacheInicial);
   const [modalAbierto, setModalAbierto] = useState(false);
 
-  const cargarMovimientos = useCallback(async (silencioso = false) => {
-    try {
-      if (!silencioso) setCargando(true);
-      const respuesta = await api.get("/movimientos");
-      setMovimientos(Array.isArray(respuesta.data) ? respuesta.data : []);
-    } catch (error) {
-      if (!silencioso) {
-        console.error("Error al obtener el historial de movimientos:", error);
-        setMovimientos([]);
+  const cargarMovimientos = useCallback(
+    async (silencioso = false, forzarRed = false) => {
+      if (!idEmpresa) {
+        setCargando(false);
+        return;
       }
-    } finally {
-      if (!silencioso) setCargando(false);
-    }
-  }, []);
+
+      const tieneCache = cacheMovimientosPorEmpresa.has(idEmpresa);
+      if (!silencioso && !tieneCache) {
+        setCargando(true);
+      }
+
+      try {
+        let promesa = peticionesMovimientosEnCurso.get(idEmpresa);
+        if (!promesa || forzarRed) {
+          promesa = api
+            .get("/movimientos")
+            .then((res) => (Array.isArray(res.data) ? res.data : []))
+            .finally(() => {
+              peticionesMovimientosEnCurso.delete(idEmpresa);
+            });
+          peticionesMovimientosEnCurso.set(idEmpresa, promesa);
+        }
+
+        const lista = await promesa;
+        cacheMovimientosPorEmpresa.set(idEmpresa, lista);
+        setMovimientos(lista);
+      } catch (error) {
+        if (!silencioso) {
+          console.error("Error al obtener el historial de movimientos:", error);
+          if (!tieneCache) {
+            setMovimientos([]);
+          }
+        }
+      } finally {
+        if (!silencioso) {
+          setCargando(false);
+        }
+      }
+    },
+    [idEmpresa]
+  );
 
   useEffect(() => {
-    cargarMovimientos(false);
+    let activo = true;
+
+    const ejecutarCarga = async (esSilencioso, forzar = false) => {
+      if (!activo) return;
+      await cargarMovimientos(esSilencioso, forzar);
+    };
+
+    ejecutarCarga(false, false);
     const intervalo = setInterval(() => {
-      cargarMovimientos(true);
-    }, 15000);
-    return () => clearInterval(intervalo);
+      ejecutarCarga(true, true);
+    }, 30000);
+
+    return () => {
+      activo = false;
+      clearInterval(intervalo);
+    };
   }, [cargarMovimientos]);
 
-  const movimientosFiltrados = movimientos.filter((m) => {
-    const q = busqueda.toLowerCase();
-    return (
-      m.nombre_producto?.toLowerCase().includes(q) ||
-      m.motivo?.toLowerCase().includes(q) ||
-      m.nombre_usuario?.toLowerCase().includes(q)
+  const movimientosFiltrados = useMemo(() => {
+    const q = busqueda.trim().toLowerCase();
+    if (!q) return movimientos;
+    return movimientos.filter(
+      (m) =>
+        m.nombre_producto?.toLowerCase().includes(q) ||
+        m.motivo?.toLowerCase().includes(q) ||
+        m.nombre_usuario?.toLowerCase().includes(q)
     );
-  });
+  }, [movimientos, busqueda]);
 
   return (
     <div className="seccion-contenedor">
@@ -81,7 +139,7 @@ function Movimientos() {
       </div>
 
       <div className="tabla-card">
-        {cargando ? (
+        {cargando && movimientos.length === 0 ? (
           <p className="cargando-texto">Cargando movimientos...</p>
         ) : movimientosFiltrados.length === 0 ? (
           <p className="cargando-texto">
@@ -108,8 +166,7 @@ function Movimientos() {
                   <tr key={m.id_movimiento}>
                     <td>
                       <span
-                        className={`badge-tipo ${esEntrada ? "entrada" : "salida"
-                          }`}
+                        className={`badge-tipo ${esEntrada ? "entrada" : "salida"}`}
                       >
                         {esEntrada ? (
                           <IconArrowDownLeft size={16} />
@@ -138,7 +195,7 @@ function Movimientos() {
       <ModalMovimiento
         isOpen={modalAbierto}
         onClose={() => setModalAbierto(false)}
-        onMovimientoExitoso={() => cargarMovimientos(false)}
+        onMovimientoExitoso={() => cargarMovimientos(false, true)}
       />
     </div>
   );

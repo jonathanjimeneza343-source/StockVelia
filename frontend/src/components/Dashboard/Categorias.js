@@ -9,6 +9,9 @@ import ModalCategoria from "./modales/ModalCategoria";
 import "../../styles/Categorias.css";
 import Swal from "sweetalert2";
 
+const cacheCategoriasPorEmpresa = new Map();
+const peticionesCategoriasEnCurso = new Map();
+
 function obtenerUsuarioGuardado() {
   try {
     return JSON.parse(localStorage.getItem("usuario")) || {};
@@ -18,27 +21,75 @@ function obtenerUsuarioGuardado() {
 }
 
 function Categorias() {
-  const [categorias, setCategorias] = useState([]);
+  const usuario = useMemo(() => obtenerUsuarioGuardado(), []);
+  const idEmpresa = usuario?.id_empresa;
+  const cacheInicial = idEmpresa ? cacheCategoriasPorEmpresa.get(idEmpresa) : null;
+
+  const [categorias, setCategorias] = useState(
+    Array.isArray(cacheInicial) ? cacheInicial : []
+  );
+  const [cargando, setCargando] = useState(!cacheInicial);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [categoriaAEditar, setCategoriaAEditar] = useState(null);
 
-  const usuario = useMemo(() => obtenerUsuarioGuardado(), []);
   const rolNumero = Number(usuario?.id_rol);
   const esAdmin = rolNumero === 1 || rolNumero === 2;
   const puedeCrearCategoria = [1, 2, 3].includes(rolNumero);
 
-  const cargarCategorias = useCallback(async () => {
-    try {
-      if (!usuario?.id_empresa) return;
-      const data = await obtenerCategorias();
-      setCategorias(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Error al cargar categorías:", error);
-    }
-  }, [usuario?.id_empresa]);
+  const cargarCategorias = useCallback(
+    async (silencioso = false, forzarRed = false) => {
+      if (!idEmpresa) {
+        setCargando(false);
+        return;
+      }
+
+      const tieneCache = cacheCategoriasPorEmpresa.has(idEmpresa);
+      if (!silencioso && !tieneCache) {
+        setCargando(true);
+      }
+
+      try {
+        let promesa = peticionesCategoriasEnCurso.get(idEmpresa);
+        if (!promesa || forzarRed) {
+          promesa = obtenerCategorias()
+            .then((data) => (Array.isArray(data) ? data : []))
+            .finally(() => {
+              peticionesCategoriasEnCurso.delete(idEmpresa);
+            });
+          peticionesCategoriasEnCurso.set(idEmpresa, promesa);
+        }
+
+        const lista = await promesa;
+        cacheCategoriasPorEmpresa.set(idEmpresa, lista);
+        setCategorias(lista);
+      } catch (error) {
+        if (!silencioso) {
+          console.error("Error al cargar categorías:", error);
+          if (!tieneCache) {
+            setCategorias([]);
+          }
+        }
+      } finally {
+        if (!silencioso) {
+          setCargando(false);
+        }
+      }
+    },
+    [idEmpresa]
+  );
 
   useEffect(() => {
-    cargarCategorias();
+    let activo = true;
+
+    const ejecutar = async () => {
+      if (!activo) return;
+      await cargarCategorias(false, false);
+    };
+
+    ejecutar();
+    return () => {
+      activo = false;
+    };
   }, [cargarCategorias]);
 
   const abrirModalCrear = () => {
@@ -98,7 +149,7 @@ function Categorias() {
       }
       setModalAbierto(false);
       setCategoriaAEditar(null);
-      await cargarCategorias();
+      await cargarCategorias(false, true);
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -126,7 +177,7 @@ function Categorias() {
       if (result.isConfirmed) {
         try {
           await eliminarCategoria(id_categoria);
-          await cargarCategorias();
+          await cargarCategorias(false, true);
           Swal.fire({
             icon: "success",
             iconColor: "#5e059e",
@@ -164,7 +215,11 @@ function Categorias() {
       </div>
 
       <div className="categorias-cards-container">
-        {categorias.length === 0 ? (
+        {cargando && categorias.length === 0 ? (
+          <div className="categorias-vacio">
+            <p>Cargando categorías...</p>
+          </div>
+        ) : categorias.length === 0 ? (
           <div className="categorias-vacio">
             <p>
               No hay categorías registradas todavía. ¡Crea la primera con el botón

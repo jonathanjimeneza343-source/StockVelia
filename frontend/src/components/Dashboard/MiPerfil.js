@@ -1,9 +1,12 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { IconCamera, IconPalette, IconLock, IconUser } from "@tabler/icons-react";
 import Swal from "sweetalert2";
 import api from "../../services/api";
 import { aplicarColorTemaEmpresa, obtenerUrlAvatar } from "../../utils/temaEmpresa";
 import "../../styles/MiPerfil.css";
+
+const cachePerfilPorClave = new Map();
+const peticionesPerfilEnCurso = new Map();
 
 const PALETA_COLORES = [
     { nombre: "Morado StockVelia", hex: "#5e059e" },
@@ -18,42 +21,108 @@ const FORMATOS_PERMITIDOS = ["image/jpeg", "image/jpg", "image/png", "image/webp
 const TAMANO_MAX_BYTES = 2 * 1024 * 1024; // 2 MB
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
 
+function obtenerUsuarioGuardado() {
+    try {
+        return JSON.parse(localStorage.getItem("usuario")) || {};
+    } catch {
+        return {};
+    }
+}
+
 function MiPerfil({ onUsuarioActualizado }) {
-    const [perfil, setPerfil] = useState(null);
-    const [nombre, setNombre] = useState("");
-    const [telefono, setTelefono] = useState("");
+    const usuarioBase = useMemo(() => obtenerUsuarioGuardado(), []);
+    const clavePerfil =
+        usuarioBase?.id_usuario || usuarioBase?.id_empresa
+            ? `${usuarioBase?.id_usuario || "u"}_${usuarioBase?.id_empresa || "e"}`
+            : null;
+    const cacheInicial = clavePerfil ? cachePerfilPorClave.get(clavePerfil) : null;
+
+    const [perfil, setPerfil] = useState(cacheInicial || null);
+    const [nombre, setNombre] = useState(cacheInicial?.nombre || "");
+    const [telefono, setTelefono] = useState(cacheInicial?.telefono || "");
     const [passwordActual, setPasswordActual] = useState("");
     const [nuevaPassword, setNuevaPassword] = useState("");
     const [confirmarPassword, setConfirmarPassword] = useState("");
     const [archivoFoto, setArchivoFoto] = useState(null);
     const [previewFoto, setPreviewFoto] = useState(null);
-    const [colorTema, setColorTema] = useState("#5e059e");
+    const [colorTema, setColorTema] = useState(cacheInicial?.color_tema || "#5e059e");
     const [guardandoPerfil, setGuardandoPerfil] = useState(false);
     const [guardandoFoto, setGuardandoFoto] = useState(false);
     const [guardandoColor, setGuardandoColor] = useState(false);
 
-    const cargarPerfil = useCallback(async () => {
-        try {
-            const { data } = await api.get("/usuarios/perfil");
-            const colorActual = data.color_tema || "#5e059e";
-            setPerfil(data);
-            setNombre(data.nombre || "");
-            setTelefono(data.telefono || "");
-            setColorTema(colorActual);
-            aplicarColorTemaEmpresa(colorActual);
-        } catch (error) {
-            Swal.fire({
-                icon: "error",
-                iconColor: "#5e059e",
-                title: "Error",
-                text: error.response?.data?.error || "No se pudo cargar tu perfil.",
-                confirmButtonColor: "#5e059e",
-            });
+    const sincronizarEstadoPerfil = useCallback((data) => {
+        const colorActual = data.color_tema || "#5e059e";
+        setPerfil(data);
+        setNombre(data.nombre || "");
+        setTelefono(data.telefono || "");
+        setColorTema(colorActual);
+        aplicarColorTemaEmpresa(colorActual);
+
+        const actual = obtenerUsuarioGuardado();
+        const clave =
+            data?.id_usuario || data?.id_empresa || actual?.id_usuario || actual?.id_empresa
+                ? `${data?.id_usuario || actual?.id_usuario || "u"}_${data?.id_empresa || actual?.id_empresa || "e"}`
+                : null;
+        if (clave) {
+            cachePerfilPorClave.set(clave, data);
         }
     }, []);
 
+    const cargarPerfil = useCallback(
+        async (silencioso = false, forzarRed = false) => {
+            const actual = obtenerUsuarioGuardado();
+            const clave =
+                actual?.id_usuario || actual?.id_empresa
+                    ? `${actual?.id_usuario || "u"}_${actual?.id_empresa || "e"}`
+                    : "default";
+
+            const entradaCache = cachePerfilPorClave.get(clave);
+            if (entradaCache && !forzarRed) {
+                sincronizarEstadoPerfil(entradaCache);
+                return;
+            }
+
+            try {
+                let promesa = peticionesPerfilEnCurso.get(clave);
+                if (!promesa || forzarRed) {
+                    promesa = api
+                        .get("/usuarios/perfil")
+                        .then((res) => res.data)
+                        .finally(() => {
+                            peticionesPerfilEnCurso.delete(clave);
+                        });
+                    peticionesPerfilEnCurso.set(clave, promesa);
+                }
+
+                const data = await promesa;
+                sincronizarEstadoPerfil(data);
+            } catch (error) {
+                if (!silencioso) {
+                    Swal.fire({
+                        icon: "error",
+                        iconColor: "#5e059e",
+                        title: "Error",
+                        text: error.response?.data?.error || "No se pudo cargar tu perfil.",
+                        confirmButtonColor: "#5e059e",
+                    });
+                }
+            }
+        },
+        [sincronizarEstadoPerfil]
+    );
+
     useEffect(() => {
-        cargarPerfil();
+        let activo = true;
+
+        const ejecutar = async () => {
+            if (!activo) return;
+            await cargarPerfil(false, false);
+        };
+
+        ejecutar();
+        return () => {
+            activo = false;
+        };
     }, [cargarPerfil]);
 
     useEffect(() => {
@@ -132,14 +201,21 @@ function MiPerfil({ onUsuarioActualizado }) {
                 headers: { "Content-Type": "multipart/form-data" },
             });
 
-            const usuarioGuardado = JSON.parse(localStorage.getItem("usuario") || "{}");
+            const usuarioGuardado = obtenerUsuarioGuardado();
             const usuarioActualizado = {
                 ...usuarioGuardado,
                 foto_perfil: data.foto_perfil,
             };
             localStorage.setItem("usuario", JSON.stringify(usuarioActualizado));
             onUsuarioActualizado?.(usuarioActualizado);
-            setPerfil((prev) => ({ ...prev, foto_perfil: data.foto_perfil }));
+
+            setPerfil((prev) => {
+                const actualizado = prev ? { ...prev, foto_perfil: data.foto_perfil } : prev;
+                if (actualizado && clavePerfil) {
+                    cachePerfilPorClave.set(clavePerfil, actualizado);
+                }
+                return actualizado;
+            });
             limpiarSeleccionFoto();
 
             Swal.fire({
@@ -220,7 +296,7 @@ function MiPerfil({ onUsuarioActualizado }) {
             }
 
             const { data } = await api.put("/usuarios/perfil", payload);
-            const usuarioGuardado = JSON.parse(localStorage.getItem("usuario") || "{}");
+            const usuarioGuardado = obtenerUsuarioGuardado();
             const usuarioActualizado = {
                 ...usuarioGuardado,
                 nombre: data.usuario.nombre,
@@ -232,7 +308,7 @@ function MiPerfil({ onUsuarioActualizado }) {
             setPasswordActual("");
             setNuevaPassword("");
             setConfirmarPassword("");
-            await cargarPerfil();
+            await cargarPerfil(true, true);
 
             Swal.fire({
                 icon: "success",
@@ -258,7 +334,7 @@ function MiPerfil({ onUsuarioActualizado }) {
                 color_tema: colorTema,
             });
             const nuevoColor = data.empresa.color_tema;
-            const usuarioGuardado = JSON.parse(localStorage.getItem("usuario") || "{}");
+            const usuarioGuardado = obtenerUsuarioGuardado();
             const empresasActualizadas = (usuarioGuardado.empresasDisponibles || []).map((emp) =>
                 Number(emp.id_empresa) === Number(data.empresa.id_empresa)
                     ? { ...emp, color_tema: nuevoColor }
@@ -271,7 +347,13 @@ function MiPerfil({ onUsuarioActualizado }) {
             };
 
             localStorage.setItem("usuario", JSON.stringify(usuarioActualizado));
-            setPerfil((prev) => (prev ? { ...prev, color_tema: nuevoColor } : prev));
+            setPerfil((prev) => {
+                const actualizado = prev ? { ...prev, color_tema: nuevoColor } : prev;
+                if (actualizado && clavePerfil) {
+                    cachePerfilPorClave.set(clavePerfil, actualizado);
+                }
+                return actualizado;
+            });
             aplicarColorTemaEmpresa(nuevoColor);
             onUsuarioActualizado?.(usuarioActualizado);
 

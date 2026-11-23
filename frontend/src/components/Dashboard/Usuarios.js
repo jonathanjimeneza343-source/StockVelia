@@ -11,6 +11,9 @@ import { obtenerNombreRol } from "../../utils/temaEmpresa";
 import "../../styles/Usuarios.css";
 import Swal from "sweetalert2";
 
+const cacheUsuariosPorEmpresa = new Map();
+const peticionesUsuariosEnCurso = new Map();
+
 function obtenerUsuarioGuardado() {
   try {
     return JSON.parse(localStorage.getItem("usuario")) || {};
@@ -19,33 +22,81 @@ function obtenerUsuarioGuardado() {
   }
 }
 
+function filtrarUsuariosActivos(lista) {
+  return (Array.isArray(lista) ? lista : []).filter(
+    (u) => !u.eliminado && String(u.estado_registro || "").toLowerCase() !== "eliminado"
+  );
+}
+
 function Usuarios() {
-  const [usuarios, setUsuarios] = useState([]);
+  const usuarioActual = useMemo(() => obtenerUsuarioGuardado(), []);
+  const idEmpresa = usuarioActual?.id_empresa;
+  const cacheInicial = idEmpresa ? cacheUsuariosPorEmpresa.get(idEmpresa) : null;
+
+  const [usuarios, setUsuarios] = useState(
+    Array.isArray(cacheInicial) ? cacheInicial : []
+  );
+  const [cargando, setCargando] = useState(!cacheInicial);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [usuarioAEditar, setUsuarioAEditar] = useState(null);
 
-  const usuarioActual = useMemo(() => obtenerUsuarioGuardado(), []);
   const esPropietario = Number(usuarioActual?.id_rol) === 1;
   const esAdminOperativo = Number(usuarioActual?.id_rol) === 2;
 
-  const cargarUsuarios = useCallback(async () => {
-    try {
-      if (!usuarioActual?.id_empresa) return;
-      const data = await getUsuarios();
-      const lista = Array.isArray(data) ? data : [];
-      // Ocultar usuarios con baja lógica definitiva
-      setUsuarios(
-        lista.filter(
-          (u) => !u.eliminado && String(u.estado_registro || "").toLowerCase() !== "eliminado"
-        )
-      );
-    } catch (error) {
-      console.error("Error al cargar usuarios:", error);
-    }
-  }, [usuarioActual?.id_empresa]);
+  const cargarUsuarios = useCallback(
+    async (silencioso = false, forzarRed = false) => {
+      if (!idEmpresa) {
+        setCargando(false);
+        return;
+      }
+
+      const tieneCache = cacheUsuariosPorEmpresa.has(idEmpresa);
+      if (!silencioso && !tieneCache) {
+        setCargando(true);
+      }
+
+      try {
+        let promesa = peticionesUsuariosEnCurso.get(idEmpresa);
+        if (!promesa || forzarRed) {
+          promesa = getUsuarios()
+            .then((data) => filtrarUsuariosActivos(data))
+            .finally(() => {
+              peticionesUsuariosEnCurso.delete(idEmpresa);
+            });
+          peticionesUsuariosEnCurso.set(idEmpresa, promesa);
+        }
+
+        const lista = await promesa;
+        cacheUsuariosPorEmpresa.set(idEmpresa, lista);
+        setUsuarios(lista);
+      } catch (error) {
+        if (!silencioso) {
+          console.error("Error al cargar usuarios:", error);
+          if (!tieneCache) {
+            setUsuarios([]);
+          }
+        }
+      } finally {
+        if (!silencioso) {
+          setCargando(false);
+        }
+      }
+    },
+    [idEmpresa]
+  );
 
   useEffect(() => {
-    cargarUsuarios();
+    let activo = true;
+
+    const ejecutar = async () => {
+      if (!activo) return;
+      await cargarUsuarios(false, false);
+    };
+
+    ejecutar();
+    return () => {
+      activo = false;
+    };
   }, [cargarUsuarios]);
 
   const puedeGestionarUsuario = (objetivo) => {
@@ -130,7 +181,7 @@ function Usuarios() {
 
       setModalAbierto(false);
       setUsuarioAEditar(null);
-      cargarUsuarios();
+      await cargarUsuarios(false, true);
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -169,7 +220,7 @@ function Usuarios() {
 
     try {
       await cambiarEstadoUsuario(u.id_usuario, !u.estado);
-      cargarUsuarios();
+      await cargarUsuarios(false, true);
       Swal.fire({
         icon: "success",
         iconColor: "#5e059e",
@@ -209,7 +260,7 @@ function Usuarios() {
 
     try {
       await eliminarUsuarioLogico(u.id_usuario);
-      cargarUsuarios();
+      await cargarUsuarios(false, true);
       Swal.fire({
         icon: "success",
         iconColor: "#5e059e",
@@ -252,71 +303,85 @@ function Usuarios() {
             </tr>
           </thead>
           <tbody>
-            {usuarios.map((u) => {
-              const gestionable = puedeGestionarUsuario(u);
-              return (
-                <tr key={u.id_usuario}>
-                  <td>{u.nombre}</td>
-                  <td>{u.correo}</td>
-                  <td>{u.telefono || "—"}</td>
-                  <td>{obtenerNombreRol(u.id_rol)}</td>
-                  <td>
-                    <span
-                      className={
-                        u.estado
-                          ? "badge-estado activo"
-                          : "badge-estado inactivo"
-                      }
-                    >
-                      <span className="punto-estado"></span>
-                      {u.estado ? "Activo" : "Inactivo"}
-                    </span>
-                  </td>
-                  <td>
-                    {gestionable ? (
-                      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-                        <button
-                          type="button"
-                          className="btn-accion"
-                          onClick={() => abrirModalEditar(u)}
-                          disabled={!u.estado}
-                          title={
-                            u.estado
-                              ? "Editar datos o rol"
-                              : "Activa el usuario para editar"
-                          }
-                        >
-                          Editar
-                        </button>
-                        <button
-                          type="button"
-                          className={
-                            u.estado
-                              ? "btn-accion desactivar"
-                              : "btn-accion activar"
-                          }
-                          onClick={() => handleCambiarEstado(u)}
-                        >
-                          {u.estado ? "Desactivar" : "Activar"}
-                        </button>
-                        <button
-                          type="button"
-                          className="btn-accion desactivar"
-                          style={{ backgroundColor: "#fee2e2", color: "#b91c1c" }}
-                          onClick={() => handleBajaDefinitiva(u)}
-                        >
-                          Baja
-                        </button>
-                      </div>
-                    ) : (
-                      <span style={{ color: "#9ca3af", fontSize: "0.82rem" }}>
-                        Sin acciones permitidas
+            {cargando && usuarios.length === 0 ? (
+              <tr>
+                <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
+                  Cargando usuarios...
+                </td>
+              </tr>
+            ) : usuarios.length === 0 ? (
+              <tr>
+                <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
+                  No hay usuarios registrados en esta empresa.
+                </td>
+              </tr>
+            ) : (
+              usuarios.map((u) => {
+                const gestionable = puedeGestionarUsuario(u);
+                return (
+                  <tr key={u.id_usuario}>
+                    <td>{u.nombre}</td>
+                    <td>{u.correo}</td>
+                    <td>{u.telefono || "—"}</td>
+                    <td>{obtenerNombreRol(u.id_rol)}</td>
+                    <td>
+                      <span
+                        className={
+                          u.estado
+                            ? "badge-estado activo"
+                            : "badge-estado inactivo"
+                        }
+                      >
+                        <span className="punto-estado"></span>
+                        {u.estado ? "Activo" : "Inactivo"}
                       </span>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
+                    </td>
+                    <td>
+                      {gestionable ? (
+                        <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                          <button
+                            type="button"
+                            className="btn-accion"
+                            onClick={() => abrirModalEditar(u)}
+                            disabled={!u.estado}
+                            title={
+                              u.estado
+                                ? "Editar datos o rol"
+                                : "Activa el usuario para editar"
+                            }
+                          >
+                            Editar
+                          </button>
+                          <button
+                            type="button"
+                            className={
+                              u.estado
+                                ? "btn-accion desactivar"
+                                : "btn-accion activar"
+                            }
+                            onClick={() => handleCambiarEstado(u)}
+                          >
+                            {u.estado ? "Desactivar" : "Activar"}
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-accion desactivar"
+                            style={{ backgroundColor: "#fee2e2", color: "#b91c1c" }}
+                            onClick={() => handleBajaDefinitiva(u)}
+                          >
+                            Baja
+                          </button>
+                        </div>
+                      ) : (
+                        <span style={{ color: "#9ca3af", fontSize: "0.82rem" }}>
+                          Sin acciones permitidas
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
