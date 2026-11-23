@@ -313,3 +313,35 @@ export const restablecerPassword = async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor al cambiar la contraseña." });
   }
 };
+
+export const logoutUsuario = async (req, res) => {
+  try {
+    const tokenHeader = req.header("Authorization");
+    const token = (
+      tokenHeader.startsWith("Bearer ") ? tokenHeader.slice(7) : tokenHeader
+    ).trim();
+
+    const decoded = req.usuario;
+    const fechaExpiracion = decoded.exp
+      ? new Date(decoded.exp * 1000)
+      : new Date(Date.now() + 2 * 60 * 60 * 1000);
+
+    const existe = await pool.query(
+      `SELECT 1 FROM tokens_blacklist WHERE token = $1 LIMIT 1`,
+      [token],
+    );
+
+    if (existe.rows.length === 0) {
+      await pool.query(
+        `INSERT INTO tokens_blacklist (token, fecha_expiracion)
+         VALUES ($1, $2)`,
+        [token, fechaExpiracion],
+      );
+    }
+
+    res.json({ mensaje: "Sesión cerrada con éxito. Token revocado." });
+  } catch (error) {
+    console.error("Error al cerrar sesión:", error.message);
+    res.status(500).json({ error: "Error al cerrar sesión." });
+  }
+};
