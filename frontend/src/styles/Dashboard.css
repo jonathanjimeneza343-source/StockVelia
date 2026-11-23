@@ -1,27 +1,27 @@
 .dashboard {
   display: flex;
-  height: 100vh;
-  max-height: 100vh;
+  min-height: 100dvh;
+  height: 100dvh;
   background-color: #f8f8fc;
   overflow: hidden;
-  font-family: "Poppins", sans-serif; 
+  font-family: "Poppins", sans-serif;
 }
 
 .contenido-dashboard {
   flex: 1;
-  padding: 30px;
+  min-width: 0;
+  padding: 28px;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  box-sizing: border-box;
-  overflow-y: auto; 
+  height: 100%;
+  overflow-y: auto;
   overflow-x: hidden;
 }
 
 .contenido-dashboard h1 {
   margin: 0;
   font-size: 2rem;
-  color: #2b004a; 
+  color: #2b004a;
 }
 
 .contenido-dashboard p {
@@ -40,5 +40,24 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    flex-direction: column;
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .contenido-dashboard {
+    padding: 16px;
+    height: auto;
+    overflow: visible;
+  }
+
+  .contenido-dashboard h1 {
+    font-size: 1.5rem;
   }
 }

@@ -2,19 +2,23 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  width: 100vw;
+  min-height: 100dvh;
+  width: 100%;
+  padding: 24px;
   background: linear-gradient(90deg, #e1bafd, #ffffff);
   font-family: "Poppins", sans-serif;
   box-sizing: border-box;
+  overflow-x: clip;
 }
 
 .login-contenedor {
   display: flex;
-  width: 85%;
-  height: 90%;
+  width: min(1120px, 94vw);
+  min-height: 580px;
   box-shadow: 0 15px 35px rgba(94, 5, 158, 0.12);
   border-radius: 20px;
+  overflow: hidden;
+  background-color: #ffffff;
 }
 
 .login-formulario {
@@ -25,26 +29,29 @@
   background-color: #ffffff;
   width: 50%;
   border-radius: 20px 0 0 20px;
-  padding: 20px;
+  padding: 32px 28px;
   box-sizing: border-box;
 }
 
 .login-formulario h2 {
   font-weight: 800;
-  font-size: 1.6rem;
+  font-size: clamp(1.45rem, 2.2vw, 1.8rem);
   margin: 5px;
   color: #2b004a;
 }
 
-.login-formulario p {
+.login-formulario > p {
   font-size: 1rem;
   color: #555;
+  text-align: center;
 }
 
 .login-formulario form {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  max-width: 380px;
 }
 
 .login-input {
@@ -53,8 +60,8 @@
   background-color: #f0edff;
   border-radius: 16px;
   padding: 15px 20px;
-  margin: 10px;
-  width: 22vw;
+  margin: 10px 0;
+  width: 100%;
   box-sizing: border-box;
   gap: 12px;
   border: 2px solid transparent;
@@ -88,23 +95,29 @@
   border-radius: 10px;
   border: none;
   background: linear-gradient(68deg, #ba61fa, #5e059e);
-  width: 10vw;
   min-width: 160px;
   align-self: center;
-  padding: 15px 0;
+  padding: 15px 24px;
   margin: 10px;
   color: #ffffff;
   cursor: pointer;
   transition: opacity 0.2s ease;
 }
 
-.boton-inicio:hover {
+.boton-inicio:hover:not(:disabled) {
   opacity: 0.9;
+}
+
+.boton-inicio:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .registro-link {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .registro-link a,
@@ -125,7 +138,8 @@
 .separador-login {
   display: flex;
   align-items: center;
-  width: 22vw; 
+  width: 100%;
+  max-width: 380px;
   gap: 15px;
   margin: 20px 0;
 }
@@ -133,6 +147,7 @@
 .separador-login p {
   margin: 0;
   font-size: 0.9rem;
+  white-space: nowrap;
 }
 
 .linea {
@@ -145,6 +160,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  max-width: 380px;
 }
 
 .google-login {
@@ -157,7 +174,7 @@
   background-color: #ffffff;
   margin-bottom: 20px;
   padding: 10px 20px;
-  width: 22vw;
+  width: 100%;
   cursor: pointer;
   box-sizing: border-box;
   transition: background-color 0.2s ease;
@@ -186,6 +203,7 @@
 .swal2-icon.swal2-success {
   border-color: #5e059e !important;
 }
+
 .swal2-success-ring {
   border-color: rgba(94, 5, 158, 0.3) !important;
 }
@@ -197,9 +215,49 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 28px;
+  box-sizing: border-box;
 }
 
 .login-ilustracion img {
   width: 85%;
+  max-width: 440px;
   height: auto;
+}
+
+@media (max-width: 900px) {
+  .login-contenedor {
+    flex-direction: column-reverse;
+    width: min(540px, 100%);
+    min-height: auto;
+  }
+
+  .login-formulario,
+  .login-ilustracion {
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .login-ilustracion {
+    padding: 24px;
+  }
+
+  .login-ilustracion img {
+    width: 55%;
+    max-width: 240px;
+  }
+}
+
+@media (max-width: 480px) {
+  .contenedor-principal-login {
+    padding: 14px;
+  }
+
+  .login-formulario {
+    padding: 24px 18px;
+  }
+
+  .login-input {
+    padding: 12px 14px;
+  }
 }

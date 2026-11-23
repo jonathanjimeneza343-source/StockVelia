@@ -1,77 +1,143 @@
 .usuarios-container {
-  padding: 20px;
-  background-color: #fcfbff;
-  font-family: inherit;
+  padding: 22px;
+  background-color: #ffffff;
+  font-family: "Poppins", "Inter", sans-serif;
   width: 100%;
-  height: calc(100vh - 40px); 
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+}
+
+.usuarios-header-top {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(94, 5, 158, 0.1);
+  box-shadow:
+    0 6px 18px rgba(43, 0, 74, 0.05),
+    0 1px 4px rgba(15, 23, 42, 0.04);
+  flex-shrink: 0;
   overflow: hidden;
+}
+
+.usuarios-header-top::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primario, #5e059e), #ba61fa 65%, transparent 100%);
 }
 
 .usuarios-container h2 {
   color: var(--color-primario, #310055);
-  margin-bottom: 20px;
-  font-size: 1.5rem;
-  font-weight: 700;
-  flex-shrink: 0;
+  margin: 0;
+  font-size: clamp(1.3rem, 2vw, 1.55rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.btn-toggle-form {
+  padding: 10px 18px;
+  background: linear-gradient(135deg, var(--color-primario, #6818a5), var(--color-primario-hover, #4a0a77));
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 6px 14px rgba(94, 5, 158, 0.2);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-toggle-form:hover {
+  opacity: 0.95;
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 18px rgba(94, 5, 158, 0.28);
+}
+
+.btn-toggle-form:active {
+  transform: translateY(0);
 }
 
 .usuarios-form {
   display: flex;
   gap: 12px;
-  margin-bottom: 24px;
-  background: #ffffff;
-  padding: 18px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(94, 5, 157, 0.06);
-  border: 1px solid #d283ff40;
+  margin-bottom: 20px;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow:
+    0 8px 22px rgba(43, 0, 74, 0.05),
+    0 2px 6px rgba(94, 5, 158, 0.04);
+  border: 1px solid rgba(94, 5, 158, 0.14);
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 .usuarios-form input {
   padding: 10px 14px;
-  border: 1.5px solid #d283ff80;
-  border-radius: 8px;
+  border: 1.5px solid #dcccf2;
+  border-radius: 10px;
   outline: none;
-  font-size: 0.95rem;
+  font-family: inherit;
+  font-size: 0.94rem;
   flex: 1;
-  transition: all 0.2s ease;
+  min-width: 180px;
   background-color: #ffffff;
+  color: #2b004a;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.usuarios-form input::placeholder {
+  color: #9489a6;
 }
 
 .usuarios-form input:focus {
-  border-color: #8b2fc9;
-  box-shadow: 0 0 0 3px rgba(139, 47, 201, 0.15);
+  border-color: var(--color-primario, #8b2fc9);
+  box-shadow: 0 0 0 3px rgba(94, 5, 158, 0.14);
 }
 
-.usuarios-form button,
-.btn-toggle-form {
-  padding: 10px 20px;
+.usuarios-form button {
+  padding: 10px 22px;
   background: linear-gradient(135deg, var(--color-primario, #6818a5), var(--color-primario-hover, #4a0a77));
-  color: #fff;
+  color: #ffffff;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
+  font-family: inherit;
   font-weight: 600;
-  font-size: 0.95rem;
-  transition: opacity 0.2s ease, transform 0.1s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  font-size: 0.94rem;
+  box-shadow: 0 6px 14px rgba(94, 5, 158, 0.2);
+  transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
 
-.usuarios-form button:hover,
-.btn-toggle-form:hover {
-  background: var(--color-primario-hover, #5a108f);
+.usuarios-form button:hover {
+  opacity: 0.95;
   transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(94, 5, 158, 0.28);
 }
 
 .table-responsive {
-  max-height: 450px; 
+  width: 100%;
+  height: auto;
+  max-height: 70vh;
+  overflow-x: auto;
   overflow-y: auto;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(94, 5, 157, 0.06);
-  border: 1px solid #d283ff60;
+  border-radius: 16px;
+  box-shadow:
+    0 6px 20px rgba(43, 0, 74, 0.05),
+    0 1px 4px rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(94, 5, 158, 0.12);
   background-color: #ffffff;
 }
 
@@ -83,11 +149,11 @@
 
 .tabla-usuarios th,
 .tabla-usuarios td {
-  padding: 12px 16px;
+  padding: 13px 16px;
   text-align: left;
-  font-size: 0.95rem;
-  border-bottom: 1px solid #d283ff50;
-  border-right: 1px solid #d283ff30;
+  font-size: 0.92rem;
+  border-bottom: 1px solid #f2edf9;
+  border-right: 1px solid #f5f1fc;
 }
 
 .tabla-usuarios th:last-child,
@@ -99,103 +165,117 @@
 .tabla-usuarios th {
   background: var(--color-primario, #5e059d);
   color: #ffffff;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  border-bottom: 2px solid var(--color-primario-hover, #5a108f);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--color-primario-hover, #470378);
   position: sticky;
   top: 0;
   z-index: 10;
+  white-space: nowrap;
 }
 
 .tabla-usuarios td {
-  color: #333333;
+  color: #334155;
+  transition: background-color 0.15s ease;
 }
 
-.tabla-usuarios tr:hover {
-  background-color: #fcfbff;
+.tabla-usuarios tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tabla-usuarios tbody tr:hover td {
+  background-color: #fcfaff;
 }
 
 .badge-estado {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  padding: 5px 11px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .badge-estado.activo {
-  background-color: rgba(25, 135, 84, 0.1);
-  color: #198754;
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid rgba(21, 128, 61, 0.2);
 }
 
 .badge-estado.inactivo {
-  background-color: rgba(220, 53, 69, 0.1);
-  color: #dc3545;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid rgba(185, 28, 28, 0.2);
 }
 
 .punto-estado {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background-color: currentColor;
 }
 
 .btn-accion {
   padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: all 0.2s ease;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.12s ease;
+}
+
+.btn-accion:hover {
+  transform: translateY(-1px);
 }
 
 .btn-accion.desactivar {
-  background-color: transparent;
-  border-color: #d283ff60;
-  color: #dc3545;
+  background-color: #fef2f2;
+  border-color: rgba(220, 38, 38, 0.28);
+  color: #dc2626;
 }
 
 .btn-accion.desactivar:hover {
-  background-color: rgba(220, 53, 69, 0.1);
-  border-color: #dc3545;
+  background-color: #fee2e2;
+  border-color: #dc2626;
 }
 
 .btn-accion.activar {
-  background-color: transparent;
-  border-color: #d283ff60;
-  color: #198754;
+  background-color: #f0fdf4;
+  border-color: rgba(22, 163, 74, 0.28);
+  color: #15803d;
 }
 
 .btn-accion.activar:hover {
-  background-color: rgba(25, 135, 84, 0.1);
-  border-color: #198754;
+  background-color: #dcfce7;
+  border-color: #15803d;
 }
 
-.usuarios-header-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  flex-shrink: 0;
+.btn-toggle-form:focus-visible,
+.usuarios-form button:focus-visible,
+.btn-accion:focus-visible {
+  outline: 2px solid var(--color-primario, #5e059e);
+  outline-offset: 2px;
 }
 
-.btn-toggle-form {
-  padding: 10px 18px;
-  background: linear-gradient(135deg, #6818a5, #4a0a77);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
-  box-shadow: 0 2px 6px rgba(74, 10, 119, 0.25);
-  transition: all 0.2s ease;
-}
+@media (max-width: 640px) {
+  .usuarios-container {
+    padding: 14px;
+  }
 
-.btn-toggle-form:hover {
-  background: linear-gradient(135deg, #8b2fc9, #5a108f);
-  transform: translateY(-1px);
+  .usuarios-header-top,
+  .usuarios-form {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .btn-toggle-form,
+  .usuarios-form button {
+    width: 100%;
+  }
 }
