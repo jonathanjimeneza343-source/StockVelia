@@ -10,6 +10,9 @@ import ModalProducto from "./modales/ModalProducto";
 import "../../styles/Productos.css";
 import Swal from "sweetalert2";
 
+const cacheProductosPorEmpresa = new Map();
+const peticionesProductosEnCurso = new Map();
+
 function obtenerUsuarioGuardado() {
   try {
     return JSON.parse(localStorage.getItem("usuario")) || {};
@@ -18,9 +21,23 @@ function obtenerUsuarioGuardado() {
   }
 }
 
+function filtrarProductosActivos(lista) {
+  return (Array.isArray(lista) ? lista : []).filter(
+    (p) =>
+      p.estado !== false &&
+      String(p.estado_producto || p.estado || "").toLowerCase() !== "inactivo" &&
+      String(p.estado_producto || p.estado || "").toLowerCase() !== "eliminado"
+  );
+}
+
 function Productos() {
-  const [productos, setProductos] = useState([]);
-  const [categorias, setCategorias] = useState([]);
+  const usuario = useMemo(() => obtenerUsuarioGuardado(), []);
+  const idEmpresa = usuario?.id_empresa;
+  const cacheInicial = idEmpresa ? cacheProductosPorEmpresa.get(idEmpresa) : null;
+
+  const [productos, setProductos] = useState(cacheInicial?.productos || []);
+  const [categorias, setCategorias] = useState(cacheInicial?.categorias || []);
+  const [cargando, setCargando] = useState(!cacheInicial);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [productoAEditar, setProductoAEditar] = useState(null);
   const [busquedaTexto, setBusquedaTexto] = useState("");
@@ -29,41 +46,77 @@ function Productos() {
   const [precioMinFiltro, setPrecioMinFiltro] = useState("");
   const [precioMaxFiltro, setPrecioMaxFiltro] = useState("");
 
-  const usuario = useMemo(() => obtenerUsuarioGuardado(), []);
   const rolNumero = Number(usuario?.id_rol);
   const esAdmin = rolNumero === 1 || rolNumero === 2;
   const puedeCrearProducto = [1, 2, 3].includes(rolNumero);
 
-  const cargarDatos = useCallback(async (silencioso = false) => {
-    try {
-      const idEmpresa = usuario?.id_empresa;
-      if (!idEmpresa) return;
-      const [prodData, catData] = await Promise.all([
-        obtenerProductos(),
-        obtenerCategorias(),
-      ]);
-      const listaProd = Array.isArray(prodData) ? prodData : [];
-      const activos = listaProd.filter(
-        (p) =>
-          p.estado !== false &&
-          String(p.estado_producto || p.estado || "").toLowerCase() !== "inactivo" &&
-          String(p.estado_producto || p.estado || "").toLowerCase() !== "eliminado"
-      );
-      setProductos(activos);
-      setCategorias(Array.isArray(catData) ? catData : []);
-    } catch (error) {
-      if (!silencioso) {
-        console.error("Error al cargar datos de productos:", error);
+  const cargarDatos = useCallback(
+    async (silencioso = false, soloProductos = false, forzarRed = false) => {
+      if (!idEmpresa) {
+        setCargando(false);
+        return;
       }
-    }
-  }, [usuario?.id_empresa]);
+
+      const tieneCache = cacheProductosPorEmpresa.has(idEmpresa);
+      if (!silencioso && !tieneCache) {
+        setCargando(true);
+      }
+
+      try {
+        let promesa = peticionesProductosEnCurso.get(idEmpresa);
+        if (!promesa || forzarRed) {
+          promesa = (async () => {
+            const previa = cacheProductosPorEmpresa.get(idEmpresa);
+            const [prodData, catData] = await Promise.all([
+              obtenerProductos(),
+              soloProductos && previa?.categorias
+                ? Promise.resolve(previa.categorias)
+                : obtenerCategorias(),
+            ]);
+
+            const activos = filtrarProductosActivos(prodData);
+            const listaCat = Array.isArray(catData) ? catData : [];
+            return { productos: activos, categorias: listaCat };
+          })().finally(() => {
+            peticionesProductosEnCurso.delete(idEmpresa);
+          });
+          peticionesProductosEnCurso.set(idEmpresa, promesa);
+        }
+
+        const datos = await promesa;
+        cacheProductosPorEmpresa.set(idEmpresa, datos);
+        setProductos(datos.productos);
+        setCategorias(datos.categorias);
+      } catch (error) {
+        if (!silencioso) {
+          console.error("Error al cargar datos de productos:", error);
+        }
+      } finally {
+        if (!silencioso) {
+          setCargando(false);
+        }
+      }
+    },
+    [idEmpresa]
+  );
 
   useEffect(() => {
-    cargarDatos(false);
+    let activo = true;
+
+    const ejecutar = async (esSilencioso, forzar = false) => {
+      if (!activo) return;
+      await cargarDatos(esSilencioso, false, forzar);
+    };
+
+    ejecutar(false, false);
     const intervalo = setInterval(() => {
-      cargarDatos(true);
-    }, 15000);
-    return () => clearInterval(intervalo);
+      ejecutar(true, true);
+    }, 30000);
+
+    return () => {
+      activo = false;
+      clearInterval(intervalo);
+    };
   }, [cargarDatos]);
 
   const abrirModalCreacion = () => {
@@ -130,7 +183,7 @@ function Productos() {
       }
       setModalAbierto(false);
       setProductoAEditar(null);
-      await cargarDatos(false);
+      await cargarDatos(false, true, true);
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -160,7 +213,7 @@ function Productos() {
       if (result.isConfirmed) {
         try {
           await eliminarProducto(p.id_producto);
-          await cargarDatos(false);
+          await cargarDatos(false, true, true);
           Swal.fire({
             icon: "success",
             iconColor: "#5e059e",
@@ -363,7 +416,11 @@ function Productos() {
       </div>
 
       <div className="products-cards-container">
-        {productosFiltrados.length === 0 ? (
+        {cargando && productos.length === 0 ? (
+          <p style={{ padding: "20px", color: "#6b7280" }}>
+            Cargando productos...
+          </p>
+        ) : productosFiltrados.length === 0 ? (
           <p style={{ padding: "20px", color: "#6b7280" }}>
             No se encontraron productos con los filtros seleccionados.
           </p>

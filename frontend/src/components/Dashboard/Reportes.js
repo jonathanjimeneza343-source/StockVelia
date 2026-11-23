@@ -8,49 +8,115 @@ import autoTable from "jspdf-autotable";
 import Swal from "sweetalert2";
 import "../../styles/Reportes.css";
 
+const cacheReportes = new Map();
+const peticionesReportesEnCurso = new Map();
+
+function obtenerUsuarioGuardado() {
+  try {
+    return JSON.parse(localStorage.getItem("usuario")) || {};
+  } catch {
+    return {};
+  }
+}
+
 function Reportes() {
+  const usuario = useMemo(() => obtenerUsuarioGuardado(), []);
+  const idEmpresa = usuario?.id_empresa;
+
   const [tipoReporte, setTipoReporte] = useState("inventario");
-  const [datos, setDatos] = useState([]);
-  const [cargando, setCargando] = useState(false);
+
+  const claveCache = idEmpresa ? `${idEmpresa}_${tipoReporte}` : null;
+  const cacheActual = claveCache ? cacheReportes.get(claveCache) : null;
+
+  const [datos, setDatos] = useState(cacheActual?.datos || []);
+  const [movimientosBase, setMovimientosBase] = useState(
+    cacheActual?.movimientosBase || []
+  );
+  const [cargando, setCargando] = useState(!cacheActual);
 
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
-
   const [productoSeleccionado, setProductoSeleccionado] = useState("");
-  const [movimientosBase, setMovimientosBase] = useState([]);
 
-  const usuario = useMemo(() => {
-    try {
-      return JSON.parse(localStorage.getItem("usuario")) || {};
-    } catch {
-      return {};
-    }
-  }, []);
-
-  const cargarReporte = useCallback(async () => {
-    try {
-      setCargando(true);
-      const idEmpresa = usuario?.id_empresa;
-      if (!idEmpresa) return;
-
-      if (tipoReporte === "inventario") {
-        const res = await obtenerReporteInventario(idEmpresa);
-        setDatos(Array.isArray(res) ? res : []);
-      } else {
-        const res = await obtenerReporteMovimientos(idEmpresa);
-        const lista = Array.isArray(res) ? res : [];
-        setMovimientosBase(lista);
-        setDatos(lista);
+  const cargarReporte = useCallback(
+    async (silencioso = false, forzarRed = false) => {
+      if (!idEmpresa) {
+        setCargando(false);
+        return;
       }
-    } catch (error) {
-      console.error("Error al cargar reporte:", error);
-    } finally {
-      setCargando(false);
-    }
-  }, [tipoReporte, usuario?.id_empresa]);
+
+      const clave = `${idEmpresa}_${tipoReporte}`;
+      const entradaCache = cacheReportes.get(clave);
+
+      if (entradaCache && !forzarRed) {
+        setDatos(entradaCache.datos);
+        if (tipoReporte === "movimientos") {
+          setMovimientosBase(entradaCache.movimientosBase || []);
+        }
+        setCargando(false);
+        return;
+      }
+
+      if (!silencioso && !entradaCache) {
+        setCargando(true);
+      }
+
+      try {
+        let promesa = peticionesReportesEnCurso.get(clave);
+        if (!promesa || forzarRed) {
+          promesa = (async () => {
+            if (tipoReporte === "inventario") {
+              const res = await obtenerReporteInventario(idEmpresa);
+              const lista = Array.isArray(res) ? res : [];
+              return { datos: lista, movimientosBase: [] };
+            } else {
+              const res = await obtenerReporteMovimientos(idEmpresa);
+              const lista = Array.isArray(res) ? res : [];
+              return { datos: lista, movimientosBase: lista };
+            }
+          })().finally(() => {
+            peticionesReportesEnCurso.delete(clave);
+          });
+          peticionesReportesEnCurso.set(clave, promesa);
+        }
+
+        const resultado = await promesa;
+        cacheReportes.set(clave, resultado);
+        setDatos(resultado.datos);
+        if (tipoReporte === "movimientos") {
+          setMovimientosBase(resultado.movimientosBase);
+        }
+      } catch (error) {
+        if (!silencioso) {
+          console.error("Error al cargar reporte:", error);
+          if (!entradaCache) {
+            setDatos([]);
+            if (tipoReporte === "movimientos") {
+              setMovimientosBase([]);
+            }
+          }
+        }
+      } finally {
+        if (!silencioso) {
+          setCargando(false);
+        }
+      }
+    },
+    [idEmpresa, tipoReporte]
+  );
 
   useEffect(() => {
-    cargarReporte();
+    let activo = true;
+
+    const ejecutar = async () => {
+      if (!activo) return;
+      await cargarReporte(false, false);
+    };
+
+    ejecutar();
+    return () => {
+      activo = false;
+    };
   }, [cargarReporte]);
 
   const datosFiltrados = useMemo(() => {
@@ -146,9 +212,10 @@ function Reportes() {
     doc.setFontSize(16);
     doc.setTextColor(40, 40, 40);
     doc.text(
-      `Reporte de ${tipoReporte === "inventario"
-        ? "Inventario Actual"
-        : "Historial de Movimientos"
+      `Reporte de ${
+        tipoReporte === "inventario"
+          ? "Inventario Actual"
+          : "Historial de Movimientos"
       }`,
       14,
       20
@@ -231,22 +298,22 @@ function Reportes() {
     const filas = datosFiltrados.map((item) =>
       tipoReporte === "inventario"
         ? [
-          item.codigo,
-          item.nombre,
-          item.categoria_nombre || "Sin categoría",
-          item.stock,
-          Number(item.precio || 0),
-          Number(item.stock || 0) * Number(item.precio || 0),
-        ]
+            item.codigo,
+            item.nombre,
+            item.categoria_nombre || "Sin categoría",
+            item.stock,
+            Number(item.precio || 0),
+            Number(item.stock || 0) * Number(item.precio || 0),
+          ]
         : [
-          item.fecha && !Number.isNaN(new Date(item.fecha).getTime())
-            ? new Date(item.fecha).toLocaleDateString()
-            : "Sin fecha",
-          item.tipo,
-          item.producto_nombre,
-          item.cantidad,
-          item.usuario_nombre,
-        ]
+            item.fecha && !Number.isNaN(new Date(item.fecha).getTime())
+              ? new Date(item.fecha).toLocaleDateString()
+              : "Sin fecha",
+            item.tipo,
+            item.producto_nombre,
+            item.cantidad,
+            item.usuario_nombre,
+          ]
     );
 
     const csvContent =
@@ -285,21 +352,32 @@ function Reportes() {
           <div className="reportes-tabs">
             <button
               type="button"
-              className={`tab-btn ${tipoReporte === "inventario" ? "active" : ""
-                }`}
+              className={`tab-btn ${
+                tipoReporte === "inventario" ? "active" : ""
+              }`}
               onClick={() => setTipoReporte("inventario")}
             >
               Inventario Actual
             </button>
             <button
               type="button"
-              className={`tab-btn ${tipoReporte === "movimientos" ? "active" : ""
-                }`}
+              className={`tab-btn ${
+                tipoReporte === "movimientos" ? "active" : ""
+              }`}
               onClick={() => setTipoReporte("movimientos")}
             >
               Historial de Movimientos
             </button>
           </div>
+
+          <button
+            type="button"
+            onClick={() => cargarReporte(false, true)}
+            className="tab-btn"
+            title="Actualizar datos desde el servidor"
+          >
+            🔄 Actualizar
+          </button>
 
           <button
             type="button"
@@ -435,7 +513,7 @@ function Reportes() {
       )}
 
       <div className="reportes-content-box">
-        {cargando ? (
+        {cargando && datos.length === 0 ? (
           <p className="loading-text">Generando reporte...</p>
         ) : (
           <div className="table-responsive">
@@ -476,11 +554,12 @@ function Reportes() {
                         <td>{item.categoria_nombre || "Sin categoría"}</td>
                         <td>
                           <span
-                            className={`stock-tag ${Number(item.stock) <=
-                                Number(item.stock_minimo ?? 5)
+                            className={`stock-tag ${
+                              Number(item.stock) <=
+                              Number(item.stock_minimo ?? 5)
                                 ? "low"
                                 : ""
-                              }`}
+                            }`}
                           >
                             {item.stock}
                           </span>
@@ -497,7 +576,7 @@ function Reportes() {
                       <tr key={item.id_movimiento ?? index}>
                         <td>
                           {item.fecha &&
-                            !Number.isNaN(new Date(item.fecha).getTime())
+                          !Number.isNaN(new Date(item.fecha).getTime())
                             ? new Date(item.fecha).toLocaleDateString()
                             : "Sin fecha"}
                         </td>
