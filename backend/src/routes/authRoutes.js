@@ -5,11 +5,6 @@ import {
   cambiarEmpresaActiva,
   solicitarRecuperacion,
   restablecerPassword,
-<<<<<<< HEAD
-  cambiarEmpresaActiva,
-  logoutUsuario,
-=======
->>>>>>> rama-jonathan
 } from "../controllers/authController.js";
 import { verificarToken } from "../middlewares/authMiddleware.js";
 
@@ -20,12 +15,8 @@ router.post("/register", registrarEmpresaYUsuario);
 router.post("/login", loginUsuario);
 
 router.post("/change-company", verificarToken, cambiarEmpresaActiva);
-<<<<<<< HEAD
-router.post("/logout", verificarToken, logoutUsuario);
-=======
 
 router.post("/forgot-password", solicitarRecuperacion);
 router.post("/reset-password", restablecerPassword);
->>>>>>> rama-jonathan
 
 export default router;
