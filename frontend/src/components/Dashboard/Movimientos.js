@@ -15,28 +15,37 @@ function Movimientos() {
   const [cargando, setCargando] = useState(true);
   const [modalAbierto, setModalAbierto] = useState(false);
 
-  const cargarMovimientos = useCallback(async () => {
+  const cargarMovimientos = useCallback(async (silencioso = false) => {
     try {
-      setCargando(true);
+      if (!silencioso) setCargando(true);
       const respuesta = await api.get("/movimientos");
       setMovimientos(Array.isArray(respuesta.data) ? respuesta.data : []);
     } catch (error) {
-      console.error("Error al obtener el historial de movimientos:", error);
-      setMovimientos([]);
+      if (!silencioso) {
+        console.error("Error al obtener el historial de movimientos:", error);
+        setMovimientos([]);
+      }
     } finally {
-      setCargando(false);
+      if (!silencioso) setCargando(false);
     }
   }, []);
 
   useEffect(() => {
-    cargarMovimientos();
+    cargarMovimientos(false);
+    const intervalo = setInterval(() => {
+      cargarMovimientos(true);
+    }, 15000);
+    return () => clearInterval(intervalo);
   }, [cargarMovimientos]);
 
-  const movimientosFiltrados = movimientos.filter(
-    (m) =>
-      m.nombre_producto?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      m.motivo?.toLowerCase().includes(busqueda.toLowerCase())
-  );
+  const movimientosFiltrados = movimientos.filter((m) => {
+    const q = busqueda.toLowerCase();
+    return (
+      m.nombre_producto?.toLowerCase().includes(q) ||
+      m.motivo?.toLowerCase().includes(q) ||
+      m.nombre_usuario?.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className="seccion-contenedor">
@@ -45,19 +54,18 @@ function Movimientos() {
           <h2>Movimientos de Inventario</h2>
           <p>Historial en tiempo real de entradas, salidas y motivos registrados</p>
         </div>
-
         <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
           <div className="busqueda-contenedor">
             <IconSearch size={20} className="icono-busqueda" />
             <input
               type="text"
-              placeholder="Buscar por producto o motivo..."
+              placeholder="Buscar por producto, motivo o responsable..."
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
             />
           </div>
-
           <button
+            type="button"
             className="btn-guardar"
             style={{
               display: "flex",
@@ -100,9 +108,8 @@ function Movimientos() {
                   <tr key={m.id_movimiento}>
                     <td>
                       <span
-                        className={`badge-tipo ${
-                          esEntrada ? "entrada" : "salida"
-                        }`}
+                        className={`badge-tipo ${esEntrada ? "entrada" : "salida"
+                          }`}
                       >
                         {esEntrada ? (
                           <IconArrowDownLeft size={16} />
@@ -131,7 +138,7 @@ function Movimientos() {
       <ModalMovimiento
         isOpen={modalAbierto}
         onClose={() => setModalAbierto(false)}
-        onMovimientoExitoso={cargarMovimientos}
+        onMovimientoExitoso={() => cargarMovimientos(false)}
       />
     </div>
   );

@@ -8,9 +8,16 @@ import "../../../styles/ModalMovimiento.css";
 const ESTADO_INICIAL = {
   id_producto: "",
   tipo_movimiento: "Entrada",
-  motivo: "",
+  motivo: "Compra",
   cantidad: "",
   observacion: "",
+};
+
+const MOTIVOS_SUGERIDOS = {
+  Entrada: ["Compra a proveedor", "Devolución de cliente"],
+  Salida: ["Venta", "Baja / Daño", "Ajuste de inventario"],
+  Venta: ["Venta directa"],
+  Baja: ["Baja / Daño", "Producto vencido / obsoleto"],
 };
 
 function ModalMovimiento({ isOpen, onClose, onMovimientoExitoso }) {
@@ -22,6 +29,7 @@ function ModalMovimiento({ isOpen, onClose, onMovimientoExitoso }) {
   useEffect(() => {
     if (isOpen) {
       setError(null);
+      setFormData(ESTADO_INICIAL);
       obtenerProductos()
         .then((data) => setProductos(Array.isArray(data) ? data : []))
         .catch((err) => {
@@ -33,31 +41,81 @@ function ModalMovimiento({ isOpen, onClose, onMovimientoExitoso }) {
 
   if (!isOpen) return null;
 
+  const productoSeleccionado = productos.find(
+    (p) => Number(p.id_producto) === Number(formData.id_producto)
+  );
+
+  const esOperacionSalida = ["Salida", "Venta", "Baja"].includes(
+    formData.tipo_movimiento
+  );
+
+  const esBajaODano =
+    formData.tipo_movimiento === "Baja" ||
+    /baja|dañ|merma|vencid|obsolet/i.test(formData.motivo || "");
+
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setFormData((prev) => {
+      if (name === "tipo_movimiento") {
+        const opciones = MOTIVOS_SUGERIDOS[value] || [];
+        return {
+          ...prev,
+          tipo_movimiento: value,
+          motivo: opciones[0] || "",
+        };
+      }
+      return { ...prev, [name]: value };
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    setCargando(true);
 
+    const cantidadNum = Number(formData.cantidad);
+    const motivoLimpio = formData.motivo.trim();
+    const observacionLimpia = formData.observacion.trim();
+
+    if (!formData.id_producto || !motivoLimpio || cantidadNum <= 0 || Number.isNaN(cantidadNum)) {
+      setError(
+        "Debes seleccionar un producto, indicar un motivo válido y una cantidad mayor a 0."
+      );
+      return;
+    }
+
+    if (esOperacionSalida && productoSeleccionado) {
+      const stockActual = Number(productoSeleccionado.stock ?? 0);
+      if (cantidadNum > stockActual) {
+        setError(
+          `Stock Insuficiente: solo hay ${stockActual} unidades disponibles de "${productoSeleccionado.nombre}".`
+        );
+        return;
+      }
+    }
+
+    if (esBajaODano && !observacionLimpia) {
+      setError(
+        "Debes ingresar la justificación u observación para registrar una Baja o Daño."
+      );
+      return;
+    }
+
+    setCargando(true);
     try {
       const respuesta = await api.post("/movimientos", {
         ...formData,
-        motivo: formData.motivo.trim(),
-        observacion: formData.observacion.trim(),
-        cantidad: Number(formData.cantidad),
+        motivo: motivoLimpio,
+        observacion: observacionLimpia,
+        cantidad: Math.floor(cantidadNum),
       });
 
       const resultado = respuesta.data;
-
       Swal.fire({
         icon: "success",
         iconColor: "#5e059e",
         title: "¡Movimiento registrado!",
         showConfirmButton: false,
-        timer: 1500,
+        timer: 1400,
       });
 
       if (resultado?.stock_bajo) {
@@ -71,10 +129,6 @@ function ModalMovimiento({ isOpen, onClose, onMovimientoExitoso }) {
           showConfirmButton: false,
           timer: 4000,
           timerProgressBar: true,
-          didOpen: (toast) => {
-            toast.onMouseEnter = Swal.stopTimer;
-            toast.onMouseLeave = Swal.resumeTimer;
-          },
         });
       }
 
@@ -85,19 +139,23 @@ function ModalMovimiento({ isOpen, onClose, onMovimientoExitoso }) {
       onClose();
     } catch (err) {
       setError(
-        err.response?.data?.error || err.message || "Error al procesar el movimiento"
+        err.response?.data?.error ||
+        err.message ||
+        "Error al procesar el movimiento"
       );
     } finally {
       setCargando(false);
     }
   };
 
+  const sugerencias = MOTIVOS_SUGERIDOS[formData.tipo_movimiento] || [];
+
   return (
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
           <h3>Registrar Movimiento de Inventario</h3>
-          <button className="btn-cerrar" onClick={onClose}>
+          <button type="button" className="btn-cerrar" onClick={onClose}>
             <IconX size={20} />
           </button>
         </div>
@@ -129,10 +187,10 @@ function ModalMovimiento({ isOpen, onClose, onMovimientoExitoso }) {
               value={formData.tipo_movimiento}
               onChange={handleChange}
             >
-              <option value="Entrada">Entrada</option>
+              <option value="Entrada">Entrada (Compra / Devolución)</option>
               <option value="Salida">Salida</option>
               <option value="Venta">Venta</option>
-              <option value="Baja">Baja / Merma</option>
+              <option value="Baja">Baja / Daño</option>
             </select>
           </div>
 
@@ -141,11 +199,17 @@ function ModalMovimiento({ isOpen, onClose, onMovimientoExitoso }) {
             <input
               type="text"
               name="motivo"
+              list="motivos-sugeridos-list"
               placeholder="Ej. Compra a proveedor, Devolución..."
               value={formData.motivo}
               onChange={handleChange}
               required
             />
+            <datalist id="motivos-sugeridos-list">
+              {sugerencias.map((m) => (
+                <option key={m} value={m} />
+              ))}
+            </datalist>
           </div>
 
           <div className="form-group">
@@ -154,6 +218,7 @@ function ModalMovimiento({ isOpen, onClose, onMovimientoExitoso }) {
               type="number"
               name="cantidad"
               min="1"
+              step="1"
               placeholder="Ej. 10"
               value={formData.cantidad}
               onChange={handleChange}
@@ -162,13 +227,22 @@ function ModalMovimiento({ isOpen, onClose, onMovimientoExitoso }) {
           </div>
 
           <div className="form-group">
-            <label>Observación (Opcional)</label>
+            <label>
+              {esBajaODano
+                ? "Justificación de Baja / Daño (Obligatoria)"
+                : "Observación (Opcional)"}
+            </label>
             <textarea
               name="observacion"
               rows="2"
-              placeholder="Detalles adicionales..."
+              placeholder={
+                esBajaODano
+                  ? "Describe el motivo de la baja o daño..."
+                  : "Detalles adicionales..."
+              }
               value={formData.observacion}
               onChange={handleChange}
+              required={esBajaODano}
             />
           </div>
 

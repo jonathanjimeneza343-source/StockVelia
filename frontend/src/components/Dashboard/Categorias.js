@@ -23,7 +23,9 @@ function Categorias() {
   const [categoriaAEditar, setCategoriaAEditar] = useState(null);
 
   const usuario = useMemo(() => obtenerUsuarioGuardado(), []);
-  const esAdmin = usuario?.id_rol === 1;
+  const rolNumero = Number(usuario?.id_rol);
+  const esAdmin = rolNumero === 1 || rolNumero === 2;
+  const puedeCrearCategoria = [1, 2, 3].includes(rolNumero);
 
   const cargarCategorias = useCallback(async () => {
     try {
@@ -40,11 +42,13 @@ function Categorias() {
   }, [cargarCategorias]);
 
   const abrirModalCrear = () => {
+    if (!puedeCrearCategoria) return;
     setCategoriaAEditar(null);
     setModalAbierto(true);
   };
 
   const abrirModalEditar = (cat) => {
+    if (!esAdmin) return;
     setCategoriaAEditar(cat);
     setModalAbierto(true);
   };
@@ -52,14 +56,23 @@ function Categorias() {
   const handleGuardarCategoria = async ({ nombre, descripcion, id_categoria }) => {
     try {
       const usuarioLogueado = obtenerUsuarioGuardado();
-
       if (id_categoria) {
+        if (!esAdmin) {
+          Swal.fire({
+            icon: "error",
+            iconColor: "#5e059e",
+            title: "Acceso restringido",
+            text: "No tienes permisos para editar categorías.",
+            confirmButtonText: "Entendido",
+            confirmButtonColor: "#5e059e",
+          });
+          return;
+        }
         await actualizarCategoria(id_categoria, {
           nombre,
           descripcion,
           id_empresa: usuarioLogueado.id_empresa,
         });
-
         Swal.fire({
           icon: "success",
           iconColor: "#5e059e",
@@ -74,7 +87,6 @@ function Categorias() {
           descripcion,
           id_empresa: usuarioLogueado.id_empresa,
         });
-
         Swal.fire({
           icon: "success",
           iconColor: "#5e059e",
@@ -84,10 +96,9 @@ function Categorias() {
           confirmButtonColor: "#5e059e",
         });
       }
-
       setModalAbierto(false);
       setCategoriaAEditar(null);
-      cargarCategorias();
+      await cargarCategorias();
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -101,6 +112,7 @@ function Categorias() {
   };
 
   const handleEliminar = (id_categoria) => {
+    if (!esAdmin) return;
     Swal.fire({
       title: "¿Estás seguro?",
       text: "Esta acción no se puede deshacer. Si hay productos vinculados, la operación podría fallar.",
@@ -114,7 +126,7 @@ function Categorias() {
       if (result.isConfirmed) {
         try {
           await eliminarCategoria(id_categoria);
-          cargarCategorias();
+          await cargarCategorias();
           Swal.fire({
             icon: "success",
             iconColor: "#5e059e",
@@ -140,8 +152,12 @@ function Categorias() {
     <div className="categorias-container">
       <div className="categorias-header-top">
         <h2>Gestión de Categorías</h2>
-        {esAdmin && (
-          <button className="btn-toggle-form" onClick={abrirModalCrear}>
+        {puedeCrearCategoria && (
+          <button
+            type="button"
+            className="btn-toggle-form"
+            onClick={abrirModalCrear}
+          >
             + Nueva categoría
           </button>
         )}
@@ -176,12 +192,14 @@ function Categorias() {
                       {esAdmin && (
                         <>
                           <button
+                            type="button"
                             className="btn-action"
                             onClick={() => abrirModalEditar(cat)}
                           >
                             Editar
                           </button>
                           <button
+                            type="button"
                             className="btn-action btn-delete"
                             onClick={() => handleEliminar(cat.id_categoria)}
                           >
@@ -200,7 +218,10 @@ function Categorias() {
 
       <ModalCategoria
         isOpen={modalAbierto}
-        onClose={() => setModalAbierto(false)}
+        onClose={() => {
+          setModalAbierto(false);
+          setCategoriaAEditar(null);
+        }}
         categoriaAEditar={categoriaAEditar}
         onCategoriaExitososa={handleGuardarCategoria}
       />

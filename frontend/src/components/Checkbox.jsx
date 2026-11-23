@@ -1,11 +1,16 @@
 import React from "react";
 import styled from "styled-components";
 
-const Checkbox = () => {
+const Checkbox = ({ checked = false, onChange, disabled = false }) => {
   return (
     <StyledWrapper>
       <label className="container">
-        <input type="checkbox" />
+        <input
+          type="checkbox"
+          checked={Boolean(checked)}
+          onChange={onChange}
+          disabled={disabled}
+        />
         <div className="checkmark" />
       </label>
     </StyledWrapper>

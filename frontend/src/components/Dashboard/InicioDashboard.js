@@ -20,7 +20,7 @@ function InicioDashboard() {
     }
   }, []);
 
-  const cargarResumen = useCallback(async () => {
+  const cargarResumen = useCallback(async (silencioso = false) => {
     try {
       const idEmpresa = usuario?.id_empresa;
       if (!idEmpresa) return;
@@ -30,33 +30,45 @@ function InicioDashboard() {
         obtenerCategorias(),
       ]);
 
-      const productos = Array.isArray(productosRes) ? productosRes : [];
+      const productos = (
+        Array.isArray(productosRes) ? productosRes : []
+      ).filter(
+        (p) =>
+          p.estado !== false &&
+          String(p.estado_producto || p.estado || "").toLowerCase() !== "inactivo" &&
+          String(p.estado_producto || p.estado || "").toLowerCase() !== "eliminado"
+      );
       const categorias = Array.isArray(categoriasRes) ? categoriasRes : [];
 
-      const totalProductos = productos.length;
-      const totalCategorias = categorias.length;
+      const filtradosBajos = productos.filter(
+        (p) => Number(p.stock ?? 0) <= Number(p.stock_minimo ?? 5)
+      );
 
-      const filtradosBajos = productos.filter((p) => Number(p.stock) <= 5);
       const valorTotal = productos.reduce(
         (acc, p) => acc + Number(p.precio || 0) * Number(p.stock || 0),
         0
       );
 
       setStats({
-        totalProductos,
-        totalCategorias,
+        totalProductos: productos.length,
+        totalCategorias: categorias.length,
         stockBajo: filtradosBajos.length,
         valorInventario: valorTotal,
       });
-
       setProductosBajos(filtradosBajos);
     } catch (error) {
-      console.error("Error al cargar el resumen del dashboard:", error);
+      if (!silencioso) {
+        console.error("Error al cargar el resumen del dashboard:", error);
+      }
     }
   }, [usuario?.id_empresa]);
 
   useEffect(() => {
-    cargarResumen();
+    cargarResumen(false);
+    const intervalo = setInterval(() => {
+      cargarResumen(true);
+    }, 15000);
+    return () => clearInterval(intervalo);
   }, [cargarResumen]);
 
   return (
@@ -65,8 +77,9 @@ function InicioDashboard() {
         <div>
           <h2>Panel Principal</h2>
           <p className="dashboard-welcome">
-            Bienvenido de nuevo, <strong>{usuario?.nombre || "Administrador"}</strong>.
-            Aquí tienes el estado actual de tu inventario.
+            Bienvenido de nuevo,{" "}
+            <strong>{usuario?.nombre || "Usuario"}</strong>. Aquí tienes el estado
+            actual de tu inventario.
           </p>
         </div>
       </div>
@@ -90,7 +103,7 @@ function InicioDashboard() {
 
         <div className="dash-card card-amber">
           <div className="dash-card-info">
-            <span className="dash-card-title">Stock Bajo (≤ 5)</span>
+            <span className="dash-card-title">Stock Bajo / Crítico</span>
             <p className="dash-card-number low">{stats.stockBajo}</p>
           </div>
           <div className="dash-icon-box amber-box">⚠️</div>
@@ -113,8 +126,8 @@ function InicioDashboard() {
           <div className="dashboard-empty">
             <span className="empty-icon">✅</span>
             <p>
-              ¡Excelente! No hay productos con stock crítico en este momento. El
-              inventario está saludable.
+              ¡Excelente! No hay productos por debajo o en su stock mínimo en
+              este momento.
             </p>
           </div>
         ) : (
@@ -125,6 +138,7 @@ function InicioDashboard() {
                   <th>Código</th>
                   <th>Producto</th>
                   <th>Stock Actual</th>
+                  <th>Mínimo</th>
                   <th>Precio</th>
                 </tr>
               </thead>
@@ -136,7 +150,8 @@ function InicioDashboard() {
                     <td>
                       <span className="badge-low">{p.stock} unidades</span>
                     </td>
-                    <td>${Number(p.precio).toLocaleString()}</td>
+                    <td>{p.stock_minimo ?? 5} un.</td>
+                    <td>${Number(p.precio || 0).toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>

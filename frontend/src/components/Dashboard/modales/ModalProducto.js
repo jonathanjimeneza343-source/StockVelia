@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 import "../../../styles/ModalProducto.css";
 
-function ModalProducto({ isOpen, onClose, onGuardar, productoAEditar, categorias }) {
+function ModalProducto({
+  isOpen,
+  onClose,
+  onGuardar,
+  productoAEditar,
+  categorias,
+}) {
   const [codigo, setCodigo] = useState("");
   const [nombre, setNombre] = useState("");
   const [idCategoria, setIdCategoria] = useState("");
@@ -12,24 +19,26 @@ function ModalProducto({ isOpen, onClose, onGuardar, productoAEditar, categorias
   const [stockMinimo, setStockMinimo] = useState("5");
 
   useEffect(() => {
-    if (productoAEditar) {
-      setCodigo(productoAEditar.codigo || "");
-      setNombre(productoAEditar.nombre || "");
-      setIdCategoria(productoAEditar.id_categoria ?? "");
-      setDescripcion(productoAEditar.descripcion || "");
-      setImagen(productoAEditar.imagen || "");
-      setPrecio(productoAEditar.precio ?? "");
-      setStock(productoAEditar.stock ?? "");
-      setStockMinimo(productoAEditar.stock_minimo ?? 5);
-    } else {
-      setCodigo("");
-      setNombre("");
-      setIdCategoria("");
-      setDescripcion("");
-      setImagen("");
-      setPrecio("");
-      setStock("");
-      setStockMinimo("5");
+    if (isOpen) {
+      if (productoAEditar) {
+        setCodigo(productoAEditar.codigo || "");
+        setNombre(productoAEditar.nombre || "");
+        setIdCategoria(productoAEditar.id_categoria ?? "");
+        setDescripcion(productoAEditar.descripcion || "");
+        setImagen(productoAEditar.imagen || "");
+        setPrecio(productoAEditar.precio ?? "");
+        setStock(productoAEditar.stock ?? "");
+        setStockMinimo(productoAEditar.stock_minimo ?? 5);
+      } else {
+        setCodigo("");
+        setNombre("");
+        setIdCategoria("");
+        setDescripcion("");
+        setImagen("");
+        setPrecio("");
+        setStock("");
+        setStockMinimo("5");
+      }
     }
   }, [productoAEditar, isOpen]);
 
@@ -37,15 +46,59 @@ function ModalProducto({ isOpen, onClose, onGuardar, productoAEditar, categorias
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const codigoLimpio = codigo.trim();
+    const nombreLimpio = nombre.trim();
+    const categoriaNum = parseInt(idCategoria, 10);
+    const precioNum = Number(precio);
+    const stockNum = Number(stock);
+    const stockMinNum = Number(stockMinimo);
+
+    if (
+      !codigoLimpio ||
+      !nombreLimpio ||
+      Number.isNaN(categoriaNum) ||
+      precio === "" ||
+      stock === "" ||
+      stockMinimo === ""
+    ) {
+      Swal.fire({
+        icon: "warning",
+        iconColor: "#5e059e",
+        title: "Campos incompletos",
+        text: "Completa código, nombre, categoría, precio, stock y stock mínimo.",
+        confirmButtonColor: "#5e059e",
+      });
+      return;
+    }
+
+    if (
+      Number.isNaN(precioNum) ||
+      Number.isNaN(stockNum) ||
+      Number.isNaN(stockMinNum) ||
+      precioNum < 0 ||
+      stockNum < 0 ||
+      stockMinNum < 0
+    ) {
+      Swal.fire({
+        icon: "error",
+        iconColor: "#5e059e",
+        title: "Valores inválidos",
+        text: "El precio, el stock y el stock mínimo deben ser valores numéricos mayores o iguales a cero (>= 0).",
+        confirmButtonColor: "#5e059e",
+      });
+      return;
+    }
+
     onGuardar({
-      codigo: codigo.trim(),
-      nombre: nombre.trim(),
-      id_categoria: parseInt(idCategoria, 10),
+      codigo: codigoLimpio,
+      nombre: nombreLimpio,
+      id_categoria: categoriaNum,
       descripcion: descripcion.trim(),
       imagen: imagen.trim(),
-      precio: parseFloat(precio),
-      stock: parseInt(stock, 10),
-      stock_minimo: parseInt(stockMinimo, 10),
+      precio: precioNum,
+      stock: Math.floor(stockNum),
+      stock_minimo: Math.floor(stockMinNum),
     });
   };
 
@@ -54,12 +107,14 @@ function ModalProducto({ isOpen, onClose, onGuardar, productoAEditar, categorias
       <div className="modal-content animate-fade">
         <div className="modal-header">
           <h3>{productoAEditar ? "Editar Producto" : "Nuevo Producto"}</h3>
-          <button className="modal-close-btn" onClick={onClose}>×</button>
+          <button type="button" className="modal-close-btn" onClick={onClose}>
+            ×
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="modal-grupo-input">
-            <label>Código</label>
+            <label>Código / Código de barras</label>
             <input
               type="text"
               placeholder="Ej. PRD-001"
@@ -122,6 +177,7 @@ function ModalProducto({ isOpen, onClose, onGuardar, productoAEditar, categorias
               <input
                 type="number"
                 step="0.01"
+                min="0"
                 placeholder="0.00"
                 value={precio}
                 onChange={(e) => setPrecio(e.target.value)}
@@ -133,6 +189,8 @@ function ModalProducto({ isOpen, onClose, onGuardar, productoAEditar, categorias
               <label>Stock inicial</label>
               <input
                 type="number"
+                min="0"
+                step="1"
                 placeholder="0"
                 value={stock}
                 onChange={(e) => setStock(e.target.value)}
@@ -145,6 +203,8 @@ function ModalProducto({ isOpen, onClose, onGuardar, productoAEditar, categorias
             <label>Stock mínimo de alerta</label>
             <input
               type="number"
+              min="0"
+              step="1"
               placeholder="Ej. 5"
               value={stockMinimo}
               onChange={(e) => setStockMinimo(e.target.value)}

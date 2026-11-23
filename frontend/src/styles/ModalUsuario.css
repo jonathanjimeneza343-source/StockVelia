@@ -34,7 +34,7 @@
 
 .modal-header h3 {
   margin: 0;
-  color: #310055;
+  color: var(--color-primario, #310055);
   font-size: 1.25rem;
   font-weight: 700;
 }
@@ -81,9 +81,13 @@
   transition: all 0.2s ease;
 }
 
-.modal-grupo-input input:focus {
-  border-color: #8b2fc9;
-  box-shadow: 0 0 0 3px rgba(139, 47, 201, 0.15);
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus,
+.modal-grupo-input input:focus,
+.modal-grupo-input select:focus {
+  border-color: var(--color-primario, #5e059e);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
 }
 
 .modal-botones {
@@ -110,16 +114,16 @@
 
 .btn-guardar {
   padding: 10px 20px;
-  background: linear-gradient(135deg, #6818a5, #4a0a77);
+  background: linear-gradient(135deg, var(--color-primario, #6818a5), var(--color-primario-hover, #4a0a77));
   color: #fff;
   border: none;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(74, 10, 119, 0.25);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   transition: all 0.2s;
 }
 
 .btn-guardar:hover {
-  background: linear-gradient(135deg, #8b2fc9, #5a108f);
+  background: var(--color-primario-hover, #5a108f);
 }

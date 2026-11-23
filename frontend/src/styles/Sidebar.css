@@ -1,6 +1,6 @@
 .sidebar {
   width: 260px;
-  background: linear-gradient(360deg, #5e059e, #ba61fa);
+  background: linear-gradient(360deg, var(--color-primario, #5e059e), var(--color-primario-hover, #8b2fc9));
   font-family: "Poppins", sans-serif;
   display: flex;
   flex-direction: column;
@@ -14,7 +14,6 @@
   z-index: 100;
 }
 
-/* Estado cuando la sidebar está contraída */
 .sidebar.colapsada {
   width: 84px;
 }
@@ -134,7 +133,7 @@
 
 .sidebar-menu button.activo {
   background: #ffffff;
-  color: #5e059e;
+  color: var(--color-primario, #5e059e);
   font-weight: 600;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
 }

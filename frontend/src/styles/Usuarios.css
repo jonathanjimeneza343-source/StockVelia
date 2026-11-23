@@ -11,7 +11,7 @@
 }
 
 .usuarios-container h2 {
-  color: #310055;
+  color: var(--color-primario, #310055);
   margin-bottom: 20px;
   font-size: 1.5rem;
   font-weight: 700;
@@ -46,9 +46,10 @@
   box-shadow: 0 0 0 3px rgba(139, 47, 201, 0.15);
 }
 
-.usuarios-form button {
+.usuarios-form button,
+.btn-toggle-form {
   padding: 10px 20px;
-  background: linear-gradient(135deg, #6818a5, #4a0a77);
+  background: linear-gradient(135deg, var(--color-primario, #6818a5), var(--color-primario-hover, #4a0a77));
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -56,11 +57,12 @@
   font-weight: 600;
   font-size: 0.95rem;
   transition: opacity 0.2s ease, transform 0.1s ease;
-  box-shadow: 0 2px 6px rgba(74, 10, 119, 0.25);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
-.usuarios-form button:hover {
-  background: linear-gradient(135deg, #8b2fc9, #5a108f);
+.usuarios-form button:hover,
+.btn-toggle-form:hover {
+  background: var(--color-primario-hover, #5a108f);
   transform: translateY(-1px);
 }
 
@@ -95,11 +97,11 @@
 }
 
 .tabla-usuarios th {
-  background: #5e059d;
+  background: var(--color-primario, #5e059d);
   color: #ffffff;
   font-weight: 600;
   letter-spacing: 0.3px;
-  border-bottom: 2px solid #5a108f;
+  border-bottom: 2px solid var(--color-primario-hover, #5a108f);
   position: sticky;
   top: 0;
   z-index: 10;

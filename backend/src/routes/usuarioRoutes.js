@@ -1,17 +1,52 @@
-import express from "express";
+import { Router } from "express";
 import {
-  listarUsuarios,
-  crearUsuario,
+  obtenerMiPerfil,
+  actualizarMiPerfil,
+  actualizarFotoPerfil,
+  crearEmpresa,
+  actualizarColorEmpresa,
+  listarUsuariosEmpresa,
+  crearUsuarioPorAdmin,
+  actualizarUsuarioPorAdmin,
   cambiarEstadoUsuario,
+  eliminarUsuarioLogico,
 } from "../controllers/usuarioController.js";
-import { verificarToken } from "../middlewares/authMiddleware.js";
+import { verificarToken, verificarRol } from "../middlewares/authMiddleware.js";
+import { subirAvatarMiddleware } from "../middlewares/uploadAvatar.js";
 
-const router = express.Router();
+const router = Router();
 
-router.use(verificarToken);
+router.get("/perfil", verificarToken, obtenerMiPerfil);
+router.put("/perfil", verificarToken, actualizarMiPerfil);
+router.post(
+  "/perfil/foto",
+  verificarToken,
+  subirAvatarMiddleware,
+  actualizarFotoPerfil
+);
 
-router.get("/", listarUsuarios);
-router.post("/", crearUsuario);
-router.put("/estado/:id", cambiarEstadoUsuario);
+router.post("/empresa", verificarToken, verificarRol(1), crearEmpresa);
+router.put(
+  "/empresa/color",
+  verificarToken,
+  verificarRol(1),
+  actualizarColorEmpresa
+);
+
+router.get("/", verificarToken, verificarRol(1, 2), listarUsuariosEmpresa);
+router.post("/", verificarToken, verificarRol(1, 2), crearUsuarioPorAdmin);
+router.put("/:id", verificarToken, verificarRol(1, 2), actualizarUsuarioPorAdmin);
+router.patch(
+  "/:id/estado",
+  verificarToken,
+  verificarRol(1, 2),
+  cambiarEstadoUsuario
+);
+router.delete(
+  "/:id",
+  verificarToken,
+  verificarRol(1, 2),
+  eliminarUsuarioLogico
+);
 
 export default router;

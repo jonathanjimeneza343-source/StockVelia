@@ -1,0 +1,218 @@
+.mi-perfil-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    background-color: #fcfbff;
+    font-family: "Poppins", sans-serif;
+    box-sizing: border-box;
+}
+
+.mi-perfil-container h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primario, #5e059e);
+}
+
+.perfil-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 22px 24px;
+    border: 1px solid rgba(94, 5, 158, 0.12);
+    box-shadow: 0 4px 14px rgba(94, 5, 158, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.perfil-card h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2b004a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.perfil-avatar-bloque {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.perfil-foto-img,
+.perfil-foto-placeholder {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primario, #5e059e);
+    color: #ffffff;
+    font-size: 1.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    border: 3px solid rgba(94, 5, 158, 0.2);
+}
+
+.perfil-foto-form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-secundario {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background-color: #f3e8ff;
+    color: var(--color-primario, #5e059e);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: 1px solid rgba(94, 5, 158, 0.2);
+    transition: background-color 0.2s ease;
+}
+
+.btn-secundario:hover {
+    background-color: #e9d5ff;
+}
+
+.perfil-solo-lectura {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid #f1f5f9;
+    font-size: 0.92rem;
+    color: #374151;
+}
+
+.perfil-solo-lectura p {
+    margin: 0;
+}
+
+.perfil-grid-campos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.perfil-card .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.perfil-card .form-group label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.perfil-card .form-group input {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-family: inherit;
+    font-size: 0.92rem;
+    color: #111827;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.perfil-card .form-group input:focus {
+    outline: none;
+    border-color: var(--color-primario, #5e059e);
+    box-shadow: 0 0 0 3px rgba(94, 5, 158, 0.12);
+}
+
+.paleta-colores {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 6px 0 12px;
+}
+
+.muestra-color {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.muestra-color:hover {
+    transform: scale(1.08);
+}
+
+.muestra-color.activo {
+    border-color: #1f2937;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12);
+    transform: scale(1.08);
+}
+
+.paleta-colores input[type="color"] {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.codigo-color-preview {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4b5563;
+    font-family: monospace;
+}
+
+.perfil-card .btn-guardar {
+    align-self: flex-start;
+    background: var(--color-primario, #5e059e);
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.perfil-card .btn-guardar:hover:not(:disabled) {
+    background: var(--color-primario-hover, #4a0a77);
+}
+
+.perfil-card .btn-cancelar {
+    background-color: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.perfil-card .btn-cancelar:hover:not(:disabled) {
+    background-color: #e5e7eb;
+}
+
+.perfil-card button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}

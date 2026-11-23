@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
-
+import path from 'path';
 import express from 'express';
 import cors from 'cors';
 import swaggerJSDoc from 'swagger-jsdoc';
@@ -34,6 +34,9 @@ app.use(
 );
 
 app.use(express.json({ limit: '5mb' }));
+
+// Servir archivos subidos (ej. fotos de perfil en /uploads/avatars)
+app.use('/uploads', express.static(path.resolve('uploads')));
 
 const serverUrl =
   process.env.API_URL ||
