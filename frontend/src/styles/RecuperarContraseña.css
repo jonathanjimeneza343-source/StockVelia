@@ -3,9 +3,12 @@
   justify-content: center;
   align-items: center;
   background: linear-gradient(56deg, #5e059d, #ba61fa);
-  height: 100vh;
-  width: 100vw;
+  min-height: 100dvh;
+  width: 100%;
+  padding: 20px;
   font-family: "Poppins", sans-serif;
+  box-sizing: border-box;
+  overflow-x: clip;
 }
 
 .recuperarContraseña-contenedor {
@@ -15,17 +18,19 @@
   flex-direction: column;
   background-color: #ffffff;
   border-radius: 20px;
-  width: 450px;
-  padding: 40px 30px;
+  width: min(450px, 100%);
+  padding: 36px 28px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   gap: 15px;
+  box-sizing: border-box;
 }
 
 .recuperarContraseña-contenedor h2 {
   margin: 0;
   font-weight: 800;
-  font-size: 1.6rem;
+  font-size: clamp(1.4rem, 2.5vw, 1.65rem);
   color: #2b004a;
+  text-align: center;
 }
 
 .recuperarContraseña-contenedor p {
@@ -54,6 +59,12 @@
   width: 100%;
   box-sizing: border-box;
   gap: 12px;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.input-recuperar-contraseña:focus-within {
+  border-color: #ba61fa;
 }
 
 .input-recuperar-contraseña input {
@@ -82,14 +93,19 @@
   border: none;
   background: linear-gradient(68deg, #ba61fa, #5e059e);
   width: 100%;
-  padding: 14px 0;
+  padding: 14px 18px;
   color: #ffffff;
   cursor: pointer;
   transition: opacity 0.2s ease;
 }
 
-.boton-recuperar-contraseña button:hover {
+.boton-recuperar-contraseña button:hover:not(:disabled) {
   opacity: 0.9;
+}
+
+.boton-recuperar-contraseña button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .boton-volver-login {
@@ -111,4 +127,10 @@
 
 .enlace-contenedor:hover {
   text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .recuperarContraseña-contenedor {
+    padding: 28px 20px;
+  }
 }

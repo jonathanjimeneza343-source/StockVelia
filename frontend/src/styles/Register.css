@@ -2,17 +2,22 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  width: 100vw;
+  min-height: 100dvh;
+  width: 100%;
+  padding: 24px;
   background: linear-gradient(90deg, #ffffff, #e1bafd);
   font-family: "Poppins", sans-serif;
   box-sizing: border-box;
+  overflow-x: clip;
 }
 
 .registro-contenedor {
   display: flex;
-  width: 85%;
-  height: 90%;
+  width: min(1220px, 95vw);
+  min-height: 620px;
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: #ffffff;
 }
 
 .registro-formulario {
@@ -24,33 +29,37 @@
   width: 65%;
   border-radius: 0 20px 20px 0;
   box-sizing: border-box;
-  padding: 10px;
+  padding: 24px 32px;
 }
 
 .registro-formulario h2 {
   font-weight: 800;
-  font-size: 1.6rem;
+  font-size: clamp(1.45rem, 2.2vw, 1.8rem);
   margin: 5px;
   color: #2b004a;
 }
 
-.registro-formulario p {
+.registro-formulario > p {
   font-size: 1rem;
   color: #555;
   margin-bottom: 10px;
+  text-align: center;
 }
 
 .registro-formulario form {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  max-width: 680px;
 }
 
 .formulario-registro {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   column-gap: 15px;
-  row-gap: 0px;
+  row-gap: 10px;
+  width: 100%;
 }
 
 .registro-input {
@@ -59,8 +68,8 @@
   background-color: #f0edff;
   border-radius: 16px;
   padding: 12px 18px;
-  margin: 8px 0;
-  width: 22vw;
+  margin: 4px 0;
+  width: 100%;
   box-sizing: border-box;
   gap: 10px;
   border: 2px solid transparent;
@@ -94,7 +103,7 @@
   justify-content: center;
   align-items: center;
   gap: 10px;
-  margin: 8px 0;
+  margin: 10px 0 6px;
   font-size: 0.9rem;
 }
 
@@ -103,17 +112,22 @@
   border-radius: 10px;
   border: none;
   background: linear-gradient(68deg, #ba61fa, #5e059e);
-  width: 10vw;
+  min-width: 170px;
   align-self: center;
-  padding: 12px 0;
+  padding: 12px 24px;
   margin: 8px;
   color: #ffffff;
   cursor: pointer;
   transition: opacity 0.2s ease;
 }
 
-.boton-registro:hover {
+.boton-registro:hover:not(:disabled) {
   opacity: 0.9;
+}
+
+.boton-registro:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .login-opciones-registro {
@@ -121,12 +135,14 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  width: 100%;
+  max-width: 520px;
 }
 
 .separador-registro {
   display: flex;
   align-items: center;
-  width: 45vw; 
+  width: 100%;
   gap: 15px;
   margin: 10px 0;
 }
@@ -134,6 +150,7 @@
 .separador-registro p {
   margin: 0;
   font-size: 0.9rem;
+  white-space: nowrap;
 }
 
 .linea-reg {
@@ -142,7 +159,7 @@
   background-color: #d9d9d9;
 }
 
-.login-opciones-registro button {
+.google-registro-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -152,17 +169,17 @@
   background-color: #ffffff;
   margin-bottom: 10px;
   padding: 10px 20px;
-  width: 45vw;
+  width: 100%;
   cursor: pointer;
   box-sizing: border-box;
   transition: background-color 0.2s ease;
 }
 
-.login-opciones-registro button:hover {
+.google-registro-btn:hover {
   background-color: #f8f6ff;
 }
 
-.login-opciones-registro span {
+.google-registro-btn span {
   font-size: 0.95rem;
   color: #333;
 }
@@ -170,6 +187,7 @@
 .registro-link {
   font-size: 0.9rem;
   margin: 0;
+  text-align: center;
 }
 
 .registro-link a {
@@ -189,21 +207,66 @@
 .swal2-icon.swal2-success {
   border-color: #5e059e !important;
 }
+
 .swal2-success-ring {
   border-color: rgba(94, 5, 158, 0.3) !important;
 }
 
 .registro-ilustracion {
-  background-color: purple;
   width: 35%;
   border-radius: 20px 0 0 20px;
   background: linear-gradient(41deg, #5e059d, #ba61fa);
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 28px;
+  box-sizing: border-box;
 }
 
 .registro-ilustracion img {
   width: 70%;
+  max-width: 340px;
   height: auto;
+}
+
+@media (max-width: 960px) {
+  .registro-contenedor {
+    flex-direction: column;
+    width: min(620px, 100%);
+    min-height: auto;
+  }
+
+  .registro-ilustracion,
+  .registro-formulario {
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .registro-ilustracion {
+    padding: 22px;
+  }
+
+  .registro-ilustracion img {
+    width: 50%;
+    max-width: 220px;
+  }
+
+  .registro-formulario {
+    padding: 24px 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .contenedor-principal-registro {
+    padding: 14px;
+  }
+
+  .formulario-registro {
+    grid-template-columns: 1fr;
+    row-gap: 8px;
+  }
+
+  .registro-formulario {
+    padding: 20px 16px;
+  }
 }

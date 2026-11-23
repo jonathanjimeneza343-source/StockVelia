@@ -29,14 +29,11 @@ function Register() {
 
   const alternarTerminos = (e) => {
     if (cargando) return;
-    if (e && typeof e.stopPropagation === "function") {
-      e.stopPropagation();
-    }
     if (e?.target && typeof e.target.checked === "boolean") {
       setAceptaTerminos(e.target.checked);
-      return;
+    } else {
+      setAceptaTerminos((prev) => !prev);
     }
-    setAceptaTerminos((prev) => !prev);
   };
 
   const handleSubmit = async (e) => {
@@ -243,14 +240,12 @@ function Register() {
               </div>
             </div>
             <div className="terminos" style={{ cursor: "pointer" }}>
-              <span onClick={alternarTerminos} style={{ display: "inline-flex" }}>
-                <Checkbox
-                  checked={aceptaTerminos}
-                  value={aceptaTerminos}
-                  onChange={alternarTerminos}
-                />
-              </span>
-              <span onClick={alternarTerminos}>
+              <Checkbox
+                checked={aceptaTerminos}
+                onChange={alternarTerminos}
+                disabled={cargando}
+              />
+              <span onClick={() => !cargando && setAceptaTerminos((prev) => !prev)}>
                 Acepto los términos y condiciones{" "}
                 {aceptaTerminos ? "✓" : ""}
               </span>
