@@ -6,6 +6,7 @@ import {
   IconArrowsExchange,
   IconUsers,
   IconFileAnalytics,
+  IconUser,
   IconLogout,
   IconChevronLeft,
   IconChevronRight,
@@ -24,11 +25,10 @@ function obtenerUsuario() {
   }
 }
 
-function Sidebar({ seccion, setSeccion }) {
+function Sidebar({ seccion, setSeccion, usuarioProp }) {
   const [colapsada, setColapsada] = useState(false);
-  const usuario = obtenerUsuario();
-  const esAdmin = usuario?.id_rol === 1;
-
+  const usuario = usuarioProp || obtenerUsuario();
+  const puedeGestionarAdmin = usuario?.id_rol === 1 || usuario?.id_rol === 2;
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -70,6 +70,7 @@ function Sidebar({ seccion, setSeccion }) {
             {!colapsada && <h2>StockVelia</h2>}
           </div>
           <button
+            type="button"
             className="btn-toggle-sidebar"
             onClick={() => setColapsada(!colapsada)}
             title={colapsada ? "Expandir barra lateral" : "Minimizar barra lateral"}
@@ -80,6 +81,7 @@ function Sidebar({ seccion, setSeccion }) {
 
         <div className="sidebar-menu">
           <button
+            type="button"
             className={seccion === "inicio" ? "activo" : ""}
             onClick={() => setSeccion("inicio")}
             title={colapsada ? "Dashboard" : ""}
@@ -87,8 +89,8 @@ function Sidebar({ seccion, setSeccion }) {
             <IconLayoutDashboard size={22} className="sidebar-icon" />
             {!colapsada && <span>Dashboard</span>}
           </button>
-
           <button
+            type="button"
             className={seccion === "productos" ? "activo" : ""}
             onClick={() => setSeccion("productos")}
             title={colapsada ? "Productos" : ""}
@@ -96,8 +98,8 @@ function Sidebar({ seccion, setSeccion }) {
             <IconPackage size={22} className="sidebar-icon" />
             {!colapsada && <span>Productos</span>}
           </button>
-
           <button
+            type="button"
             className={seccion === "categorias" ? "activo" : ""}
             onClick={() => setSeccion("categorias")}
             title={colapsada ? "Categorías" : ""}
@@ -105,8 +107,8 @@ function Sidebar({ seccion, setSeccion }) {
             <IconCategory size={22} className="sidebar-icon" />
             {!colapsada && <span>Categorías</span>}
           </button>
-
           <button
+            type="button"
             className={seccion === "movimientos" ? "activo" : ""}
             onClick={() => setSeccion("movimientos")}
             title={colapsada ? "Movimientos" : ""}
@@ -114,9 +116,9 @@ function Sidebar({ seccion, setSeccion }) {
             <IconArrowsExchange size={22} className="sidebar-icon" />
             {!colapsada && <span>Movimientos</span>}
           </button>
-
-          {esAdmin && (
+          {puedeGestionarAdmin && (
             <button
+              type="button"
               className={seccion === "usuarios" ? "activo" : ""}
               onClick={() => setSeccion("usuarios")}
               title={colapsada ? "Usuarios" : ""}
@@ -125,9 +127,9 @@ function Sidebar({ seccion, setSeccion }) {
               {!colapsada && <span>Usuarios</span>}
             </button>
           )}
-
-          {esAdmin && (
+          {puedeGestionarAdmin && (
             <button
+              type="button"
               className={seccion === "reportes" ? "activo" : ""}
               onClick={() => setSeccion("reportes")}
               title={colapsada ? "Reportes" : ""}
@@ -136,11 +138,24 @@ function Sidebar({ seccion, setSeccion }) {
               {!colapsada && <span>Reportes</span>}
             </button>
           )}
+          <button
+            type="button"
+            className={seccion === "perfil" ? "activo" : ""}
+            onClick={() => setSeccion("perfil")}
+            title={colapsada ? "Mi Perfil" : ""}
+          >
+            <IconUser size={22} className="sidebar-icon" />
+            {!colapsada && <span>Mi Perfil</span>}
+          </button>
         </div>
       </div>
 
       <div className="sidebar-footer">
-        <button onClick={handleLogout} title={colapsada ? "Cerrar sesión" : ""}>
+        <button
+          type="button"
+          onClick={handleLogout}
+          title={colapsada ? "Cerrar sesión" : ""}
+        >
           <IconLogout size={22} className="sidebar-icon" />
           {!colapsada && <span>Cerrar sesión</span>}
         </button>

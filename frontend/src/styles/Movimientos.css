@@ -19,7 +19,7 @@
 
 .seccion-header-flex h2 {
   margin: 0;
-  color: #5e059e;
+  color: var(--color-primario, #5e059e);
   font-size: 1.4rem;
   font-weight: 700;
 }
@@ -37,12 +37,12 @@
   border-radius: 12px;
   padding: 10px 14px;
   gap: 10px;
-  border: 1px solid #e1bafd;
+  border: 1px solid var(--color-primario, #e1bafd);
   width: 280px;
 }
 
 .icono-busqueda {
-  color: #5e059e;
+  color: var(--color-primario, #5e059e);
 }
 
 .busqueda-contenedor input {
@@ -72,10 +72,10 @@
 
 .tabla-datos th {
   padding: 14px 16px;
-  color: #5e059e;
+  color: var(--color-primario, #5e059e);
   background-color: #f8f6ff;
   font-weight: 600;
-  border-bottom: 2px solid #e1bafd;
+  border-bottom: 2px solid var(--color-primario, #e1bafd);
 }
 
 .tabla-datos td {

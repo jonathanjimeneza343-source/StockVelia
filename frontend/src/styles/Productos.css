@@ -18,7 +18,7 @@
 }
 
 .productos-container h2 {
-  color: #310055;
+  color: var(--color-primario, #310055);
   margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
@@ -26,19 +26,19 @@
 
 .btn-toggle-form {
   padding: 10px 18px;
-  background: linear-gradient(135deg, #6818a5, #4a0a77);
+  background: linear-gradient(135deg, var(--color-primario, #6818a5), var(--color-primario-hover, #4a0a77));
   color: #fff;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.9rem;
-  box-shadow: 0 2px 6px rgba(74, 10, 119, 0.25);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   transition: all 0.2s ease;
 }
 
 .btn-toggle-form:hover {
-  background: linear-gradient(135deg, #8b2fc9, #5a108f);
+  background: var(--color-primario-hover, #5a108f);
   transform: translateY(-1px);
 }
 
@@ -69,8 +69,8 @@
 }
 
 .productos-input:focus {
-  border-color: #8b2fc9;
-  box-shadow: 0 0 0 3px rgba(139, 47, 201, 0.15);
+  border-color: var(--color-primario, #8b2fc9);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
 }
 
 .productos-select {
@@ -94,19 +94,19 @@
 
 .btn-submit {
   padding: 10px 20px;
-  background: linear-gradient(135deg, #6818a5, #4a0a77);
+  background: linear-gradient(135deg, var(--color-primario, #6818a5), var(--color-primario-hover, #4a0a77));
   color: #fff;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.95rem;
-  box-shadow: 0 2px 6px rgba(74, 10, 119, 0.25);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   transition: opacity 0.2s ease, transform 0.1s ease;
 }
 
 .btn-submit:hover {
-  background: linear-gradient(135deg, #8b2fc9, #5a108f);
+  background: var(--color-primario-hover, #5a108f);
   transform: translateY(-1px);
 }
 
@@ -161,7 +161,7 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  background-color: #6818a5;
+  background-color: var(--color-primario, #6818a5);
   color: #fff;
   font-size: 0.75rem;
   padding: 4px 8px;
@@ -205,7 +205,6 @@
   overflow: hidden;
 }
 
-/* Cambiamos a diseño vertical en el footer para que el precio luzca arriba y los botones abajo sin apretarse */
 .product-footer {
   display: flex;
   flex-direction: column;
@@ -218,7 +217,7 @@
 .product-price {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #4a0a77;
+  color: var(--color-primario, #4a0a77);
   white-space: nowrap;
 }
 
@@ -232,19 +231,19 @@
   flex: 1;
   padding: 6px 4px;
   border-radius: 6px;
-  border: 1px solid #8b2fc9;
+  border: 1px solid var(--color-primario, #8b2fc9);
   font-weight: 600;
   font-size: 0.75rem;
   cursor: pointer;
-  background-color: #dc97ff15;
-  color: #310055;
+  background-color: transparent;
+  color: var(--color-primario, #310055);
   text-align: center;
   transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 .btn-action:hover {
-  background-color: #8b2fc9;
+  background-color: var(--color-primario, #8b2fc9);
   color: #ffffff;
 }
 

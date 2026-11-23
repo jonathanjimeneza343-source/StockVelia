@@ -1,14 +1,12 @@
-/* Contenedor principal del Dashboard - Ajustado para evitar scroll extra */
 .dashboard-container {
   padding: 1.5rem;
   background-color: #f8fafc;
   width: 100%;
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
-  overflow-x: hidden; /* Evita cualquier scroll horizontal por desbordamiento */
+  overflow-x: hidden; 
 }
 
-/* Cabecera */
 .dashboard-header-top {
   margin-bottom: 1.5rem;
   background: #ffffff;
@@ -35,7 +33,6 @@
   color: #334155;
 }
 
-/* Cuadrícula de tarjetas de métricas */
 .dashboard-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -43,7 +40,6 @@
   margin-bottom: 1.5rem;
 }
 
-/* Diseño base de las tarjetas */
 .dash-card {
   background: #ffffff;
   padding: 1.25rem;
@@ -61,7 +57,6 @@
   box-shadow: 0 8px 12px -3px rgba(0, 0, 0, 0.05);
 }
 
-/* Bordes laterales distintivos por tarjeta */
 .dash-card.card-purple { border-left: 4px solid #7c3aed; }
 .dash-card.card-blue { border-left: 4px solid #3b82f6; }
 .dash-card.card-amber { border-left: 4px solid #f59e0b; }
@@ -86,7 +81,6 @@
   color: #d97706;
 }
 
-/* Cajas de iconos para las tarjetas */
 .dash-icon-box {
   width: 42px;
   height: 42px;
@@ -102,7 +96,6 @@
 .amber-box { background-color: #fef3c7; color: #d97706; }
 .emerald-box { background-color: #ecfdf5; color: #10b981; }
 
-/* Sección inferior de alertas y tablas */
 .dashboard-section {
   background: #ffffff;
   padding: 1.25rem 1.5rem;
@@ -121,7 +114,6 @@
   gap: 0.5rem;
 }
 
-/* Estado vacío de alertas */
 .dashboard-empty {
   background-color: #f0fdf4;
   border: 1px solid #dcfce7;
@@ -139,7 +131,6 @@
   font-size: 1.1rem;
 }
 
-/* Tabla de stock crítico */
 .table-responsive {
   width: 100%;
   overflow-x: auto;
@@ -176,7 +167,6 @@
   font-weight: 500;
 }
 
-/* Insignia de stock bajo */
 .badge-low {
   background-color: #fef3c7;
   color: #b45309;

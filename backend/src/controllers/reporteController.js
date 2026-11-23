@@ -15,11 +15,10 @@ export const obtenerReporteInventario = async (req, res) => {
       `SELECT p.codigo, p.nombre, c.nombre AS categoria_nombre, p.stock, p.precio
        FROM productos p
        LEFT JOIN categorias c ON p.id_categoria = c.id_categoria
-       WHERE p.id_empresa = $1 AND p.estado = TRUE
+       WHERE p.id_empresa = $1 AND UPPER(COALESCE(p.estado, 'ACTIVO')) = 'ACTIVO'
        ORDER BY p.nombre ASC`,
       [idEmpresaToken],
     );
-
     res.json(rows);
   } catch (error) {
     console.error("Error al obtener reporte de inventario:", error.message);
@@ -47,7 +46,6 @@ export const obtenerReporteMovimientos = async (req, res) => {
        ORDER BY m.fecha DESC`,
       [idEmpresaToken],
     );
-
     res.json(rows);
   } catch (error) {
     console.error("Error al obtener historial de movimientos:", error.message);

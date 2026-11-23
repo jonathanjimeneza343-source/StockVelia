@@ -4,6 +4,8 @@ import { IconUser, IconLock } from "@tabler/icons-react";
 import { FcGoogle } from "react-icons/fc";
 import ilustracion from "../assets/ilustracion_login.svg";
 import { login } from "../services/authService";
+import ModalSeleccionarEmpresa from "../components/ModalSeleccionarEmpresa";
+import { aplicarColorTemaEmpresa } from "../utils/temaEmpresa";
 import Swal from "sweetalert2";
 import "../styles/Login.css";
 
@@ -11,23 +13,31 @@ function Login() {
   const [correo, setCorreo] = useState("");
   const [contraseña, setContraseña] = useState("");
   const [cargando, setCargando] = useState(false);
-
+  const [usuarioSelector, setUsuarioSelector] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setCargando(true);
-
     try {
       const datos = await login(correo.trim(), contraseña);
-
       if (datos.usuario) {
         localStorage.setItem("usuario", JSON.stringify(datos.usuario));
+        aplicarColorTemaEmpresa(datos.usuario.color_tema);
+      }
+
+      const empresas = datos.usuario?.empresasDisponibles || [];
+      const requiereSeleccion =
+        datos.usuario?.id_rol === 1 && empresas.length > 1;
+
+      if (requiereSeleccion) {
+        setUsuarioSelector(datos.usuario);
+        return;
       }
 
       Swal.fire({
         icon: "success",
-        iconColor: "#5e059e",
+        iconColor: datos.usuario?.color_tema || "#5e059e",
         title: "¡Bienvenido!",
         text: "Inicio de sesión exitoso",
         timer: 1500,
@@ -41,7 +51,6 @@ function Login() {
         (error.request
           ? "No se pudo conectar con el servidor"
           : "Hubo un error al iniciar sesión");
-
       Swal.fire({
         icon: "error",
         iconColor: "#5e059e",
@@ -70,7 +79,6 @@ function Login() {
         <div className="login-formulario">
           <h2>INICIA SESIÓN</h2>
           <p>Gestiona tu negocio fácilmente</p>
-
           <form onSubmit={handleSubmit}>
             <div className="login-input">
               <IconUser size={22} className="icono-login" />
@@ -83,7 +91,6 @@ function Login() {
                 disabled={cargando}
               />
             </div>
-
             <div className="login-input">
               <IconLock size={22} className="icono-login" />
               <input
@@ -95,18 +102,15 @@ function Login() {
                 disabled={cargando}
               />
             </div>
-
             <button className="boton-inicio" type="submit" disabled={cargando}>
               <strong>{cargando ? "Iniciando..." : "Iniciar Sesión"}</strong>
             </button>
-
             <div className="registro-link">
               <p>
                 ¿No tienes una cuenta? <Link to="/registro">Regístrate</Link>
               </p>
             </div>
           </form>
-
           <div className="separador-login">
             <div className="linea"></div>
             <p>
@@ -114,7 +118,6 @@ function Login() {
             </p>
             <div className="linea"></div>
           </div>
-
           <div className="login-opciones">
             <button type="button" className="google-login" onClick={handleGoogleLogin}>
               <FcGoogle size={24} />
@@ -125,11 +128,20 @@ function Login() {
             <Link to="/recuperarContraseña">¿Olvidaste tu Contraseña?</Link>
           </div>
         </div>
-
         <div className="login-ilustracion">
           <img src={ilustracion} alt="Ilustración Login" />
         </div>
       </div>
+
+      {usuarioSelector && (
+        <ModalSeleccionarEmpresa
+          usuario={usuarioSelector}
+          onSeleccionCompleta={() => {
+            setUsuarioSelector(null);
+            navigate("/dashboard");
+          }}
+        />
+      )}
     </div>
   );
 }

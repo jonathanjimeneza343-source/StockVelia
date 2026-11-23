@@ -6,19 +6,23 @@ export const crearCategoria = async (req, res) => {
   const { id_usuario, id_empresa } = req.usuario;
 
   if (!id_empresa) {
-    return res.status(400).json({ error: "No se ha seleccionado una empresa activa." });
+    return res
+      .status(400)
+      .json({ error: "No se ha seleccionado una empresa activa." });
   }
 
   if (!nombre || !String(nombre).trim()) {
-    return res.status(400).json({ error: "El nombre de la categoría es obligatorio." });
+    return res
+      .status(400)
+      .json({ error: "El nombre de la categoría es obligatorio." });
   }
 
   const nombreLimpio = String(nombre).trim();
 
   try {
     const categoriaExiste = await pool.query(
-      "SELECT 1 FROM categorias WHERE LOWER(nombre) = LOWER($1) AND id_empresa = $2 LIMIT 1",
-      [nombreLimpio, id_empresa],
+      "SELECT 1 FROM public.categorias WHERE LOWER(nombre) = LOWER($1) AND id_empresa = $2 LIMIT 1",
+      [nombreLimpio, id_empresa]
     );
 
     if (categoriaExiste.rows.length > 0) {
@@ -28,8 +32,12 @@ export const crearCategoria = async (req, res) => {
     }
 
     const nuevaCategoria = await pool.query(
-      "INSERT INTO categorias (nombre, descripcion, id_empresa) VALUES ($1, $2, $3) RETURNING *",
-      [nombreLimpio, descripcion ? String(descripcion).trim() : null, id_empresa],
+      "INSERT INTO public.categorias (nombre, descripcion, id_empresa) VALUES ($1, $2, $3) RETURNING *",
+      [
+        nombreLimpio,
+        descripcion ? String(descripcion).trim() : null,
+        id_empresa,
+      ]
     );
 
     await registrarAuditoria(
@@ -37,36 +45,36 @@ export const crearCategoria = async (req, res) => {
       "categorias",
       "CREAR",
       nuevaCategoria.rows[0].id_categoria,
-      `Categoría creada: ${nombreLimpio}`,
+      `Categoría creada: ${nombreLimpio}`
     );
 
-    res.status(201).json({
+    return res.status(201).json({
       mensaje: "Categoría creada con éxito.",
       categoria: nuevaCategoria.rows[0],
     });
   } catch (error) {
     console.error("Error al crear categoría:", error.message);
-    res.status(500).json({ error: "Error al crear la categoría." });
+    return res.status(500).json({ error: "Error al crear la categoría." });
   }
 };
 
 export const obtenerCategorias = async (req, res) => {
   try {
     const id_empresa = req.usuario?.id_empresa;
-
     if (!id_empresa) {
-      return res.status(400).json({ error: "No se ha seleccionado una empresa activa." });
+      return res
+        .status(400)
+        .json({ error: "No se ha seleccionado una empresa activa." });
     }
 
     const resultado = await pool.query(
-      "SELECT * FROM categorias WHERE id_empresa = $1 ORDER BY nombre ASC",
-      [id_empresa],
+      "SELECT * FROM public.categorias WHERE id_empresa = $1 ORDER BY nombre ASC",
+      [id_empresa]
     );
-
-    res.json(resultado.rows);
+    return res.json(resultado.rows);
   } catch (error) {
     console.error("Error al obtener categorías:", error.message);
-    res.status(500).json({ error: "Error al obtener las categorías." });
+    return res.status(500).json({ error: "Error al obtener las categorías." });
   }
 };
 
@@ -76,23 +84,27 @@ export const actualizarCategoria = async (req, res) => {
   const { id_usuario, id_empresa } = req.usuario;
 
   if (!id_empresa) {
-    return res.status(400).json({ error: "No se ha seleccionado una empresa activa." });
+    return res
+      .status(400)
+      .json({ error: "No se ha seleccionado una empresa activa." });
   }
 
   if (!nombre || !String(nombre).trim()) {
-    return res.status(400).json({ error: "El nombre de la categoría es obligatorio." });
+    return res
+      .status(400)
+      .json({ error: "El nombre de la categoría es obligatorio." });
   }
 
   const nombreLimpio = String(nombre).trim();
 
   try {
     const duplicada = await pool.query(
-      `SELECT 1 FROM categorias
+      `SELECT 1 FROM public.categorias
        WHERE LOWER(nombre) = LOWER($1)
          AND id_empresa = $2
          AND id_categoria <> $3
        LIMIT 1`,
-      [nombreLimpio, id_empresa, id],
+      [nombreLimpio, id_empresa, id]
     );
 
     if (duplicada.rows.length > 0) {
@@ -102,11 +114,16 @@ export const actualizarCategoria = async (req, res) => {
     }
 
     const resultado = await pool.query(
-      `UPDATE categorias
+      `UPDATE public.categorias
        SET nombre = $1, descripcion = $2
        WHERE id_categoria = $3 AND id_empresa = $4
        RETURNING *`,
-      [nombreLimpio, descripcion ? String(descripcion).trim() : null, id, id_empresa],
+      [
+        nombreLimpio,
+        descripcion ? String(descripcion).trim() : null,
+        id,
+        id_empresa,
+      ]
     );
 
     if (resultado.rows.length === 0) {
@@ -120,16 +137,16 @@ export const actualizarCategoria = async (req, res) => {
       "categorias",
       "ACTUALIZAR",
       resultado.rows[0].id_categoria,
-      `Categoría actualizada: ${nombreLimpio}`,
+      `Categoría actualizada: ${nombreLimpio}`
     );
 
-    res.json({
+    return res.json({
       mensaje: "Categoría actualizada con éxito.",
       categoria: resultado.rows[0],
     });
   } catch (error) {
     console.error("Error al actualizar categoría:", error.message);
-    res.status(500).json({ error: "Error al actualizar la categoría." });
+    return res.status(500).json({ error: "Error al actualizar la categoría." });
   }
 };
 
@@ -138,26 +155,29 @@ export const eliminarCategoria = async (req, res) => {
   const { id_usuario, id_empresa } = req.usuario;
 
   if (!id_empresa) {
-    return res.status(400).json({ error: "No se ha seleccionado una empresa activa." });
+    return res
+      .status(400)
+      .json({ error: "No se ha seleccionado una empresa activa." });
   }
 
   try {
     const productosAsociados = await pool.query(
-      "SELECT 1 FROM productos WHERE id_categoria = $1 AND id_empresa = $2 LIMIT 1",
-      [id, id_empresa],
+      "SELECT 1 FROM public.productos WHERE id_categoria = $1 AND id_empresa = $2 LIMIT 1",
+      [id, id_empresa]
     );
 
     if (productosAsociados.rows.length > 0) {
       return res.status(400).json({
-        error: "No puedes eliminar esta categoría porque tiene productos asociados.",
+        error:
+          "No puedes eliminar esta categoría porque tiene productos asociados.",
       });
     }
 
     const eliminada = await pool.query(
-      `DELETE FROM categorias
+      `DELETE FROM public.categorias
        WHERE id_categoria = $1 AND id_empresa = $2
        RETURNING id_categoria, nombre`,
-      [id, id_empresa],
+      [id, id_empresa]
     );
 
     if (eliminada.rows.length === 0) {
@@ -171,17 +191,18 @@ export const eliminarCategoria = async (req, res) => {
       "categorias",
       "ELIMINAR",
       eliminada.rows[0].id_categoria,
-      `Categoría eliminada: ${eliminada.rows[0].nombre}`,
+      `Categoría eliminada: ${eliminada.rows[0].nombre}`
     );
 
-    res.json({ mensaje: "Categoría eliminada con éxito." });
+    return res.json({ mensaje: "Categoría eliminada con éxito." });
   } catch (error) {
     if (error.code === "23503") {
       return res.status(400).json({
-        error: "No puedes eliminar esta categoría porque está en uso por productos.",
+        error:
+          "No puedes eliminar esta categoría porque está en uso por productos.",
       });
     }
     console.error("Error al eliminar categoría:", error.message);
-    res.status(500).json({ error: "Error al eliminar la categoría." });
+    return res.status(500).json({ error: "Error al eliminar la categoría." });
   }
 };

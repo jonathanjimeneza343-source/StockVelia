@@ -18,7 +18,6 @@
   position: relative;
 }
 
-/* Insignia fija cuando hay una sola empresa */
 .badge-empresa-unica {
   display: flex;
   align-items: center;
@@ -34,12 +33,9 @@
   font-family: "Poppins", sans-serif;
   font-size: 1.05rem;
   font-weight: 700;
-  color: #5e059e;
+  color: var(--color-primario, #5e059e) / var(--color-primario-hover, #4a0a77);
 }
 
-/* =========================================
-   MENÚ DESPLEGABLE PERSONALIZADO
-========================================= */
 .dropdown-container {
   position: relative;
   display: inline-block;
@@ -67,18 +63,18 @@
 .selector-empresa-icon-container {
   display: flex;
   align-items: center;
-  color: #5e059e;
+  color: var(--color-primario, #5e059e) / var(--color-primario-hover, #4a0a77);
 }
 
 .texto-empresa-activo {
   font-family: "Poppins", sans-serif;
   font-size: 1.05rem;
   font-weight: 700;
-  color: #5e059e;
+  color: var(--color-primario, #5e059e) / var(--color-primario-hover, #4a0a77);
 }
 
 .icono-flecha {
-  color: #5e059e;
+  color: var(--color-primario, #5e059e) / var(--color-primario-hover, #4a0a77);
   transition: transform 0.2s ease;
 }
 
@@ -86,7 +82,6 @@
   transform: rotate(180deg);
 }
 
-/* Ventana flotante más ancha y limpia */
 .dropdown-menu-custom {
   position: absolute;
   top: calc(100% + 8px);
@@ -141,12 +136,12 @@
 
 .dropdown-item.activo {
   background: #f3e8ff;
-  color: #5e059e;
+  color: var(--color-primario, #5e059e) / var(--color-primario-hover, #4a0a77);
   font-weight: 700;
 }
 
 .icono-check {
-  color: #5e059e;
+  color: var(--color-primario, #5e059e) / var(--color-primario-hover, #4a0a77);
 }
 
 .dropdown-divider {
@@ -156,7 +151,7 @@
 }
 
 .opcion-nueva-custom {
-  color: #5e059e;
+  color: var(--color-primario, #5e059e) / var(--color-primario-hover, #4a0a77);
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -204,18 +199,23 @@
   height: 46px;
   border-radius: 50%;
   background: linear-gradient(135deg, #5e059e, #ba61fa);
-  color: white;
+  color: var(--color-primario, #5e059e) / var(--color-primario-hover, #4a0a77);
   font-weight: 700;
   font-size: 1.1rem;
   display: flex;
   justify-content: center;
   align-items: center;
   box-shadow: 0 4px 10px rgba(94, 5, 158, 0.25);
+  overflow: hidden;
 }
 
-/* =========================================
-   MODAL DE NUEVA EMPRESA
-========================================= */
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -343,7 +343,7 @@
 
 .btn-guardar {
   background: linear-gradient(135deg, #5e059e, #ba61fa);
-  color: white;
+  color: var(--color-primario, #5e059e) / var(--color-primario-hover, #4a0a77);
   border: none;
   padding: 10px 20px;
   border-radius: 8px;
