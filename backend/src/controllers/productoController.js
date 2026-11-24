@@ -74,13 +74,17 @@ export const crearProducto = async (req, res) => {
     }
 
     const productoExiste = await pool.query(
-      "SELECT 1 FROM public.productos WHERE LOWER(codigo) = LOWER($1) AND id_empresa = $2 LIMIT 1",
+      `SELECT 1 FROM public.productos
+       WHERE LOWER(codigo) = LOWER($1)
+         AND id_empresa = $2
+         AND UPPER(COALESCE(estado, 'ACTIVO')) = 'ACTIVO'
+       LIMIT 1`,
       [codigoLimpio, id_empresa]
     );
     if (productoExiste.rows.length > 0) {
       return res.status(400).json({
         error:
-          "El código de barras o SKU ya está registrado en tu empresa.",
+          "El código de barras o SKU ya está registrado en un producto activo de tu empresa.",
       });
     }
 
@@ -209,13 +213,14 @@ export const actualizarProducto = async (req, res) => {
        WHERE LOWER(codigo) = LOWER($1)
          AND id_empresa = $2
          AND id_producto <> $3
+         AND UPPER(COALESCE(estado, 'ACTIVO')) = 'ACTIVO'
        LIMIT 1`,
       [codigoLimpio, id_empresa, id]
     );
     if (codigoDuplicado.rows.length > 0) {
       return res.status(400).json({
         error:
-          "El código de barras o SKU ya está registrado en otro producto de tu empresa.",
+          "El código de barras o SKU ya está registrado en otro producto activo de tu empresa.",
       });
     }
 

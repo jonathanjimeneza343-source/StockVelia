@@ -8,9 +8,8 @@ const emailPass = process.env.EMAIL_PASS?.replace(/\s+/g, "");
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  family: 4,
+  port: 465,
+  secure: true,
   auth: emailUser && emailPass ? { user: emailUser, pass: emailPass } : undefined,
 });
 
