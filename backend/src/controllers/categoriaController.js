@@ -162,14 +162,18 @@ export const eliminarCategoria = async (req, res) => {
 
   try {
     const productosAsociados = await pool.query(
-      "SELECT 1 FROM public.productos WHERE id_categoria = $1 AND id_empresa = $2 LIMIT 1",
+      `SELECT 1 FROM public.productos
+       WHERE id_categoria = $1
+         AND id_empresa = $2
+         AND UPPER(COALESCE(estado, 'ACTIVO')) = 'ACTIVO'
+       LIMIT 1`,
       [id, id_empresa]
     );
 
     if (productosAsociados.rows.length > 0) {
       return res.status(400).json({
         error:
-          "No puedes eliminar esta categoría porque tiene productos asociados.",
+          "No puedes eliminar esta categoría porque tiene productos activos asociados.",
       });
     }
 
@@ -199,7 +203,7 @@ export const eliminarCategoria = async (req, res) => {
     if (error.code === "23503") {
       return res.status(400).json({
         error:
-          "No puedes eliminar esta categoría porque está en uso por productos.",
+          "No puedes eliminar esta categoría porque tiene registros asociados en el historial o inventario.",
       });
     }
     console.error("Error al eliminar categoría:", error.message);
